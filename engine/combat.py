@@ -150,3 +150,4 @@ def resolve_combat(
         cur_attackers[UnitType.SCOUT] = 0
 
     return cur_defenders, cur_attackers
+

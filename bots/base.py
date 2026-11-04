@@ -104,3 +104,4 @@ class BotBase(ABC):
                         dist[(i, j)] = dist[(i, k)] + dist[(k, j)]
 
         self._graph_cache = dist
+

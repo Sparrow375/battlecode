@@ -210,3 +210,4 @@ def generate_player_observation(
         my_fleets=my_fleets,
         enemy_fleets=enemy_fleets
     )
+

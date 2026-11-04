@@ -40,3 +40,4 @@ def export_replay_to_json(
         json.dump(replay_data, f, indent=2)
 
     return output_path
+

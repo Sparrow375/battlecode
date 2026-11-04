@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Node War - Esports Spectator Arena</title>
+  <title>Node War // Esports Spectator & Match Arena</title>
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
   <div class="app-container">
@@ -27,13 +27,13 @@
       </div>
 
       <div class="match-center-hud">
-        <div class="game-title">NODE WAR // SPECTATOR ARENA</div>
+        <div class="game-title">NODE WAR // ESPORTS ARENA</div>
         <div class="turn-counter">TURN <span id="current-turn">1</span> / <span id="max-turn">120</span></div>
         <div class="relic-badge" id="relic-status">RELIC DORMANT (ACTIVATES TURN 95)</div>
         <div class="view-mode-toggle">
-          <button class="view-btn active" data-mode="spectator">Spectator (All)</button>
-          <button class="view-btn" data-mode="p1">P1 View</button>
-          <button class="view-btn" data-mode="p2">P2 View</button>
+          <button class="view-btn active" data-mode="spectator" title="Audience Omniscient View">Spectator (All)</button>
+          <button class="view-btn" data-mode="p1" title="Player 1 Fog-of-War">P1 View</button>
+          <button class="view-btn" data-mode="p2" title="Player 2 Fog-of-War">P2 View</button>
         </div>
       </div>
 
@@ -53,49 +53,155 @@
 
     <!-- Main Content Grid -->
     <div class="arena-grid">
-      <!-- Left Panel: Battle Launcher & Replays -->
+      <!-- Left Panel: Navigation Tabs & Control Center -->
       <aside class="panel left-panel">
-        <div class="panel-section">
-          <h3>Launch Live Battle</h3>
-          <div class="form-group">
-            <label>Player 1 (Cyan):</label>
-            <select id="select-p1">
-              <option value="rusher" selected>Rusher Bot</option>
-              <option value="turtle">Turtle Bot</option>
-              <option value="balanced">Balanced (Scout) Bot</option>
-              <option value="starter">Starter Bot</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Player 2 (Crimson):</label>
-            <select id="select-p2">
-              <option value="rusher">Rusher Bot</option>
-              <option value="turtle" selected>Turtle Bot</option>
-              <option value="balanced">Balanced (Scout) Bot</option>
-              <option value="starter">Starter Bot</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Max Turns:</label>
-            <input type="number" id="input-turns" value="120" min="20" max="200" step="10">
-          </div>
-          <button id="btn-run-match" class="action-btn glow-btn">SIMULATE BATTLE</button>
+        <div class="tabs-nav">
+          <button class="tab-btn active" data-tab="tab-match">1v1 Arena</button>
+          <button class="tab-btn" data-tab="tab-tournament">Matrix</button>
+          <button class="tab-btn" data-tab="tab-playground">Bot Lab</button>
+          <button class="tab-btn" data-tab="tab-replays">Replays</button>
         </div>
 
-        <div class="panel-section">
-          <h3>Replay Library</h3>
-          <select id="replay-dropdown" class="replay-select">
-            <option value="">Loading replays...</option>
-          </select>
-          <button id="btn-load-replay" class="secondary-btn">Load Replay</button>
+        <!-- TAB 1: 1v1 MATCH RUNNER -->
+        <div id="tab-match" class="tab-content active">
+          <div class="panel-section">
+            <h3>Match Setup</h3>
+            <div class="form-group">
+              <label>Player 1 (Cyan):</label>
+              <select id="select-p1">
+                <option value="rusher" selected>Rusher Bot</option>
+                <option value="turtle">Turtle Bot</option>
+                <option value="balanced">Balanced (Scout) Bot</option>
+                <option value="starter">Starter Bot</option>
+                <option value="custom">Custom Lab Bot</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Player 2 (Crimson):</label>
+              <select id="select-p2">
+                <option value="rusher">Rusher Bot</option>
+                <option value="turtle" selected>Turtle Bot</option>
+                <option value="balanced">Balanced (Scout) Bot</option>
+                <option value="starter">Starter Bot</option>
+                <option value="custom">Custom Lab Bot</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Preset Mode:</label>
+              <select id="select-preset">
+                <option value="standard" selected>Tournament Standard (120T, 30C, Relic T95)</option>
+                <option value="blitz">Blitz Match (60T, 40C, Relic T40)</option>
+                <option value="marathon">Marathon Siege (160T, 20C, Relic T130)</option>
+                <option value="custom">Custom Configuration</option>
+              </select>
+            </div>
+
+            <div id="custom-config-fields" class="custom-config-fields hidden">
+              <div class="form-row">
+                <div>
+                  <label>Max Turns:</label>
+                  <input type="number" id="input-turns" value="120" min="20" max="250" step="10">
+                </div>
+                <div>
+                  <label>Initial Credits:</label>
+                  <input type="number" id="input-credits" value="30" min="10" max="150" step="5">
+                </div>
+              </div>
+              <div class="form-row">
+                <div>
+                  <label>Relic Turn:</label>
+                  <input type="number" id="input-relic-turn" value="95" min="10" max="200" step="5">
+                </div>
+                <div>
+                  <label>Relic Pts/T:</label>
+                  <input type="number" id="input-relic-pts" value="15" min="5" max="50" step="5">
+                </div>
+              </div>
+            </div>
+
+            <button id="btn-run-match" class="action-btn glow-btn">SIMULATE &amp; PLAY</button>
+          </div>
+
+          <div class="panel-section rps-guide">
+            <h3>Combat Triangle</h3>
+            <div class="triangle-row"><span class="badge raider">RAIDER (10)</span> &gt; <span class="badge siege">SIEGE</span> (2x)</div>
+            <div class="triangle-row"><span class="badge siege">SIEGE (18)</span> &gt; <span class="badge guard">GUARD</span> (2x)</div>
+            <div class="triangle-row"><span class="badge guard">GUARD (12)</span> &gt; <span class="badge raider">RAIDER</span> (2x)</div>
+            <div class="triangle-row"><span class="badge scout">SCOUT (6)</span> Vision &amp; Intel</div>
+          </div>
         </div>
 
-        <div class="panel-section rps-guide">
-          <h3>Combat Triangle</h3>
-          <div class="triangle-row"><span class="badge raider">RAIDER (10)</span> &gt; <span class="badge siege">SIEGE</span> (2x)</div>
-          <div class="triangle-row"><span class="badge siege">SIEGE (18)</span> &gt; <span class="badge guard">GUARD</span> (2x)</div>
-          <div class="triangle-row"><span class="badge guard">GUARD (12)</span> &gt; <span class="badge raider">RAIDER</span> (2x)</div>
-          <div class="triangle-row"><span class="badge scout">SCOUT (6)</span> Vision &amp; Intel</div>
+        <!-- TAB 2: BALANCE TOURNAMENT MATRIX -->
+        <div id="tab-tournament" class="tab-content">
+          <div class="panel-section">
+            <h3>Matrix Evaluator</h3>
+            <p class="muted-small">Runs a round-robin tournament between Rusher, Turtle, and Balanced across alternating sides to test the RPS strategy cycle.</p>
+            <div class="form-group" style="margin-top:10px;">
+              <label>Rounds Per Pair (Total = Rounds &times; 2):</label>
+              <select id="select-tournament-rounds">
+                <option value="5">5 Rounds (10 Matches)</option>
+                <option value="10" selected>10 Rounds (20 Matches)</option>
+                <option value="25">25 Rounds (50 Matches)</option>
+              </select>
+            </div>
+            <button id="btn-run-tournament" class="action-btn">RUN BALANCE MATRIX</button>
+          </div>
+
+          <div id="tournament-results-card" class="panel-section hidden">
+            <h3>Matrix Results</h3>
+            <div id="tournament-matrix-view" class="matrix-view"></div>
+          </div>
+        </div>
+
+        <!-- TAB 3: CUSTOM BOT LAB -->
+        <div id="tab-playground" class="tab-content">
+          <div class="panel-section">
+            <h3>Custom Bot Playground</h3>
+            <p class="muted-small">Paste or edit Python code below. Select "Custom Lab Bot" in match setup to compete!</p>
+            <textarea id="custom-bot-editor" class="code-editor" spellcheck="false">from engine.models import UnitType
+from engine.fog import BotObservation
+from bots.base import BotBase
+
+class MyCustomBot(BotBase):
+    def act(self, obs: BotObservation):
+        orders = []
+        my_nodes = self.get_my_nodes(obs)
+        if not my_nodes:
+            return orders
+
+        # Train raiders or guards
+        home_id = 0 if self.player_id == 1 else 14
+        home = next((n for n in my_nodes if n.id == home_id), my_nodes[0])
+        if obs.my_credits >= 12:
+            orders.append(self.train(home.id, UnitType.GUARD, 1))
+
+        # Push neutral nodes
+        neutrals = self.get_neutral_nodes(obs)
+        if neutrals and home.units.get("guard", 0) >= 3:
+            path = self.get_path(obs, home.id, neutrals[0].id)
+            if len(path) >= 2:
+                orders.append(self.move(home.id, path[1], {UnitType.GUARD: 2}))
+
+        return orders
+</textarea>
+            <div class="bot-lab-buttons">
+              <button class="lab-btn" data-opponent="rusher">Battle Rusher</button>
+              <button class="lab-btn" data-opponent="turtle">Battle Turtle</button>
+              <button class="lab-btn" data-opponent="balanced">Battle Balanced</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 4: REPLAY VAULT -->
+        <div id="tab-replays" class="tab-content">
+          <div class="panel-section">
+            <h3>Saved Replay Library</h3>
+            <div id="replay-vault-list" class="replay-vault-list">
+              <div class="muted">Loading saved replays...</div>
+            </div>
+            <button id="btn-refresh-replays" class="secondary-btn">Refresh Replays</button>
+          </div>
         </div>
       </aside>
 
@@ -103,6 +209,11 @@
       <main class="canvas-viewport">
         <canvas id="game-canvas"></canvas>
         <div id="combat-banner" class="combat-banner hidden"></div>
+        <div class="quick-nav-overlay">
+          <button id="btn-jump-relic" class="quick-nav-btn" title="Jump to Relic Phase">&#9889; Relic (T95)</button>
+          <button id="btn-jump-clash" class="quick-nav-btn" title="Jump to Next Battle">&#9876; Next Battle</button>
+          <button id="btn-jump-end" class="quick-nav-btn" title="Jump to Match Finish">&#9209; Finish</button>
+        </div>
       </main>
 
       <!-- Right Panel: Node Inspector & Battle Feed -->
@@ -115,9 +226,9 @@
         </div>
 
         <div class="panel-section flex-grow">
-          <h3>Event Log</h3>
+          <h3>Live Battle Feed</h3>
           <div id="event-feed" class="event-feed">
-            <div class="feed-item system">Arena initialized. Select a match to begin playback.</div>
+            <div class="feed-item system">Esports Arena ready. Select or simulate a match.</div>
           </div>
         </div>
       </aside>
@@ -136,8 +247,8 @@
         <input type="range" id="timeline-scrubber" min="1" max="120" value="1" class="scrubber">
         <div class="scrubber-markers">
           <span class="marker" style="left: 0%;">Turn 1</span>
-          <span class="marker relic-marker" style="left: 79%;">Turn 95 (Relic)</span>
-          <span class="marker" style="left: 100%;">Turn 120</span>
+          <span class="marker relic-marker" id="scrubber-relic-marker" style="left: 79%;">Turn 95 (Relic)</span>
+          <span class="marker" id="scrubber-end-marker" style="left: 100%;">Turn 120</span>
         </div>
       </div>
 
@@ -146,6 +257,7 @@
         <button class="speed-btn active" data-speed="250">1x</button>
         <button class="speed-btn" data-speed="100">2x</button>
         <button class="speed-btn" data-speed="30">5x</button>
+        <button class="speed-btn" data-speed="5">Max</button>
       </div>
     </footer>
   </div>

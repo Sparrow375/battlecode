@@ -15,6 +15,7 @@ The audience watches matches through a spectator visualizer showing full omnisci
 ## Project Structure
 ```
 f:\Avaneesh\projects\battlecode\
+├── serve.py              # Root launcher alias for the web spectator arena
 ├── engine/
 │   ├── __init__.py
 │   ├── models.py         # PlayerId, UnitType, Fleet, Node, Lane, GameConfig dataclasses
@@ -35,10 +36,10 @@ f:\Avaneesh\projects\battlecode\
 │   ├── tournament.py     # Pairwise tournament evaluator & balance matrix verifier
 │   └── replay.py         # Replay serialization
 ├── web/
-│   ├── index.html        # Modern esports spectator UI
+│   ├── index.html        # Modern esports spectator UI with 1v1, Matrix, Lab & Vault tabs
 │   ├── style.css         # Dark cyberpunk styling with neon player accents
 │   ├── visualizer.js     # Canvas renderer with smooth fleet interpolation & particle sparks
-│   └── serve.py          # Local HTTP server with live simulation endpoints
+│   └── serve.py          # Local HTTP server with live simulation & tournament endpoints
 ├── tests/
 │   ├── test_engine.py    # Unit tests for combat, symmetry, upkeep, capture, fog
 │   ├── test_bots.py      # Integration tests for bots running full games
@@ -48,10 +49,11 @@ f:\Avaneesh\projects\battlecode\
 ```
 
 ## Current Status & Verification
-- Engine core, rules, and RPS triangle completed and verified with 12 unit and integration tests.
-- Baseline bots form a verified rock-paper-scissors strategic dynamic:
-  - **Rusher** beats **Balanced** (100% win rate)
-  - **Balanced** beats **Turtle** (100% win rate)
-  - **Turtle** beats **Rusher** (100% win rate)
-- Interactive web spectator arena and HTTP runner server running at `http://localhost:8000`.
-- All tests passing.
+- `sys.path` import issue resolved in `web/serve.py`; root `serve.py` convenience script added.
+- Web Spectator Arena upgraded with full match controls:
+  - 1v1 Match Setup with presets (Standard, Blitz, Marathon, Custom).
+  - Web Tournament Matrix Evaluator with dynamic win rate bars.
+  - Interactive Custom Bot Playground with live browser-based code compilation.
+  - Replay Vault with load & refresh capabilities.
+  - In-match quick navigation (Relic jump, Clash jump, Finish jump).
+- All 13 unit, integration, and HTTP API tests passing.

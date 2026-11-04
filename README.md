@@ -123,3 +123,4 @@ For a 32-team single elimination event:
 1. **Match Structure**: Best-of-3 series with alternating starting sides (P1/P2) and a randomized neutral third map.
 2. **Execution Sandboxing**: `runner/match.py` enforces per-turn timeouts (e.g. 50ms) and isolates exceptions.
 3. **Audience Engagement**: Spectator mode provides omniscient commentary feeds, displaying fleet ambushes before bots detect them.
+

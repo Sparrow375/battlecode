@@ -10,7 +10,8 @@ import socketserver
 class TestWebServer(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.test_port = 8089
+        cls.test_port = 8092
+        socketserver.TCPServer.allow_reuse_address = True
         cls.httpd = socketserver.TCPServer(("127.0.0.1", cls.test_port), NodeWarRequestHandler)
         cls.server_thread = threading.Thread(target=cls.httpd.serve_forever, daemon=True)
         cls.server_thread.start()
@@ -44,6 +45,15 @@ class TestWebServer(unittest.TestCase):
             data = json.loads(response.read().decode("utf-8"))
             self.assertIn("metadata", data)
             self.assertIn("frames", data)
+
+    def test_post_run_tournament(self):
+        url = f"http://127.0.0.1:{self.test_port}/api/run-tournament"
+        payload = json.dumps({"rounds": 2, "turns": 20}).encode("utf-8")
+        req = urllib.request.Request(url, data=payload, headers={"Content-Type": "application/json"})
+        with urllib.request.urlopen(req) as response:
+            self.assertEqual(response.status, 200)
+            data = json.loads(response.read().decode("utf-8"))
+            self.assertIn("tournament", data)
 
 if __name__ == "__main__":
     unittest.main()

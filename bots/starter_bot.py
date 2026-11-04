@@ -77,3 +77,4 @@ class StarterBot(BotBase):
                         orders.append(self.move(node.id, path[1], {UnitType.GUARD: 2}))
 
         return orders
+

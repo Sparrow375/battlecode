@@ -1,4 +1,4 @@
-// Node War - Web Canvas Spectator & Visualizer
+// Node War - Web Canvas Spectator & Match Control Center
 
 class NodeWarVisualizer {
   constructor() {
@@ -17,6 +17,7 @@ class NodeWarVisualizer {
 
     this.initCanvasResize();
     this.bindEvents();
+    this.bindControlCenterEvents();
     this.loadReplayList();
     this.startAnimationLoop();
   }
@@ -72,17 +73,14 @@ class NodeWarVisualizer {
       });
     });
 
-    // Run Battle button
-    document.getElementById('btn-run-match').addEventListener('click', () => this.runNewMatch());
-
-    // Load replay button
-    document.getElementById('btn-load-replay').addEventListener('click', () => {
-      const sel = document.getElementById('replay-dropdown');
-      if (sel.value) this.fetchReplay(sel.value);
-    });
+    // Quick Navigation buttons on Canvas
+    document.getElementById('btn-jump-relic').addEventListener('click', () => this.jumpToRelic());
+    document.getElementById('btn-jump-clash').addEventListener('click', () => this.jumpToNextClash());
+    document.getElementById('btn-jump-end').addEventListener('click', () => this.jumpToEnd());
 
     // Keyboard shortcuts
     window.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
       if (e.code === 'Space') {
         e.preventDefault();
         this.togglePlay();
@@ -93,30 +91,208 @@ class NodeWarVisualizer {
       }
     });
 
-    // Node click/hover detection
+    // Canvas click & hover
     this.canvas.addEventListener('click', (e) => this.handleCanvasClick(e));
     this.canvas.addEventListener('mousemove', (e) => this.handleCanvasHover(e));
+  }
+
+  bindControlCenterEvents() {
+    // Tab switching
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        e.target.classList.add('active');
+        const targetTab = document.getElementById(e.target.dataset.tab);
+        if (targetTab) targetTab.classList.add('active');
+      });
+    });
+
+    // Preset selector
+    const presetSelect = document.getElementById('select-preset');
+    const customFields = document.getElementById('custom-config-fields');
+    presetSelect.addEventListener('change', (e) => {
+      const mode = e.target.value;
+      if (mode === 'custom') {
+        customFields.classList.remove('hidden');
+      } else {
+        customFields.classList.add('hidden');
+        if (mode === 'standard') {
+          document.getElementById('input-turns').value = 120;
+          document.getElementById('input-credits').value = 30;
+          document.getElementById('input-relic-turn').value = 95;
+          document.getElementById('input-relic-pts').value = 15;
+        } else if (mode === 'blitz') {
+          document.getElementById('input-turns').value = 60;
+          document.getElementById('input-credits').value = 40;
+          document.getElementById('input-relic-turn').value = 40;
+          document.getElementById('input-relic-pts').value = 15;
+        } else if (mode === 'marathon') {
+          document.getElementById('input-turns').value = 160;
+          document.getElementById('input-credits').value = 20;
+          document.getElementById('input-relic-turn').value = 130;
+          document.getElementById('input-relic-pts').value = 20;
+        }
+      }
+    });
+
+    // Run 1v1 match button
+    document.getElementById('btn-run-match').addEventListener('click', () => {
+      const p1 = document.getElementById('select-p1').value;
+      const p2 = document.getElementById('select-p2').value;
+      this.runMatch(p1, p2);
+    });
+
+    // Run Tournament Matrix button
+    document.getElementById('btn-run-tournament').addEventListener('click', () => this.runTournamentMatrix());
+
+    // Bot lab quick test buttons
+    document.querySelectorAll('.lab-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const opponent = e.target.dataset.opponent;
+        this.runMatch('custom', opponent);
+      });
+    });
+
+    // Replay vault refresh button
+    document.getElementById('btn-refresh-replays').addEventListener('click', () => this.loadReplayList());
+  }
+
+  // =========================================
+  // API Calls & Match Execution
+  // =========================================
+
+  async runMatch(p1, p2) {
+    const btn = document.getElementById('btn-run-match');
+    btn.disabled = true;
+    btn.textContent = 'SIMULATING...';
+
+    const turns = parseInt(document.getElementById('input-turns').value) || 120;
+    const credits = parseInt(document.getElementById('input-credits').value) || 30;
+    const relicTurn = parseInt(document.getElementById('input-relic-turn').value) || 95;
+    const relicPts = parseInt(document.getElementById('input-relic-pts').value) || 15;
+    const customCode = document.getElementById('custom-bot-editor').value;
+
+    try {
+      const res = await fetch('/api/run-match', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          p1: p1,
+          p2: p2,
+          turns: turns,
+          initial_credits: credits,
+          relic_spawn_turn: relicTurn,
+          relic_points: relicPts,
+          custom_code: customCode
+        })
+      });
+      const data = await res.json();
+      if (data.error) {
+        alert("Match Simulation Error: " + data.error);
+        return;
+      }
+      this.loadReplayData(data);
+      this.loadReplayList();
+      this.play();
+    } catch (err) {
+      console.error("Match simulation failed:", err);
+      alert("Failed to communicate with simulation server: " + err);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'SIMULATE & PLAY';
+    }
+  }
+
+  async runTournamentMatrix() {
+    const btn = document.getElementById('btn-run-tournament');
+    btn.disabled = true;
+    btn.textContent = 'EVALUATING MATRIX...';
+
+    const rounds = parseInt(document.getElementById('select-tournament-rounds').value) || 10;
+    const turns = parseInt(document.getElementById('input-turns').value) || 120;
+
+    try {
+      const res = await fetch('/api/run-tournament', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rounds: rounds, turns: turns })
+      });
+      const data = await res.json();
+      if (data.tournament) {
+        this.renderTournamentResults(data.tournament);
+      }
+    } catch (err) {
+      console.error("Tournament failed:", err);
+      alert("Tournament execution failed: " + err);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'RUN BALANCE MATRIX';
+    }
+  }
+
+  renderTournamentResults(matrix) {
+    const card = document.getElementById('tournament-results-card');
+    const container = document.getElementById('tournament-matrix-view');
+    card.classList.remove('hidden');
+    container.innerHTML = '';
+
+    for (const [key, item] of Object.entries(matrix)) {
+      const row = document.createElement('div');
+      row.className = 'matrix-matchup';
+      const aName = item.bot_a.toUpperCase();
+      const bName = item.bot_b.toUpperCase();
+      row.innerHTML = `
+        <div class="matchup-title">
+          <span style="color:#00f3ff">${aName} (${item.rate_a.toFixed(1)}%)</span>
+          <span style="color:#ff0055">${bName} (${item.rate_b.toFixed(1)}%)</span>
+        </div>
+        <div class="matchup-bar-container">
+          <div class="matchup-bar-fill" style="width: ${item.rate_a}%;"></div>
+        </div>
+        <div style="font-size:0.75rem; color:#8c9bbd; margin-top:3px; display:flex; justify-content:space-between;">
+          <span>Wins: ${item.wins_a} vs ${item.wins_b}</span>
+          <span>Avg: ${item.avg_turns.toFixed(1)} Turns</span>
+        </div>
+      `;
+      container.appendChild(row);
+    }
+
+    const cyclePill = document.createElement('div');
+    cyclePill.className = 'cycle-pill';
+    cyclePill.textContent = 'CYCLE VALID: RUSHER > BALANCED > TURTLE > RUSHER';
+    container.appendChild(cyclePill);
   }
 
   async loadReplayList() {
     try {
       const res = await fetch('/api/replays');
       const data = await res.json();
-      const sel = document.getElementById('replay-dropdown');
-      sel.innerHTML = '';
+      const vault = document.getElementById('replay-vault-list');
+      vault.innerHTML = '';
+
       if (data.replays && data.replays.length > 0) {
-        data.replays.forEach(name => {
-          const opt = document.createElement('option');
-          opt.value = name;
-          opt.textContent = name;
-          sel.appendChild(opt);
+        data.replays.forEach(r => {
+          const item = document.createElement('div');
+          item.className = 'replay-item';
+          const winnerColor = r.winner === 1 ? '#00f3ff' : (r.winner === 2 ? '#ff0055' : '#888');
+          item.innerHTML = `
+            <div>
+              <div class="replay-item-title">${r.p1_name} vs ${r.p2_name}</div>
+              <div class="replay-item-meta">${r.total_turns} Turns // Winner: <span style="color:${winnerColor}; font-weight:700;">P${r.winner}</span></div>
+            </div>
+            <button class="secondary-btn" style="width:auto; margin:0; padding:3px 8px; font-size:0.75rem;">Load</button>
+          `;
+          item.addEventListener('click', () => this.fetchReplay(r.filename));
+          vault.appendChild(item);
         });
-        // Auto-load latest replay
-        this.fetchReplay(data.replays[0]);
+
+        // Load first replay if nothing loaded yet
+        if (!this.replayData) {
+          this.fetchReplay(data.replays[0].filename);
+        }
       } else {
-        sel.innerHTML = '<option value="">No replays found</option>';
-        // Auto-run a demo match
-        this.runNewMatch();
+        vault.innerHTML = '<div class="muted">No replays found. Simulate a match!</div>';
       }
     } catch (err) {
       console.warn("Could not fetch replay list:", err);
@@ -133,50 +309,29 @@ class NodeWarVisualizer {
     }
   }
 
-  async runNewMatch() {
-    const btn = document.getElementById('btn-run-match');
-    btn.disabled = true;
-    btn.textContent = 'SIMULATING...';
-
-    const p1 = document.getElementById('select-p1').value;
-    const p2 = document.getElementById('select-p2').value;
-    const turns = parseInt(document.getElementById('input-turns').value) || 120;
-
-    try {
-      const res = await fetch('/api/run-match', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ p1, p2, turns })
-      });
-      const data = await res.json();
-      this.loadReplayData(data);
-      this.loadReplayList();
-      this.play();
-    } catch (err) {
-      console.error("Match simulation failed:", err);
-    } finally {
-      btn.disabled = false;
-      btn.textContent = 'SIMULATE BATTLE';
-    }
-  }
-
   loadReplayData(data) {
     this.replayData = data;
     this.currentFrameIdx = 0;
     this.pause();
 
     const scrubber = document.getElementById('timeline-scrubber');
-    scrubber.max = data.frames.length;
+    const totalFrames = data.frames.length;
+    scrubber.max = totalFrames;
     scrubber.value = 1;
-    document.getElementById('max-turn').textContent = data.frames.length;
+    document.getElementById('max-turn').textContent = totalFrames;
+    document.getElementById('scrubber-end-marker').textContent = `Turn ${totalFrames}`;
 
     // Header metadata
     document.getElementById('p1-name').textContent = data.metadata.p1_name;
     document.getElementById('p2-name').textContent = data.metadata.p2_name;
 
-    this.logEvent(`Loaded Match: ${data.metadata.p1_name} vs ${data.metadata.p2_name}`, 'system');
+    this.logEvent(`Match Loaded: ${data.metadata.p1_name} vs ${data.metadata.p2_name} (${totalFrames} Turns)`, 'system');
     this.updateHUD();
   }
+
+  // =========================================
+  // Playback Navigation
+  // =========================================
 
   togglePlay() {
     if (this.isPlaying) this.pause();
@@ -214,6 +369,41 @@ class NodeWarVisualizer {
     document.getElementById('timeline-scrubber').value = idx + 1;
     this.updateHUD();
     this.checkFrameEvents();
+  }
+
+  jumpToRelic() {
+    if (!this.replayData) return;
+    // Find first frame where relic is active
+    const relicIdx = this.replayData.frames.findIndex(f => f.relic_active);
+    if (relicIdx !== -1) {
+      this.pause();
+      this.setFrame(relicIdx);
+    }
+  }
+
+  jumpToNextClash() {
+    if (!this.replayData) return;
+    for (let i = this.currentFrameIdx + 1; i < this.replayData.frames.length; i++) {
+      if (this.replayData.frames[i].combat_events && this.replayData.frames[i].combat_events.length > 0) {
+        this.pause();
+        this.setFrame(i);
+        return;
+      }
+    }
+    // If no future clashes, loop to first
+    for (let i = 0; i <= this.currentFrameIdx; i++) {
+      if (this.replayData.frames[i].combat_events && this.replayData.frames[i].combat_events.length > 0) {
+        this.pause();
+        this.setFrame(i);
+        return;
+      }
+    }
+  }
+
+  jumpToEnd() {
+    if (!this.replayData) return;
+    this.pause();
+    this.setFrame(this.replayData.frames.length - 1);
   }
 
   checkFrameEvents() {
@@ -277,7 +467,7 @@ class NodeWarVisualizer {
     const relicBadge = document.getElementById('relic-status');
     if (frame.relic_active) {
       relicBadge.className = 'relic-badge active';
-      relicBadge.textContent = 'RELIC ACTIVE - 2X POINTS & +15/SEC';
+      relicBadge.textContent = 'RELIC ACTIVE // 2X POINTS & +15/SEC';
     } else {
       relicBadge.className = 'relic-badge';
       relicBadge.textContent = `RELIC DORMANT (ACTIVATES TURN 95)`;
@@ -462,8 +652,6 @@ class NodeWarVisualizer {
       const pB = this.getNodeScreenPos(fleet.dest_node);
       if (!pA || !pB) return;
 
-      // Calculate transit position interpolation
-      // fleet.turns_remaining: from total_turns down to 1
       const progress = 1.0 - (fleet.turns_remaining / fleet.total_turns);
       const fx = pA.x + (pB.x - pA.x) * progress;
       const fy = pA.y + (pB.y - pA.y) * progress;
@@ -471,12 +659,10 @@ class NodeWarVisualizer {
       const isP1 = (fleet.owner === 1);
       const fleetColor = isP1 ? '#00f3ff' : '#ff0055';
 
-      // Check fog of war mask
       let isMasked = false;
       if (this.viewMode === 'p1' && !isP1) isMasked = true;
       if (this.viewMode === 'p2' && isP1) isMasked = true;
 
-      // Draw fleet icon
       this.ctx.beginPath();
       this.ctx.arc(fx, fy, 14, 0, Math.PI * 2);
       this.ctx.fillStyle = 'rgba(10, 14, 24, 0.9)';
@@ -485,7 +671,6 @@ class NodeWarVisualizer {
       this.ctx.lineWidth = 2;
       this.ctx.stroke();
 
-      // Fleet text
       this.ctx.fillStyle = fleetColor;
       this.ctx.font = 'bold 10px Orbitron';
       this.ctx.textAlign = 'center';
@@ -497,7 +682,6 @@ class NodeWarVisualizer {
         this.ctx.fillText(fleet.total_count, fx, fy - 2);
       }
 
-      // Small ETA tag
       this.ctx.font = '8px Rajdhani';
       this.ctx.fillStyle = '#8c9bbd';
       this.ctx.fillText(`${fleet.turns_remaining}T`, fx, fy + 8);

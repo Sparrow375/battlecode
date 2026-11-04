@@ -83,4 +83,6 @@ flowchart TD
 
 4. **`web/`**:
    - Web-based spectator frontend displaying interactive nodes, glowing lanes, traveling fleet badges, combat clash animations, spectator vs player view toggle, timeline scrubber, and real-time scoreboard.
+   - Match Control Center: 1v1 Arena match launcher with rule presets, interactive Tournament Matrix evaluator, Custom Bot Lab for live browser-based Python bot code compilation, and saved Replay Vault.
+   - `serve.py`: HTTP server with endpoints (`/api/replays`, `/api/replay/<id>`, `/api/run-match`, `/api/run-tournament`) with automated `sys.path` resolution. Supported via root `serve.py` alias.
 
