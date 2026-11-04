@@ -55,18 +55,19 @@ flowchart TD
 ## Core Modules & Structure
 
 1. **`engine/`**:
-   - `models.py`: Data classes for Nodes, Lanes, Fleets, Combat, Upkeep, Relic, and Orders.
-   - `map.py`: Symmetrical mirrored graph generator (~15 nodes, balanced paths, central relic node).
-   - `combat.py`: Deterministic RPS combat resolution with defender advantage and Lanchester-style attrition.
+   - `models.py`: Data classes for Nodes, Lanes, Fleets, Combat, Upkeep, Relic, and Orders. Tracks `resident_player` to distinguish stationed garrison troops from original node ownership during multi-turn captures.
+   - `map.py`: Symmetrical mirrored graph generator (15 nodes, balanced paths, central relic node at Node 7).
+   - `combat.py`: Deterministic RPS combat resolution with defender advantage (+25%) and Lanchester-style simultaneous damage.
    - `game.py`: Main state machine executing turn phases:
-     1. Resource Production
-     2. Upkeep Deduction
-     3. Fleet Movement & ETA
-     4. Scouting & Vision Resolution
-     5. Combat Resolution at Nodes & Lane Collisions
-     6. Two-Turn Node Capture Progress
-     7. Relic Spawning (Turns $\ge T - 25$) & Point Accumulation
-     8. Victory / Tiebreak Check
+     1. Resource Production (disabled for contested nodes under active capture)
+     2. Upkeep Deduction (1 credit/unit over free cap of 30)
+     3. Order Validation & Fleet Launch (recruitment suspended at contested nodes)
+     4. Fleet Movement & Lane Transit
+     5. Scouting & Vision Resolution
+     6. Combat Resolution at Nodes
+     7. Two-Turn Node Capture Progress (uncontested turns required to flip ownership)
+     8. Relic Spawning (Turns $\ge 95$) & Point Accumulation (+15 pts/turn + 2x multiplier)
+     9. Victory / Tiebreak Check (unambiguous composite score)
    - `fog.py`: Strips hidden fleet compositions from opponent observation while preserving omniscient state for spectator replays.
 
 2. **`bots/`**:
@@ -82,3 +83,4 @@ flowchart TD
 
 4. **`web/`**:
    - Web-based spectator frontend displaying interactive nodes, glowing lanes, traveling fleet badges, combat clash animations, spectator vs player view toggle, timeline scrubber, and real-time scoreboard.
+
