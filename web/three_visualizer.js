@@ -915,7 +915,8 @@ class NodeWarThreeVisualizer {
 
     if (frame.fleets) {
       frame.fleets.forEach(fleet => {
-        activeFleetIds.add(fleet.fleet_id);
+        const fid = (fleet.id !== undefined ? fleet.id : fleet.fleet_id);
+        activeFleetIds.add(fid);
         this.renderFleetSquad(fleet);
       });
     }
@@ -951,11 +952,12 @@ class NodeWarThreeVisualizer {
     const angle = Math.atan2(pB.x - pA.x, pB.z - pA.z);
 
     // Retrieve or create squad group
-    let squadGroup = this.fleetSquadGroups.get(fleet.fleet_id);
+    const fid = (fleet.id !== undefined ? fleet.id : fleet.fleet_id);
+    let squadGroup = this.fleetSquadGroups.get(fid);
     if (!squadGroup) {
       squadGroup = new THREE.Group();
       this.scene.add(squadGroup);
-      this.fleetSquadGroups.set(fleet.fleet_id, squadGroup);
+      this.fleetSquadGroups.set(fid, squadGroup);
     }
 
     // Reposition and orient squad

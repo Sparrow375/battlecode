@@ -48,3 +48,4 @@
 - [x] Task 46: Implement dynamic 2-soldier clashing/dueling animation (sword swings, shield recoil, slash FX, clash sparks) wherever battles take place.
 - [x] Task 47: Add interactive Pan & Zoom controls (mouse wheel zoom, drag-to-pan, on-screen `+` / `-` / `⟲` buttons) to the 2D Tower Defense visualizer.
 - [x] Task 48: Verification, test suite pass, update `context.md`, `architechture.md`, and commit/push to git.
+- [x] Task 49: Fix soldier travelling sprite invisibility: resolve NaN in walk cycle animation caused by undefined fleet_id reference, ensuring marching soldiers are fully visible alongside their shadows.

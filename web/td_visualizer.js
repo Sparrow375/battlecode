@@ -736,6 +736,7 @@ class NodeWarTDVisualizer {
 
       const isP1 = (fleet.owner === 1);
       const teamColor = isP1 ? '#00f3ff' : '#ff0055';
+      const fId = (fleet.id !== undefined ? fleet.id : (fleet.fleet_id || 0));
       const isMasked = (this.viewMode === 'p1' && !isP1) || (this.viewMode === 'p2' && isP1);
 
       // 1. Draw Animated Road Direction Chevrons (>> pointing to destination)
@@ -747,7 +748,7 @@ class NodeWarTDVisualizer {
       if (isMasked) {
         // --- Shrouded Unknown Silhouette ---
         const rogueImg = isP1 ? this.assets.rogue_p1 : this.assets.rogue_p2;
-        const walkBob = Math.sin(Date.now() * 0.015 + fleet.fleet_id) * 3;
+        const walkBob = Math.sin(Date.now() * 0.015 + fId) * 3;
         if (rogueImg) {
           this.ctx.save();
           this.ctx.filter = 'brightness(0.15) opacity(0.7)';
@@ -805,9 +806,11 @@ class NodeWarTDVisualizer {
         const maxDraw = Math.min(squadUnits.length, 6);
         for (let i = 0; i < maxDraw; i++) {
           const u = squadUnits[i];
-          const walkCycle = Math.sin(Date.now() * 0.018 + i * 1.2 + fleet.fleet_id);
+          const walkCycle = Math.sin(Date.now() * 0.018 + i * 1.2 + fId);
           const walkBob = walkCycle * 3.5;
           const walkTilt = (fwdX < 0 ? -1 : 1) * walkCycle * 0.08;
+          const bob = Number.isFinite(walkBob) ? walkBob : 0;
+          const tilt = Number.isFinite(walkTilt) ? walkTilt : 0;
 
           // Spread laterally across road and forward/backward
           const colOffset = ((i % 2) - 0.5) * 16;
@@ -834,17 +837,30 @@ class NodeWarTDVisualizer {
           if (fwdX < 0) {
             this.ctx.scale(-1, 1); // Flip horizontally so soldier faces left march direction!
           }
-          this.ctx.rotate(walkTilt);
+          this.ctx.rotate(tilt);
 
-          if (u.type === 'scout') {
-            // Eagle flying overhead
-            this.ctx.drawImage(u.img, -18, -36 + walkBob, 36, 36);
-          } else if (u.type === 'siege') {
-            // Cannon artillery rolling
-            this.ctx.drawImage(u.img, -22, -18 + walkBob * 0.4, 44, 36);
+          if (u.img) {
+            if (u.type === 'scout') {
+              // Eagle flying overhead
+              this.ctx.drawImage(u.img, -18, -36 + bob, 36, 36);
+            } else if (u.type === 'siege') {
+              // Cannon artillery rolling
+              this.ctx.drawImage(u.img, -22, -18 + bob * 0.4, 44, 36);
+            } else {
+              // Ground soldier marching
+              this.ctx.drawImage(u.img, -19, -19 + bob, 38, 38);
+            }
           } else {
-            // Ground soldier marching
-            this.ctx.drawImage(u.img, -19, -19 + walkBob, 38, 38);
+            // High-visibility fallback circle + emoji if image isn't loaded
+            this.ctx.fillStyle = teamColor;
+            this.ctx.beginPath();
+            this.ctx.arc(0, bob, 12, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.font = '12px sans-serif';
+            this.ctx.textAlign = 'center';
+            this.ctx.textBaseline = 'middle';
+            const icon = u.type === 'guard' ? '🛡️' : (u.type === 'raider' ? '🗡️' : (u.type === 'siege' ? '💣' : '🦅'));
+            this.ctx.fillText(icon, 0, bob);
           }
           this.ctx.restore();
         }
@@ -915,7 +931,8 @@ class NodeWarTDVisualizer {
   drawDestinationTarget(tx, ty, fleet) {
     const isP1 = (fleet.owner === 1);
     const color = isP1 ? '#00f3ff' : '#ff0055';
-    const pulse = 1.0 + Math.sin(Date.now() * 0.008 + fleet.fleet_id) * 0.15;
+    const fId = (fleet.id !== undefined ? fleet.id : (fleet.fleet_id || 0));
+    const pulse = 1.0 + Math.sin(Date.now() * 0.008 + fId) * 0.15;
 
     this.ctx.save();
     this.ctx.beginPath();
