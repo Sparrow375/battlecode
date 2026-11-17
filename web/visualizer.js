@@ -12,9 +12,18 @@ class NodeWarVisualizer {
     this.speedMs = 250;
     this.viewMode = 'spectator'; // 'spectator' | 'p1' | 'p2'
     this.selectedNodeId = null;
-    this.engineMode = '3d'; // Default to 3D Isometric Battlefield
+    this.engineMode = 'td'; // Default to Cartoon Tower Defense Game Visualizer
 
     this.particles = [];
+
+    // Initialize 2D Cartoon Tower Defense Visualizer
+    try {
+      if (window.NodeWarTDVisualizer) {
+        this.tdViz = new window.NodeWarTDVisualizer('td-canvas');
+      }
+    } catch (e) {
+      console.warn("Could not initialize TD visualizer:", e);
+    }
 
     // Initialize 3D Three.js visualizer if available
     try {
@@ -23,7 +32,6 @@ class NodeWarVisualizer {
       }
     } catch (e) {
       console.warn("Could not initialize Three.js visualizer:", e);
-      this.engineMode = '2d';
     }
 
     window.nodeWarApp = this;
@@ -36,7 +44,7 @@ class NodeWarVisualizer {
     this.loadReplayList();
     this.startAnimationLoop();
 
-    // Set initial 3D mode state
+    // Set initial mode state (Cartoon Tower Defense)
     this.setEngineMode(this.engineMode);
   }
 
@@ -88,6 +96,9 @@ class NodeWarVisualizer {
         e.target.classList.add('active');
         this.viewMode = e.target.dataset.mode;
         this.updateHUD();
+        if (this.tdViz) {
+          this.tdViz.setViewMode(this.viewMode);
+        }
         if (this.threeViz) {
           this.threeViz.setViewMode(this.viewMode);
         }
@@ -118,9 +129,13 @@ class NodeWarVisualizer {
   }
 
   bindEngineModeEvents() {
+    const btnTD = document.getElementById('btn-mode-td');
     const btn3D = document.getElementById('btn-mode-3d');
     const btn2D = document.getElementById('btn-mode-2d');
 
+    if (btnTD) {
+      btnTD.addEventListener('click', () => this.setEngineMode('td'));
+    }
     if (btn3D) {
       btn3D.addEventListener('click', () => this.setEngineMode('3d'));
     }
@@ -131,18 +146,38 @@ class NodeWarVisualizer {
 
   setEngineMode(mode) {
     this.engineMode = mode;
+    const canvasTD = document.getElementById('td-canvas');
     const container3D = document.getElementById('three-container');
     const canvas2D = document.getElementById('game-canvas');
     const camPresets = document.getElementById('camera-presets-bar');
+    const btnTD = document.getElementById('btn-mode-td');
     const btn3D = document.getElementById('btn-mode-3d');
     const btn2D = document.getElementById('btn-mode-2d');
 
-    if (mode === '3d') {
+    // Reset buttons
+    if (btnTD) btnTD.classList.remove('active');
+    if (btn3D) btn3D.classList.remove('active');
+    if (btn2D) btn2D.classList.remove('active');
+
+    if (mode === 'td') {
+      if (canvasTD) canvasTD.classList.remove('hidden');
+      if (container3D) container3D.classList.add('hidden');
+      if (canvas2D) canvas2D.classList.add('hidden');
+      if (camPresets) camPresets.classList.add('hidden');
+      if (btnTD) btnTD.classList.add('active');
+      if (this.tdViz) {
+        this.tdViz.initCanvasResize();
+        if (this.replayData && this.replayData.frames) {
+          const currentFrame = this.replayData.frames[this.currentFrameIdx];
+          this.tdViz.syncFrame(currentFrame);
+        }
+      }
+    } else if (mode === '3d') {
+      if (canvasTD) canvasTD.classList.add('hidden');
       if (container3D) container3D.classList.remove('hidden');
       if (canvas2D) canvas2D.classList.add('hidden');
       if (camPresets) camPresets.classList.remove('hidden');
       if (btn3D) btn3D.classList.add('active');
-      if (btn2D) btn2D.classList.remove('active');
       if (this.threeViz) {
         this.threeViz.onResize();
         if (this.replayData && this.replayData.frames) {
@@ -151,10 +186,10 @@ class NodeWarVisualizer {
         }
       }
     } else {
+      if (canvasTD) canvasTD.classList.add('hidden');
       if (container3D) container3D.classList.add('hidden');
       if (canvas2D) canvas2D.classList.remove('hidden');
       if (camPresets) camPresets.classList.add('hidden');
-      if (btn3D) btn3D.classList.remove('active');
       if (btn2D) btn2D.classList.add('active');
     }
   }
@@ -538,6 +573,13 @@ class NodeWarVisualizer {
     this.logEvent(`Match Loaded: ${data.metadata.p1_name} vs ${data.metadata.p2_name} (${totalFrames} Turns)`, 'system');
     this.updateHUD();
 
+    if (this.tdViz) {
+      this.tdViz.loadReplay(data);
+      if (data.frames && data.frames.length > 0) {
+        this.tdViz.syncFrame(data.frames[0]);
+      }
+    }
+
     if (this.threeViz) {
       this.threeViz.loadReplay(data);
       if (data.frames && data.frames.length > 0) {
@@ -588,10 +630,15 @@ class NodeWarVisualizer {
     this.updateHUD();
     this.checkFrameEvents();
 
-    if (this.threeViz && this.replayData && this.replayData.frames) {
+    if (this.replayData && this.replayData.frames) {
       const currentFrame = this.replayData.frames[idx];
       const prevFrame = this.replayData.frames[prevIdx];
-      this.threeViz.syncFrame(currentFrame, prevFrame);
+      if (this.tdViz) {
+        this.tdViz.syncFrame(currentFrame);
+      }
+      if (this.threeViz) {
+        this.threeViz.syncFrame(currentFrame, prevFrame);
+      }
     }
   }
 

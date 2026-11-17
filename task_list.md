@@ -21,3 +21,8 @@
 - [x] Task 19: Implement dynamic Fog-of-War shroud and vision masks for P1, P2, and Spectator view modes in 3D.
 - [x] Task 20: Implement Combat Clashing FX (lasers, plasma mortars, shield impacts, voxel disintegration) and wire playback/scrubber sync.
 - [x] Task 21: Verification, tests, update `context.md`, `architechture.md`, and commit/push to git.
+- [x] Task 22: Create / source high-quality 2D cartoon Tower Defense game assets in `web/assets/td/` (terrain tiles, winding dirt paths, cartoon trees, castles with blue/red roofs and banners, stone watchtowers, barracks, relic shrine, and animated sprite characters: Knight Guard, Rogue Raider, Artillery Cannon, Flying Scout).
+- [x] Task 23: Build `web/td_visualizer.js` with rich 2D cartoon tower defense rendering: winding paths, animated marching soldiers, castle garrisons, combat clashing FX, and lantern Fog of War.
+- [x] Task 24: Integrate `TDVisualizer` into `web/index.html` and `web/visualizer.js` as the default visualizer with engine switcher (`[Tower Defense]`, `[3D Arena]`, `[2D Tactical]`).
+- [x] Task 25: Add cartoon Tower Defense theme accents to UI (wooden frames, gold coin counters, shield emblems matching the user's reference image).
+- [x] Task 26: Full verification, test runs, update `context.md` & `architechture.md`, and commit/push to git.

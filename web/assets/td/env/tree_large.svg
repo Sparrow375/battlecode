@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 100" width="90" height="100">
+  <ellipse cx="45" cy="92" rx="28" ry="7" fill="#000000" opacity="0.22"/>
+  <!-- Brown Trunk -->
+  <path d="M40 92 L42 62 L48 62 L50 92 Z" fill="#6f4e37" stroke="#382923" stroke-width="2.5"/>
+
+  <!-- Fluffy Cartoon Green Foliage Lobes (Like reference image) -->
+  <circle cx="32" cy="52" r="20" fill="#52b788" stroke="#1b4332" stroke-width="3"/>
+  <circle cx="58" cy="52" r="20" fill="#52b788" stroke="#1b4332" stroke-width="3"/>
+  <circle cx="45" cy="34" r="24" fill="#74c69d" stroke="#1b4332" stroke-width="3"/>
+  <!-- Highlight Lobes -->
+  <circle cx="40" cy="28" r="10" fill="#95d5b2"/>
+  <circle cx="52" cy="46" r="8" fill="#95d5b2"/>
+</svg>

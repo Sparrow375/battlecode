@@ -25,13 +25,14 @@ flowchart TD
         ReplayGen[Replay JSON Exporter]
     end
 
-    subgraph Spectator & Web UI [Interactive Visualizer & Dual-Engine]
+    subgraph Spectator & Web UI [Interactive Multi-Engine Visualizer]
         WebServer[Web Demo / Spectator Server]
-        DualEngine[Dual-Engine Viewport Toggle (Default: 3D)]
-        ThreeUI[3D Isometric Battlefield (Three.js)]
+        EngineSelector[Multi-Engine Switcher: TD (Default) | 3D Arena | 2D Tactical]
+        TDUI[Cartoon Tower Defense Game Engine (td_visualizer.js)]
+        ThreeUI[3D Isometric Battlefield (three_visualizer.js)]
         CanvasUI[2D Tactical Canvas Visualizer]
+        AssetPack[Tower Defense Game Assets: Castles, Watchtowers, Knights, Rogues, Cannons, Eagles]
         FOWToggle[Spectator / P1 / P2 Fog-of-War Shroud]
-        CamBar[OrbitControls & Camera Presets: Iso, P1, Relic, P2, Orbit]
         Playback[Scrubber, Speed Controls & Live Play]
     end
 
@@ -51,13 +52,15 @@ flowchart TD
     Sim --> Runner
     Runner --> Matrix
     Runner --> ReplayGen
-    ReplayGen --> DualEngine
-    WebServer --> DualEngine
-    DualEngine --> ThreeUI
-    DualEngine --> CanvasUI
+    ReplayGen --> EngineSelector
+    WebServer --> EngineSelector
+    EngineSelector --> TDUI
+    EngineSelector --> ThreeUI
+    EngineSelector --> CanvasUI
+    AssetPack --> TDUI
+    FOWToggle --> TDUI
     FOWToggle --> ThreeUI
     FOWToggle --> CanvasUI
-    CamBar --> ThreeUI
 ```
 
 ## Core Modules & Structure
@@ -91,15 +94,18 @@ flowchart TD
    - `replay.py`: Compact, structured JSON replay serialization.
 
 4. **`web/`**:
-   - **Dual-Engine Spectator Frontend**: Features a 1-click toggle between the high-fidelity **3D Isometric Battlefield** (default) and the clean **2D Tactical Canvas**.
-   - `three_visualizer.js`: Dedicated Three.js WebGL rendering pipeline featuring:
-     - Procedural 3D Fortresses: Multi-level Command Citadels (Nodes 0 & 14) with pulsating faction reactors, Industrial Quantum Refineries (Nodes 1–4, 10–13), Chokepoint Pillboxes (Nodes 5, 6, 8, 9), and the levitating central Relic Sanctuary (Node 7) that awakens with golden skybeams and particle rings on Turn 95.
-     - Procedural 3D Soldier Units: Replaces numerical badges with actual 3D models for Raiders (combat speeders), Guards (armored phalanx mechs with energy shields), Siege (heavy crawler artillery tanks), and Scouts (floating recon probes).
-     - Tactical Squad Marching: Multi-unit fleets march in military formations (Guards frontline, Raiders flanking, Siege rearguard) along elevated cyber-rail lanes.
-     - Combat Clashing Choreography: Dynamic particle bursts, laser fire, artillery mortar shells, and voxel disintegration effects on frame combat events.
-     - Dynamic Fog of War: Shrouds unscouted enemy territory and lanes in dark digital mist in P1 and P2 view modes, while maintaining full omniscient clarity in Spectator view.
-     - Camera Presets & OrbitControls: Supports smooth lerping between Isometric Overview, P1 Core, Relic Center, P2 Core, and Spectator Auto-Orbit.
-   - `visualizer.js`: Orchestrates data fetching, 1v1 match playback, timeline scrubbing, Bot Lab script loading, and synchronizes frame state with both 3D and 2D visualizers.
+   - **Multi-Engine Spectator Frontend**: Offers an instant 1-click switcher between three distinct visualizer engines:
+     1. **Cartoon Tower Defense View (`td_visualizer.js`, DEFAULT)**:
+        - Modeled after classic 2D cartoon tower defense games (*Kingdom Rush* / *Tower Defender*).
+        - Renders winding sandy dirt paths cutting across vibrant grass meadows with procedural trees, rocks, fences, and tribal huts.
+        - Castles & Towers: Illustrated stone fortresses with blue/red conical roofs (Nodes 0 & 14), round stone guard towers with flags (Chokepoints 5, 6, 8, 9), fortified stone barracks (Refineries 1–4, 10–13), and the ancient mystical Relic Shrine (Node 7).
+        - Animated Soldier Sprites: Knights with tower shields (Guards), running hooded Rogues with dual daggers (Raiders), wheeled iron Cannons (Siege), and flying Eagles with wing-flaps (Scouts).
+        - Dynamic Cartoon Fog of War: Nighttime/twilight shroud parting with warm lantern light radii around castles and scouting eagles.
+     2. **3D Isometric Arena (`three_visualizer.js`)**:
+        - Three.js WebGL pipeline with procedural 3D citadels, animated squads, OrbitControls, and cinematic camera presets.
+     3. **2D Tactical Canvas (`visualizer.js`)**:
+        - High-contrast, minimalist esports node graph.
+   - `visualizer.js`: Master orchestrator coordinating data fetching, match playback, scrubber scrubbing, Bot Lab, Tournament Matrix, and synchronizing frame state across all three render engines.
    - Match Control Center: 1v1 Arena match launcher supporting custom scripts in `bots/` with live discovery, interactive Tournament Matrix evaluator, Custom Bot Lab for live browser-based Python bot code compilation/inspection, and saved Replay Vault.
    - `serve.py`: HTTP server with endpoints (`/api/replays`, `/api/replay/<id>`, `/api/run-match`, `/api/run-tournament`, `/api/bots`, `/api/bot-source/<file>`) with automated `sys.path` resolution. Supported via root `serve.py` alias.
 

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 40" width="60" height="40">
+  <ellipse cx="30" cy="36" rx="26" ry="3" fill="#000000" opacity="0.2"/>
+  <!-- Posts -->
+  <rect x="8" y="10" width="6" height="26" rx="1" fill="#7f4f24" stroke="#212529" stroke-width="2"/>
+  <rect x="27" y="10" width="6" height="26" rx="1" fill="#7f4f24" stroke="#212529" stroke-width="2"/>
+  <rect x="46" y="10" width="6" height="26" rx="1" fill="#7f4f24" stroke="#212529" stroke-width="2"/>
+  <!-- Rails -->
+  <rect x="6" y="14" width="48" height="5" rx="1" fill="#936639" stroke="#212529" stroke-width="1.8"/>
+  <rect x="6" y="24" width="48" height="5" rx="1" fill="#936639" stroke="#212529" stroke-width="1.8"/>
+</svg>

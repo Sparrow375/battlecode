@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 80" width="90" height="80">
+  <!-- Shadow -->
+  <ellipse cx="45" cy="70" rx="34" ry="7" fill="#000000" opacity="0.28"/>
+
+  <!-- Wooden Carriage Chassis -->
+  <polygon points="18,60 72,60 64,48 26,48" fill="#583115" stroke="#212529" stroke-width="2.5"/>
+
+  <!-- Heavy Iron Cannon Barrel (Angled Upward) -->
+  <path d="M20 48 L64 22 L72 32 L30 58 Z" fill="#343a40" stroke="#1b1d20" stroke-width="3"/>
+  <ellipse cx="68" cy="27" rx="5" ry="7" fill="#1b1d20" transform="rotate(-30 68 27)"/>
+  <!-- Team Color Ring on Barrel -->
+  <path d="M38 38 L44 34 L48 42 L42 46 Z" fill="#e63946"/>
+
+  <!-- Big Wooden Wheel with Iron Rim -->
+  <circle cx="45" cy="58" r="14" fill="#583115" stroke="#212529" stroke-width="3"/>
+  <circle cx="45" cy="58" r="11" fill="none" stroke="#ffd166" stroke-width="1.5"/>
+  <circle cx="45" cy="58" r="4" fill="#212529"/>
+  <line x1="33" y1="58" x2="57" y2="58" stroke="#212529" stroke-width="2"/>
+  <line x1="45" y1="46" x2="45" y2="70" stroke="#212529" stroke-width="2"/>
+
+  <!-- Stack of Cannonballs -->
+  <circle cx="78" cy="62" r="5" fill="#212529"/>
+  <circle cx="72" cy="65" r="5" fill="#343a40"/>
+  <circle cx="77" cy="68" r="4" fill="#495057"/>
+</svg>

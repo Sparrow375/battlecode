@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 90" width="90" height="90">
+  <ellipse cx="45" cy="80" rx="36" ry="8" fill="#000000" opacity="0.25"/>
+  <!-- Thatched Hut Body -->
+  <circle cx="45" cy="52" r="26" fill="#583115" stroke="#212529" stroke-width="3"/>
+  <!-- Thatched Straw Cone Roof -->
+  <path d="M14 56 L45 16 L76 56 Q45 64 14 56 Z" fill="#d4a373" stroke="#212529" stroke-width="3"/>
+  <path d="M22 52 L45 22 L68 52" stroke="#a98467" stroke-width="2"/>
+  <!-- Small Dark Doorway -->
+  <ellipse cx="45" cy="62" rx="7" ry="9" fill="#1b1d20"/>
+</svg>

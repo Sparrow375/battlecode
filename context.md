@@ -37,9 +37,11 @@ f:\Avaneesh\projects\battlecode\
 │   └── replay.py         # Replay serialization
 ├── web/
 │   ├── index.html        # Modern esports spectator UI with 1v1, Matrix, Lab & Vault tabs
-│   ├── style.css         # Dark cyberpunk styling with 3D/2D viewport layout & controls
+│   ├── style.css         # Styling with Multi-Engine Viewport layout & controls
+│   ├── td_visualizer.js  # 2D Cartoon Tower Defense Engine with real animated game assets (DEFAULT)
 │   ├── three_visualizer.js # Three.js 3D Isometric Battlefield engine with procedural models & FX
-│   ├── visualizer.js     # Dual-engine orchestrator, canvas fallback, scrubber & match controls
+│   ├── visualizer.js     # Master multi-engine orchestrator, canvas fallback, scrubber & match controls
+│   ├── assets/           # Tower Defense game asset pack (castles, towers, knights, rogues, cannons, eagles, trees)
 │   ├── vendor/           # Offline vendor libraries (three.min.js, OrbitControls.js)
 │   └── serve.py          # Local HTTP server with live simulation & tournament endpoints
 ├── tests/
@@ -65,13 +67,11 @@ f:\Avaneesh\projects\battlecode\
 - Web UI dropdowns hardened with fallbacks to guarantee populated options across all browsers.
 - Dynamic bot loader enhanced with MRO inspection and duck-typing fallback, verified working with `bots/bot1.py` (ApexNodeBot) and `bots/equibot.py` (NemesisNodeBot).
 - Comprehensive Game Specification & Mechanics Manual published at `GAME_SPECIFICATION.md` for distribution to event competitors.
-- Three.js 3D Isometric Battlefield engine implemented and set as default:
-  - Procedural 3D Fortresses: Multi-level Command Citadels (Nodes 0 & 14), Industrial Refineries (Nodes 1–4, 10–13), Chokepoint Pillboxes (Nodes 5, 6, 8, 9), and Ancient Relic Sanctuary (Node 7) with dynamic Turn 95 awakening, levitation, and golden skybeam.
-  - Procedural 3D Soldier Models: Raiders (combat speeders), Guards (armored phalanx mechs with energy shields), Siege (heavy crawler artillery tanks), and Scouts (floating recon probes).
-  - Tactical squad formations marching along 3D elevated cyber-rail lanes.
-  - Combat clashing particle FX (spark bursts, laser fire, shield deflections, artillery impacts).
-  - Dynamic Fog of War: Shrouds unscouted sectors in dark mist in P1 and P2 views; full omniscient clarity in Spectator view.
-  - Dual-Engine Toggle: 1-click switch between 3D Arena and 2D Tactical canvas.
-  - OrbitControls & Camera Presets: Isometric, P1 Core, Relic, P2 Core, and Spectator Auto-Orbit.
-  - Fully offline-ready with local vendor libraries in `web/vendor/`.
+- **Cartoon Tower Defense Visualizer Engine** implemented and set as the primary default view:
+  - Recreates the exact cartoon tower defense aesthetic requested by the user (*Kingdom Rush* / *Tower Defender* style).
+  - Winding sand/dirt roads traversing vibrant cartoon grass meadows with procedural trees, rocks, fences, and tribal huts.
+  - Nodes rendered as actual game buildings: Blue/Red Stone Castles with spires and banners (Nodes 0 & 14), Stone Watchtowers (Chokepoints 5, 6, 8, 9), Fortified Barracks (Refineries 1–4, 10–13), and Mystic Relic Shrine (Node 7).
+  - Units rendered as actual animated cartoon soldiers: Knights with tower shields (Guards), running hooded Rogues with dual daggers (Raiders), wheeled iron Cannons (Siege), and flying Eagles (Scouts).
+  - Dynamic twilight / lantern Fog of War with light circles radiating from owned castles and flying scouts.
+  - Multi-Engine Switcher: Instant 1-click toggle between `[Tower Defense]` (Default), `[3D Arena]`, and `[2D Tactical]`.
   - All 16 unit, integration, and HTTP API tests passing.

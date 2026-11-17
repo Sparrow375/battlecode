@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80">
+  <!-- Shadow -->
+  <ellipse cx="40" cy="72" rx="22" ry="5" fill="#000000" opacity="0.25"/>
+
+  <!-- Running Boots -->
+  <ellipse cx="24" cy="68" rx="6" ry="4" fill="#343a40" stroke="#1b1d20" stroke-width="2"/>
+  <ellipse cx="54" cy="64" rx="6" ry="4" fill="#343a40" stroke="#1b1d20" stroke-width="2"/>
+
+  <!-- Rogue Cloak & Leathers -->
+  <path d="M26 36 L54 36 L48 62 L32 62 Z" fill="#e63946" stroke="#1b1d20" stroke-width="3"/>
+
+  <!-- Hood & Shadow Mask (Like goblin/rogue in image) -->
+  <circle cx="40" cy="24" r="14" fill="#2b2d42" stroke="#1b1d20" stroke-width="3"/>
+  <path d="M26 24 Q40 8 54 24 Z" fill="#e63946" stroke="#1b1d20" stroke-width="2.5"/>
+
+  <!-- Glowing Yellow Eyes -->
+  <circle cx="35" cy="24" r="2.5" fill="#ffd166"/>
+  <circle cx="45" cy="24" r="2.5" fill="#ffd166"/>
+
+  <!-- Dual Curved Daggers -->
+  <!-- Left Dagger -->
+  <path d="M16 46 Q22 36 28 42 L24 46 Z" fill="#e9ecef" stroke="#1b1d20" stroke-width="2"/>
+  <!-- Right Dagger -->
+  <path d="M64 42 Q58 32 52 38 L56 42 Z" fill="#e9ecef" stroke="#1b1d20" stroke-width="2"/>
+</svg>

@@ -228,12 +228,15 @@ class MyCustomBot(BotBase):
         </div>
       </aside>
 
-      <!-- Center: 3D Battlefield & 2D Tactical Viewport -->
+      <!-- Center: Multi-Engine Battlefield Viewport -->
       <main class="canvas-viewport" id="viewport-container">
-        <!-- 3D Three.js WebGL Container (Default) -->
-        <div id="three-container" class="three-viewport"></div>
+        <!-- 1. Cartoon Tower Defense Canvas (Default) -->
+        <canvas id="td-canvas" class="td-viewport"></canvas>
 
-        <!-- 2D Canvas Fallback (Hidden by default) -->
+        <!-- 2. 3D Three.js WebGL Container -->
+        <div id="three-container" class="three-viewport hidden"></div>
+
+        <!-- 3. 2D Tactical Canvas -->
         <canvas id="game-canvas" class="hidden"></canvas>
 
         <div id="combat-banner" class="combat-banner hidden"></div>
@@ -241,7 +244,8 @@ class MyCustomBot(BotBase):
         <!-- Viewport Top Controls (Engine Mode Toggle & Quick Nav) -->
         <div class="viewport-top-bar">
           <div class="engine-mode-toggle">
-            <button id="btn-mode-3d" class="engine-btn active" title="3D Isometric Battlefield">&#9650; 3D Arena</button>
+            <button id="btn-mode-td" class="engine-btn active" title="Cartoon Tower Defense Game View">&#9876; Tower Defense</button>
+            <button id="btn-mode-3d" class="engine-btn" title="3D Isometric Battlefield">&#9650; 3D Arena</button>
             <button id="btn-mode-2d" class="engine-btn" title="2D Tactical Schematic">&#9632; 2D Tactical</button>
           </div>
           <div class="quick-nav-overlay">
@@ -316,6 +320,8 @@ class MyCustomBot(BotBase):
   <script src="vendor/three.min.js"></script>
   <script src="vendor/OrbitControls.js"></script>
   <script src="three_visualizer.js"></script>
+  <!-- Cartoon Tower Defense Game Visualizer -->
+  <script src="td_visualizer.js"></script>
   <script src="visualizer.js"></script>
 </body>
 </html>
