@@ -62,3 +62,4 @@ f:\Avaneesh\projects\battlecode\
 - Stale server process on port 8000 stopped and restarted with latest endpoints.
 - Web UI dropdowns hardened with fallbacks to guarantee populated options across all browsers.
 - Dynamic bot loader enhanced with MRO inspection and duck-typing fallback, verified working with `bots/bot1.py` (ApexNodeBot) and `bots/equibot.py` (NemesisNodeBot).
+- Comprehensive Game Specification & Mechanics Manual published at `GAME_SPECIFICATION.md` for distribution to event competitors.

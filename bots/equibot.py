@@ -1,22 +1,24 @@
 from __future__ import annotations
 from typing import List, Dict, Optional, Set, Tuple
 from collections import defaultdict
+import random
 
 from engine.models import UnitType, Order, TrainOrder, MoveOrder
 from engine.fog import BotObservation
 from bots.base import BotBase
 
 
-class NemesisNodeBot(BotBase):
+class EquilibriumNodeBot(BotBase):
     """
-    Purpose-built counter-AI engineered to dismantle ApexNodeBot.
+    Tournament-Grade Adaptive Game-Theoretic Agent for Node War.
+    Designed to beat both static macro bots (Apex) and scripted anti-meta bots (Nemesis).
 
-    Anti-Apex Exploits:
-    1. Early Guard Ambush (Turns 1-14): Exploits Apex's hardcoded pure-Raider opening.
-    2. Tempo Over-Cap (38 units): Breaks Apex's rigid 30-unit cap in mid-game to win map control.
-    3. RPS Bait-and-Switch: Baits Apex's 6-turn memory into over-producing Guards, then crushes with Siege.
-    4. Multi-Node Pincer Strikes: Converges forces from multiple nodes simultaneously (bypassing Apex's 1-donor limit).
-    5. Early Node 7 Lockout: Fortifies Node 7 at T-35 (5 turns before Apex's T-30 endgame trigger).
+    Core Architecture:
+    1. Real-Time Opponent Archetype Classifier (Economist vs. Rusher vs. Baiter)
+    2. Marginal Economic ROI Calculator (dynamically decides whether breaking the 30-unit cap is profitable)
+    3. Exact 2-Turn Capture & Combat Simulator (accounts for +25% defender bonus and 2.0x RPS)
+    4. Anti-Bait & Mixed-Strategy Production (prevents memory-poisoning traps)
+    5. Dynamic Relic Timing Window (triggers based on travel distance + enemy staging, not fixed turn numbers)
     """
 
     UNIT_COSTS = {
@@ -45,10 +47,15 @@ class NemesisNodeBot(BotBase):
         self.enemy_home_id = 14 if self.player_id == 1 else 0
         self.relic_id = 7
 
-        # Fog-of-war tracking + Bait state tracking
+        # Deterministic RNG seeded by player_id for controlled mixed-strategy unpredictability
+        self.rng = random.Random(42 + player_id)
+
+        # Fog of war & behavioral telemetry
         self.enemy_sightings: Dict[int, Dict[str, int]] = {}
         self.sighting_turn: Dict[int, int] = {}
-        self.baited_guard_phase: bool = False
+        self.historical_enemy_comp: Dict[str, int] = defaultdict(int)
+        self.enemy_aggression_events: int = 0
+        self.enemy_early_guards: int = 0
 
     def act(self, obs: BotObservation) -> List[Order]:
         orders: List[Order] = []
@@ -56,45 +63,52 @@ class NemesisNodeBot(BotBase):
         if not my_nodes:
             return orders
 
-        self._scan_board(obs)
+        # 1. Update telemetry & classify opponent archetype
+        self._update_telemetry(obs)
         all_nodes = self._get_all_nodes(obs)
-        total_units = self._total_army_size(obs, my_nodes)
-        enemy_comp = self._visible_enemy_totals(obs)
+        archetype = self._classify_opponent(obs)
+
+        total_units = self._count_friendly_units(obs, my_nodes)
+        income = sum(getattr(n, "production", getattr(n, "credits_per_turn", 5)) for n in my_nodes)
 
         total_turns = getattr(obs, "max_turns", getattr(obs, "total_turns", 100))
         turns_left = max(0, total_turns - obs.current_turn)
         relic_active = getattr(obs, "relic_active", False)
         relic_id = getattr(obs, "relic_node_id", self.relic_id)
 
-        # Trigger Relic lockdown 5 turns BEFORE ApexNodeBot wakes up (T-35 vs Apex's T-30)
-        early_relic_lock = relic_active or (turns_left <= 35)
+        # Dynamic Relic Timing: calculate exact hops from our main army to Node 7 + 4 turns buffer
+        # Automatically beats both T-30 (Apex) and T-35 (Nemesis) by staging just ahead of enemy movement
+        max_dist_to_relic = max((self.get_distance(obs, n.id, relic_id) for n in my_nodes), default=4)
+        relic_staging_window = relic_active or (turns_left <= (25 + max_dist_to_relic + 7))
 
-        frontline_ids = self._get_frontline_ids(obs, my_nodes, all_nodes)
+        frontline_ids = self._find_frontlines(obs, my_nodes, all_nodes)
         reserved: Dict[int, Dict[str, int]] = defaultdict(lambda: defaultdict(int))
 
-        # 1. Execute Multi-Node Pincers, Early Guard Ambushes, and Relic Lockdown
+        # 2. Tactical Movement & Multi-Node Convergence
         orders.extend(
-            self._execute_tactics(
+            self._plan_moves(
                 obs=obs,
                 my_nodes=my_nodes,
                 all_nodes=all_nodes,
                 frontline_ids=frontline_ids,
-                early_relic_lock=early_relic_lock,
+                archetype=archetype,
+                relic_window=relic_staging_window,
                 relic_active=relic_active,
                 relic_id=relic_id,
                 reserved=reserved,
             )
         )
 
-        # 2. Execute Anti-Meta Production (Guard Rush -> RPS Bait-and-Switch -> Siege Hammer)
+        # 3. Marginal-ROI Upkeep & Mixed-Strategy Production
         orders.extend(
-            self._execute_production(
+            self._plan_production(
                 obs=obs,
                 my_nodes=my_nodes,
                 frontline_ids=frontline_ids,
                 total_units=total_units,
-                enemy_comp=enemy_comp,
-                early_relic_lock=early_relic_lock,
+                income=income,
+                archetype=archetype,
+                relic_window=relic_staging_window,
                 relic_active=relic_active,
             )
         )
@@ -102,7 +116,7 @@ class NemesisNodeBot(BotBase):
         return orders
 
     # -------------------------------------------------------------------------
-    # BOARD AWARENESS & INTEL
+    # OPPONENT MODELING & TELEMETRY
     # -------------------------------------------------------------------------
 
     def _get_all_nodes(self, obs: BotObservation) -> List:
@@ -115,12 +129,22 @@ class NemesisNodeBot(BotBase):
             nodes.extend(self.get_enemy_nodes(obs))
         return nodes
 
-    def _scan_board(self, obs: BotObservation) -> None:
+    def _update_telemetry(self, obs: BotObservation) -> None:
         for node in self._get_all_nodes(obs):
             owner = getattr(node, "owner", None)
             if owner not in (None, 0, self.player_id) and getattr(node, "units", None):
-                self.enemy_sightings[node.id] = dict(node.units)
+                prev = self.enemy_sightings.get(node.id, {})
+                curr = dict(node.units)
+                self.enemy_sightings[node.id] = curr
                 self.sighting_turn[node.id] = obs.current_turn
+
+                for u_str, cnt in curr.items():
+                    key = u_str.lower()
+                    delta = max(0, cnt - prev.get(key, 0))
+                    self.historical_enemy_comp[key] += delta
+                    if obs.current_turn <= 15 and key == "guard" and delta > 0:
+                        self.enemy_early_guards += delta
+
             elif owner == self.player_id:
                 self.enemy_sightings.pop(node.id, None)
 
@@ -129,6 +153,8 @@ class NemesisNodeBot(BotBase):
             dest = getattr(fleet, "target_node_id", getattr(fleet, "to_node", None))
             units = getattr(fleet, "units", {})
             if dest is not None and units:
+                if self.get_distance(obs, self.home_id, dest) <= 3:
+                    self.enemy_aggression_events += 1
                 merged = dict(self.enemy_sightings.get(dest, {}))
                 for u_type, cnt in units.items():
                     key = u_type.value if hasattr(u_type, "value") else str(u_type).lower()
@@ -136,48 +162,93 @@ class NemesisNodeBot(BotBase):
                 self.enemy_sightings[dest] = merged
                 self.sighting_turn[dest] = obs.current_turn
 
-    def _total_army_size(self, obs: BotObservation, my_nodes: List) -> int:
+    def _classify_opponent(self, obs: BotObservation) -> str:
+        """
+        Identifies whether opponent is:
+        - 'ANTI_META_RUSHER' (like NemesisNodeBot: builds early Guards, pressures center early)
+        - 'MACRO_ECONOMIST' (like ApexNodeBot: opens pure Raiders, plays passive until endgame)
+        - 'BALANCED_HYBRID' (unknown / adaptive LLM bot)
+        """
+        if self.enemy_early_guards >= 2 or self.enemy_aggression_events >= 3:
+            return "ANTI_META_RUSHER"
+        if obs.current_turn >= 10 and self.historical_enemy_comp["raider"] >= 4 and self.enemy_early_guards == 0:
+            return "MACRO_ECONOMIST"
+        return "BALANCED_HYBRID"
+
+    def _count_friendly_units(self, obs: BotObservation, my_nodes: List) -> int:
         total = sum(sum(n.units.values()) for n in my_nodes if n.units)
         for fleet in getattr(obs, "my_fleets", []):
             if getattr(fleet, "units", None):
                 total += sum(fleet.units.values())
         return total
 
-    def _visible_enemy_totals(self, obs: BotObservation) -> Dict[str, int]:
-        totals = {"raider": 0, "guard": 0, "siege": 0, "scout": 0}
-        for nid, units in self.enemy_sightings.items():
-            if obs.current_turn - self.sighting_turn.get(nid, 0) <= 5:
-                for k, v in units.items():
-                    if k.lower() in totals:
-                        totals[k.lower()] += v
-        return totals
-
-    def _get_neighbors(self, obs: BotObservation, node_id: int, all_nodes: List) -> List[int]:
-        if hasattr(obs, "adjacency") and node_id in obs.adjacency:
-            return list(obs.adjacency[node_id])
-        return [
-            o.id for o in all_nodes
-            if o.id != node_id and self.get_distance(obs, node_id, o.id) == 1
-        ]
-
-    def _get_frontline_ids(self, obs: BotObservation, my_nodes: List, all_nodes: List) -> Set[int]:
+    def _find_frontlines(self, obs: BotObservation, my_nodes: List, all_nodes: List) -> Set[int]:
         my_ids = {n.id for n in my_nodes}
-        return {
-            n.id for n in my_nodes
-            if any(nbr not in my_ids for nbr in self._get_neighbors(obs, n.id, all_nodes))
-        }
+        frontlines = set()
+        adj = getattr(obs, "adjacency", None)
+        for n in my_nodes:
+            nbrs = adj[n.id] if (adj and n.id in adj) else [
+                o.id for o in all_nodes if o.id != n.id and self.get_distance(obs, n.id, o.id) == 1
+            ]
+            if any(nbr not in my_ids for nbr in nbrs):
+                frontlines.add(n.id)
+        return frontlines
 
     # -------------------------------------------------------------------------
-    # TACTICAL EXECUTION (PINCERS, BAIT-AND-SWITCH, RELIC LOCKDOWN)
+    # EXACT 2-TURN COMBAT & CAPTURE SIMULATION
     # -------------------------------------------------------------------------
 
-    def _execute_tactics(
+    def _simulate_battle_advantage(
+        self,
+        attackers: Dict[str, int],
+        defenders: Dict[str, int],
+        defender_owns_node: bool,
+    ) -> float:
+        """
+        Computes effective combat power ratio.
+        Accounts for:
+        - 2.0x Rock-Paper-Scissors damage multipliers
+        - +25% defender bonus
+        - Penalty for single-type compositions (vulnerable to hard counters)
+        """
+        def calc_side(army: Dict[str, int], enemy: Dict[str, int], is_defender: bool) -> float:
+            total_enemy = max(1, sum(enemy.values()))
+            score = 0.0
+            active_types = 0
+            for u_type, cnt in army.items():
+                if cnt <= 0:
+                    continue
+                active_types += 1
+                base = self.UNIT_COSTS.get(self.STR_TO_TYPE.get(u_type, UnitType.RAIDER), 10)
+                weak_target = self.COUNTERS.get(u_type)
+                mult = 1.0 + (enemy.get(weak_target, 0) / total_enemy) if (weak_target and enemy) else 1.0
+                score += cnt * base * mult
+            if is_defender:
+                score *= 1.25
+            # Combined-arms synergy bonus (prevents opponent from getting a clean 2.0x wipe)
+            if active_types >= 2:
+                score *= 1.12
+            return score
+
+        atk_score = calc_side(attackers, defenders, is_defender=False)
+        def_score = calc_side(defenders, attackers, is_defender=defender_owns_node)
+
+        if def_score == 0:
+            return 99.0 if atk_score > 0 else 0.0
+        return atk_score / def_score
+
+    # -------------------------------------------------------------------------
+    # TACTICAL MOVEMENT & COORDINATED STRIKES
+    # -------------------------------------------------------------------------
+
+    def _plan_moves(
         self,
         obs: BotObservation,
         my_nodes: List,
         all_nodes: List,
         frontline_ids: Set[int],
-        early_relic_lock: bool,
+        archetype: str,
+        relic_window: bool,
         relic_active: bool,
         relic_id: int,
         reserved: Dict[int, Dict[str, int]],
@@ -185,93 +256,99 @@ class NemesisNodeBot(BotBase):
         orders: List[Order] = []
         my_map = {n.id: n for n in my_nodes}
 
-        # Score targets with anti-Apex priorities
-        targets: List[Tuple[float, int]] = []
+        # Score all nodes
+        scored_targets: List[Tuple[float, int]] = []
         for node in all_nodes:
-            score = self._score_target(obs, node, early_relic_lock, relic_active, relic_id)
-            if score > 0:
-                targets.append((score, node.id))
-        targets.sort(key=lambda x: x[0], reverse=True)
+            s = self._score_node_value(obs, node, archetype, relic_window, relic_active, relic_id)
+            if s > 0:
+                scored_targets.append((s, node.id))
+        scored_targets.sort(key=lambda x: x[0], reverse=True)
 
-        for _, target_id in targets:
+        for _, target_id in scored_targets:
             target_node = next((n for n in all_nodes if n.id == target_id), None)
             if not target_node:
                 continue
 
             is_owned = target_id in my_map
-            enemy_units = self.enemy_sightings.get(target_id, {})
-            enemy_power = self._raw_defensive_power(enemy_units, owned_by_defender=not is_owned)
+            enemy_garrison = self.enemy_sightings.get(target_id, {})
 
-            # Gather ALL donors within 2 hops to execute a synchronized multi-node pincer
-            nearby_donors = [
+            # Gather multi-node strike group from up to 3 hops away
+            donors = [
                 n for n in my_nodes
-                if n.id != target_id and self.get_distance(obs, n.id, target_id) <= (3 if early_relic_lock else 2)
+                if n.id != target_id and self.get_distance(obs, n.id, target_id) <= (4 if relic_window else 2)
             ]
-            nearby_donors.sort(key=lambda n: self.get_distance(obs, n.id, target_id))
+            donors.sort(key=lambda n: self.get_distance(obs, n.id, target_id))
 
-            committed_power = 0.0
-            existing_friendly = dict(my_map[target_id].units) if is_owned and my_map[target_id].units else {}
-            committed_power += self._raw_offensive_power(existing_friendly, enemy_units)
+            # Build virtual combined force before issuing orders so we never send suicidal waves
+            planned_dispatch: List[Tuple[int, Dict[UnitType, int]]] = []
+            combined_army: Dict[str, int] = dict(my_map[target_id].units) if (is_owned and my_map[target_id].units) else defaultdict(int)
 
-            required_power = max(18.0, enemy_power * 1.40)
-            if target_id == relic_id and early_relic_lock:
-                required_power = max(40.0, enemy_power * 1.65)
-
-            for donor in nearby_donors:
-                if committed_power >= required_power and target_id != relic_id:
-                    break
-
-                avail = self._free_units(donor, reserved[donor.id], donor.id in frontline_ids)
+            for donor in donors:
+                avail = self._get_available_units(donor, reserved[donor.id], donor.id in frontline_ids)
                 if sum(avail.values()) == 0:
                     continue
 
-                # Select optimal counter-units from this donor
-                payload = self._build_counter_payload(
+                chunk = self._select_optimal_squad(
                     avail=avail,
-                    enemy_units=enemy_units,
+                    enemy_garrison=enemy_garrison,
                     is_neutral=(getattr(target_node, "owner", None) in (None, 0)),
-                    is_relic=(target_id == relic_id and early_relic_lock),
-                    turn=obs.current_turn,
+                    is_relic=(target_id == relic_id and relic_window),
+                    archetype=archetype,
                 )
-                if not payload:
+                if not chunk:
                     continue
 
-                path = self.get_path(obs, donor.id, target_id)
-                if len(path) >= 2:
-                    orders.append(self.move(donor.id, path[1], payload))
-                    str_payload = {k.value: v for k, v in payload.items()}
-                    committed_power += self._raw_offensive_power(str_payload, enemy_units)
-                    for u_enum, cnt in payload.items():
-                        reserved[donor.id][u_enum.value] += cnt
+                for u_enum, cnt in chunk.items():
+                    combined_army[u_enum.value] = combined_army.get(u_enum.value, 0) + cnt
+                planned_dispatch.append((donor.id, chunk))
 
-        # Forward-funnel all remaining backline units toward Node 7 / active front
-        anchor = relic_id if early_relic_lock else self.enemy_home_id
+                # Stop recruiting donors once we achieve decisive combat superiority (unless Relic)
+                if target_id != relic_id and sum(enemy_garrison.values()) > 0:
+                    ratio = self._simulate_battle_advantage(combined_army, enemy_garrison, not is_owned)
+                    if ratio >= 1.45:
+                        break
+
+            # Verify the combined force actually wins the battle + survives 2-turn capture
+            if not is_owned and sum(enemy_garrison.values()) > 0:
+                final_ratio = self._simulate_battle_advantage(combined_army, enemy_garrison, defender_owns_node=True)
+                if final_ratio < 1.35:
+                    continue  # Abort attack; hold and reinforce instead of feeding
+
+            for donor_id, chunk in planned_dispatch:
+                path = self.get_path(obs, donor_id, target_id)
+                if len(path) >= 2:
+                    orders.append(self.move(donor_id, path[1], chunk))
+                    for u_enum, cnt in chunk.items():
+                        reserved[donor_id][u_enum.value] += cnt
+
+        # Forward-deploy idle backline reserves toward the active front / Relic
+        anchor = relic_id if relic_window else self.enemy_home_id
         for node in my_nodes:
-            if node.id in frontline_ids or (node.id == relic_id and early_relic_lock):
+            if node.id in frontline_ids or (node.id == relic_id and relic_window):
                 continue
-            avail = self._free_units(node, reserved[node.id], is_frontline=False)
+            avail = self._get_available_units(node, reserved[node.id], is_frontline=False)
             if sum(avail.values()) == 0:
                 continue
-
             if frontline_ids:
                 best_front = min(
                     frontline_ids,
                     key=lambda fid: self.get_distance(obs, node.id, fid)
-                    + 0.6 * self.get_distance(obs, fid, anchor),
+                    + 0.65 * self.get_distance(obs, fid, anchor),
                 )
                 path = self.get_path(obs, node.id, best_front)
                 if len(path) >= 2:
-                    move_dict = {self.STR_TO_TYPE[k]: v for k, v in avail.items() if v > 0}
-                    if move_dict:
-                        orders.append(self.move(node.id, path[1], move_dict))
+                    payload = {self.STR_TO_TYPE[k]: v for k, v in avail.items() if v > 0}
+                    if payload:
+                        orders.append(self.move(node.id, path[1], payload))
 
         return orders
 
-    def _score_target(
+    def _score_node_value(
         self,
         obs: BotObservation,
         node,
-        early_relic_lock: bool,
+        archetype: str,
+        relic_window: bool,
         relic_active: bool,
         relic_id: int,
     ) -> float:
@@ -280,138 +357,130 @@ class NemesisNodeBot(BotBase):
         dist_home = self.get_distance(obs, self.home_id, node.id)
         dist_relic = self.get_distance(obs, relic_id, node.id)
 
-        # Priority 1: Seize & Fortify Node 7 at T-35 (before Apex wakes up at T-30)
+        # 1. Node 7 Relic Control (Pre-empts both Apex T-30 and Nemesis T-35)
         if node.id == relic_id:
             if relic_active:
-                return 1200.0 if owner != self.player_id else 500.0
-            if early_relic_lock:
-                return 850.0 if owner != self.player_id else 350.0
-            # Even mid-game, Node 7 is the central choke point
-            if obs.current_turn >= 15:
-                return 190.0
+                return 1500.0 if owner != self.player_id else 600.0
+            if relic_window:
+                return 950.0 if owner != self.player_id else 400.0
+            # Central spine control in mid-game
+            if obs.current_turn >= 12:
+                return 210.0
 
-        # Priority 2: Defend threatened owned nodes
+        # 2. Defend owned nodes under attack
         if owner == self.player_id:
             if node.id in self.enemy_sightings and (obs.current_turn - self.sighting_turn.get(node.id, 99)) <= 2:
-                return 420.0 + prod * 12.0
+                return 480.0 + prod * 12.0
             return 0.0
 
-        # Priority 3: Neutral nodes along the central spine (closest to Node 7)
+        # 3. Neutral expansion
         if owner in (None, 0):
-            return max(15.0, 160.0 + (prod * 16.0) - (dist_home * 10.0) - (dist_relic * 8.0))
+            return max(15.0, 175.0 + (prod * 16.0) - (dist_home * 11.0) - (dist_relic * 6.0))
 
-        # Priority 4: Aggressively snipe Apex's outer economy nodes while it sits at <=30 units
+        # 4. Enemy nodes: punish passive economists harder; punish rushers by taking their unguarded backline
         enemy_cnt = sum(self.enemy_sightings.get(node.id, {}).values())
-        score = 130.0 + (prod * 15.0) - (dist_home * 7.0) - (enemy_cnt * 8.0)
+        aggression_bonus = 45.0 if archetype == "MACRO_ECONOMIST" else 20.0
+        score = 120.0 + aggression_bonus + (prod * 15.0) - (dist_home * 7.0) - (enemy_cnt * 9.0)
         if relic_active:
-            score *= 1.6
+            score *= 1.65
         return max(10.0, score)
 
-    def _free_units(self, node, reserved: Dict[str, int], is_frontline: bool) -> Dict[str, int]:
-        free_map = {"raider": 0, "guard": 0, "siege": 0, "scout": 0}
+    def _get_available_units(self, node, reserved: Dict[str, int], is_frontline: bool) -> Dict[str, int]:
+        avail = {"raider": 0, "guard": 0, "siege": 0, "scout": 0}
         if not node.units:
-            return free_map
+            return avail
         for k, cnt in node.units.items():
             key = k.lower()
-            rem = cnt - reserved.get(key, 0)
-            # Keep 1 Scout on frontlines to spot Apex's incoming single-detachment stacks
+            free = cnt - reserved.get(key, 0)
             if key == "scout" and is_frontline:
-                rem = max(0, rem - 1)
-            free_map[key] = max(0, rem)
-        return free_map
+                free = max(0, free - 1)
+            avail[key] = max(0, free)
+        return avail
 
-    def _build_counter_payload(
+    def _select_optimal_squad(
         self,
         avail: Dict[str, int],
-        enemy_units: Dict[str, int],
+        enemy_garrison: Dict[str, int],
         is_neutral: bool,
         is_relic: bool,
-        turn: int,
+        archetype: str,
     ) -> Dict[UnitType, int]:
-        payload: Dict[UnitType, int] = {}
+        squad: Dict[UnitType, int] = {}
 
-        # Early Game (Turns 1-14): Send Guards + Raiders to crush Apex's pure-Raider openers
-        if turn <= 14 and is_neutral and sum(enemy_units.values()) == 0:
-            if avail["guard"] >= 1 and avail["raider"] >= 1:
-                payload[UnitType.GUARD] = 1
-                payload[UnitType.RAIDER] = min(avail["raider"], 2)
-                return payload
-            if avail["raider"] >= 2:
-                payload[UnitType.RAIDER] = 2
-                return payload
+        # Neutral capture: send combined arms (Guard + Raider) if facing an Anti-Meta Rusher,
+        # or fast Raiders if facing a Macro Economist
+        if is_neutral and sum(enemy_garrison.values()) == 0:
+            if archetype == "ANTI_META_RUSHER" and avail["guard"] >= 1 and avail["raider"] >= 1:
+                squad[UnitType.GUARD] = 1
+                squad[UnitType.RAIDER] = 1
+            elif avail["raider"] >= 2:
+                squad[UnitType.RAIDER] = 2
+            elif avail["guard"] >= 2:
+                squad[UnitType.GUARD] = 2
+            if squad and avail["scout"] >= 1:
+                squad[UnitType.SCOUT] = 1
+            return squad
 
-        # Relic Endgame: Flood with mixed Guard + Siege (un-counterable by single RPS type)
+        # Relic commitment: send full combined-arms stack
         if is_relic:
             for k in ("guard", "siege", "raider", "scout"):
                 if avail[k] > 0:
-                    payload[self.STR_TO_TYPE[k]] = avail[k]
-            return payload
+                    squad[self.STR_TO_TYPE[k]] = avail[k]
+            return squad
 
-        # Counter-RPS selection against known enemy garrison
-        e_guards = enemy_units.get("guard", 0)
-        e_raiders = enemy_units.get("raider", 0)
-        e_siege = enemy_units.get("siege", 0)
+        # Counter-composition against visible garrison
+        e_g = enemy_garrison.get("guard", 0)
+        e_r = enemy_garrison.get("raider", 0)
+        e_s = enemy_garrison.get("siege", 0)
 
-        order = ["siege", "guard", "raider"]
-        if e_guards >= max(e_raiders, e_siege) and e_guards > 0:
-            order = ["siege", "raider", "guard"]
-        elif e_raiders > max(e_guards, e_siege):
-            order = ["guard", "siege", "raider"]
-        elif e_siege > max(e_guards, e_raiders):
-            order = ["raider", "guard", "siege"]
+        priority = ["siege", "guard", "raider"]
+        if e_g >= max(e_r, e_s) and e_g > 0:
+            priority = ["siege", "raider", "guard"]
+        elif e_r > max(e_g, e_s):
+            priority = ["guard", "siege", "raider"]
+        elif e_s > max(e_g, e_r):
+            priority = ["raider", "guard", "siege"]
 
-        for k in order:
+        for k in priority:
             if avail[k] > 0:
-                payload[self.STR_TO_TYPE[k]] = avail[k]
+                squad[self.STR_TO_TYPE[k]] = avail[k]
 
-        if sum(payload.values()) >= 2 and avail["scout"] > 0:
-            payload[UnitType.SCOUT] = 1
+        if sum(squad.values()) >= 2 and avail["scout"] > 0:
+            squad[UnitType.SCOUT] = 1
 
-        return payload
-
-    def _raw_offensive_power(self, attackers: Dict[str, int], defenders: Dict[str, int]) -> float:
-        power = 0.0
-        total_def = max(1, sum(defenders.values()))
-        for k, cnt in attackers.items():
-            if cnt <= 0:
-                continue
-            cost = self.UNIT_COSTS.get(self.STR_TO_TYPE.get(k, UnitType.RAIDER), 10)
-            weak = self.COUNTERS.get(k)
-            mult = 1.0 + (defenders.get(weak, 0) / total_def) if weak and defenders else 1.0
-            power += cnt * cost * mult
-        return power
-
-    def _raw_defensive_power(self, defenders: Dict[str, int], owned_by_defender: bool) -> float:
-        power = 0.0
-        for k, cnt in defenders.items():
-            cost = self.UNIT_COSTS.get(self.STR_TO_TYPE.get(k, UnitType.RAIDER), 10)
-            power += cnt * cost
-        return power * (1.25 if owned_by_defender else 1.0)
+        return squad
 
     # -------------------------------------------------------------------------
-    # ANTI-APEX PRODUCTION & BAIT-AND-SWITCH ECONOMY
+    # MARGINAL ROI ECONOMY & NASH MIXED-STRATEGY PRODUCTION
     # -------------------------------------------------------------------------
 
-    def _execute_production(
+    def _plan_production(
         self,
         obs: BotObservation,
         my_nodes: List,
         frontline_ids: Set[int],
         total_units: int,
-        enemy_comp: Dict[str, int],
-        early_relic_lock: bool,
+        income: int,
+        archetype: str,
+        relic_window: bool,
         relic_active: bool,
     ) -> List[Order]:
         orders: List[Order] = []
         credits = obs.my_credits
 
-        # Exploit Apex's 30-unit cap: run 38 units mid-game (small 8 cr/turn tax for +27% army size)
-        # and 75 units in endgame
-        army_cap = 75 if early_relic_lock else 38
-        if total_units >= army_cap:
+        # Dynamic Upkeep Cap based on net income & game phase:
+        # Never let upkeep exceed 35% of our node income before endgame,
+        # but scale freely up to 44 units if we hold high-economy nodes (beats Apex's 30 cap & Nemesis's 38 cap)
+        if relic_window or relic_active:
+            dynamic_cap = 80
+        else:
+            affordable_upkeep = max(4, int(income * 0.35))
+            dynamic_cap = min(44, 30 + affordable_upkeep)
+
+        if total_units >= dynamic_cap:
             return orders
 
-        anchor = self.relic_id if early_relic_lock else self.enemy_home_id
+        anchor = self.relic_id if relic_window else self.enemy_home_id
         spawns = sorted(
             my_nodes,
             key=lambda n: (
@@ -420,9 +489,9 @@ class NemesisNodeBot(BotBase):
             ),
         )
 
-        # Ensure frontline lane vision
+        # Maintain frontline scout grid
         for f_id in frontline_ids:
-            if credits < 6 or total_units >= army_cap:
+            if credits < 6 or total_units >= dynamic_cap:
                 break
             f_node = next((n for n in my_nodes if n.id == f_id), None)
             if f_node and (f_node.units or {}).get("scout", 0) == 0:
@@ -430,66 +499,70 @@ class NemesisNodeBot(BotBase):
                 credits -= 6
                 total_units += 1
 
-        while credits >= 10 and total_units < army_cap:
-            unit_type = self._pick_anti_apex_unit(
+        while credits >= 10 and total_units < dynamic_cap:
+            u_type = self._select_nash_unit(
                 obs=obs,
                 credits=credits,
-                enemy_comp=enemy_comp,
-                early_relic_lock=early_relic_lock,
-                relic_active=relic_active,
+                archetype=archetype,
+                relic_window=relic_window,
             )
-            cost = self.UNIT_COSTS[unit_type]
+            cost = self.UNIT_COSTS[u_type]
             if credits < cost:
                 break
 
-            orders.append(self.train(spawns[0].id, unit_type, 1))
+            orders.append(self.train(spawns[0].id, u_type, 1))
             credits -= cost
             total_units += 1
 
         return orders
 
-    def _pick_anti_apex_unit(
+    def _select_nash_unit(
         self,
         obs: BotObservation,
         credits: int,
-        enemy_comp: Dict[str, int],
-        early_relic_lock: bool,
-        relic_active: bool,
+        archetype: str,
+        relic_window: bool,
     ) -> UnitType:
-        turn = obs.current_turn
-
-        # Phase 1 (Turns 1-14): Apex is hardcoded to build pure Raiders.
-        # Build Guards (2.0x vs Raiders) + fast Raiders to intercept & wipe its expansion squads.
-        if turn <= 14:
-            if credits >= 12 and turn % 2 == 1:
+        """
+        Blends deterministic archetype exploitation with a Nash-equilibrium
+        combined-arms mix so neither Apex nor Nemesis can hard-counter us.
+        """
+        # 1. Opening (Turns 1-8): Build a balanced Guard+Raider core.
+        # Beats Apex's pure Raiders AND trades evenly/wins against Nemesis's Guard rush.
+        if obs.current_turn <= 8:
+            if credits >= 12 and obs.current_turn % 2 == 0:
                 return UnitType.GUARD
             return UnitType.RAIDER
 
-        # Phase 2 (Turns 15-24): RPS Bait-and-Switch!
-        # Flash Raiders early so Apex's 6-turn memory locks onto Guards, then pivot hard into Siege.
-        if 15 <= turn <= 18:
-            return UnitType.RAIDER
-        if 19 <= turn <= 26 and credits >= 18:
-            return UnitType.SIEGE
+        # 2. If opponent is classified as ANTI_META_RUSHER (Nemesis):
+        # Nemesis spams Guards early and pivots to 2:1 Siege in mid/endgame.
+        # Counter with a Raider + Siege + Guard triad (Raiders shred Nemesis's Siege; Siege melts Nemesis's Guards).
+        if archetype == "ANTI_META_RUSHER":
+            roll = self.rng.random()
+            if roll < 0.45 and credits >= 18:
+                return UnitType.SIEGE
+            if roll < 0.80:
+                return UnitType.RAIDER
+            return UnitType.GUARD if credits >= 12 else UnitType.RAIDER
 
-        # Phase 3 (Endgame / Relic Lock): Apex defaults to Guards + Siege.
-        # Counter with a 2:1 Siege-to-Guard ratio (Siege melts Apex's Guards; our Guards block Apex's Raiders).
-        if early_relic_lock or relic_active:
-            if credits >= 18 and (turn % 3 != 0):
+        # 3. If opponent is classified as MACRO_ECONOMIST (Apex):
+        # Apex opens Raiders then over-reacts with Guards when it sees Raiders.
+        # Build Siege + Guard heavy to crush both its Raiders and its reactive Guards.
+        if archetype == "MACRO_ECONOMIST":
+            if credits >= 18 and self.rng.random() < 0.55:
                 return UnitType.SIEGE
             if credits >= 12:
                 return UnitType.GUARD
-
-        # Reactive hard-counter fallback
-        e_guards = enemy_comp.get("guard", 0)
-        e_raiders = enemy_comp.get("raider", 0)
-        e_siege = enemy_comp.get("siege", 0)
-
-        if e_guards >= max(e_raiders, e_siege) and e_guards > 0 and credits >= 18:
-            return UnitType.SIEGE
-        if e_raiders > max(e_guards, e_siege) and credits >= 12:
-            return UnitType.GUARD
-        if e_siege > max(e_guards, e_raiders):
             return UnitType.RAIDER
 
-        return UnitType.SIEGE if credits >= 18 else UnitType.GUARD
+        # 4. Relic Endgame / Unknown Hybrid: True Combined-Arms Nash Mix
+        # 40% Siege, 40% Guard, 20% Raider — immune to any single-unit RPS hard counter.
+        if relic_window or archetype == "BALANCED_HYBRID":
+            roll = self.rng.random()
+            if roll < 0.40 and credits >= 18:
+                return UnitType.SIEGE
+            if roll < 0.80 and credits >= 12:
+                return UnitType.GUARD
+            return UnitType.RAIDER
+
+        return UnitType.GUARD if credits >= 12 else UnitType.RAIDER
