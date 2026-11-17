@@ -30,6 +30,18 @@ class NodeWarTDVisualizer {
     // Static Decor Placement (Trees, Rocks, Huts, Fences)
     this.decorations = [];
 
+    // Pan & Zoom Camera Controls
+    this.zoomLevel = 1.0;
+    this.panOffsetX = 0;
+    this.panOffsetY = 0;
+    this.isPanning = false;
+    this.dragStartX = 0;
+    this.dragStartY = 0;
+    this.dragStartPanX = 0;
+    this.dragStartPanY = 0;
+    this.hasDragged = false;
+    this.canvas.style.cursor = 'grab';
+
     this.initCanvasResize();
     this.loadAssets();
     this.bindEvents();
@@ -172,16 +184,25 @@ class NodeWarTDVisualizer {
       this.subTurnProgress = 1.0;
     }
 
+    this.ctx.save();
+    // Apply Viewport Pan & Zoom Transform
+    this.ctx.translate(this.panOffsetX, this.panOffsetY);
+    this.ctx.scale(this.zoomLevel, this.zoomLevel);
+
     // Layer 1: Cartoon Grass Meadow
     this.drawMeadowBackground();
 
     if (!this.replayData) {
       this.drawLoadingScreen();
+      this.ctx.restore();
       return;
     }
 
     const frame = this.replayData.frames[this.currentFrameIdx];
-    if (!frame) return;
+    if (!frame) {
+      this.ctx.restore();
+      return;
+    }
 
     // Layer 2: Winding Sand/Dirt Roads (Lanes)
     this.drawWindingRoads();
@@ -200,26 +221,29 @@ class NodeWarTDVisualizer {
 
     // Layer 7: Fog of War (Player Perspective)
     this.drawCartoonFogOfWar(frame);
+
+    this.ctx.restore();
   }
 
   drawMeadowBackground() {
-    // Vibrant cartoon green meadow
+    // Vibrant cartoon green meadow (infinite pan-safe bounds)
+    const span = 2500;
     const grad = this.ctx.createRadialGradient(
       this.displayWidth / 2, this.displayHeight / 2, 50,
-      this.displayWidth / 2, this.displayHeight / 2, this.displayWidth * 0.8
+      this.displayWidth / 2, this.displayHeight / 2, this.displayWidth * 1.2
     );
     grad.addColorStop(0, '#9ad03b');
     grad.addColorStop(1, '#7bb828');
     this.ctx.fillStyle = grad;
-    this.ctx.fillRect(0, 0, this.displayWidth, this.displayHeight);
+    this.ctx.fillRect(-span, -span, this.displayWidth + span * 2, this.displayHeight + span * 2);
 
     // Subtle cartoon grass blade clumps
     this.ctx.fillStyle = '#6ca320';
-    const step = 60;
-    for (let x = 30; x < this.displayWidth; x += step) {
-      for (let y = 30; y < this.displayHeight; y += step) {
-        const ox = ((x * 13) % 20) - 10;
-        const oy = ((y * 17) % 20) - 10;
+    const step = 65;
+    for (let x = -800; x < this.displayWidth + 800; x += step) {
+      for (let y = -800; y < this.displayHeight + 800; y += step) {
+        const ox = ((Math.abs(x * 13)) % 24) - 12;
+        const oy = ((Math.abs(y * 17)) % 24) - 12;
         this.ctx.fillRect(x + ox, y + oy, 3, 4);
         this.ctx.fillRect(x + ox + 3, y + oy - 2, 3, 6);
       }
@@ -259,25 +283,6 @@ class NodeWarTDVisualizer {
       this.ctx.lineCap = 'round';
       this.ctx.lineJoin = 'round';
       this.ctx.stroke();
-
-      // Road pebbles / cobblestone dots
-      const midX = (pA.x + pB.x) / 2;
-      const midY = (pA.y + pB.y) / 2;
-
-      // Wooden Milestone Turn Signpost
-      this.ctx.fillStyle = '#583115';
-      this.ctx.strokeStyle = '#2b2d42';
-      this.ctx.lineWidth = 2;
-      this.ctx.beginPath();
-      this.ctx.arc(midX, midY, 13, 0, Math.PI * 2);
-      this.ctx.fill();
-      this.ctx.stroke();
-
-      this.ctx.fillStyle = '#ffd166';
-      this.ctx.font = 'bold 11px "Orbitron", monospace';
-      this.ctx.textAlign = 'center';
-      this.ctx.textBaseline = 'middle';
-      this.ctx.fillText(`${lane.travel_turns}T`, midX, midY);
     });
   }
 
@@ -501,7 +506,121 @@ class NodeWarTDVisualizer {
         this.ctx.fillText('⚔️ BATTLE! ⚔️', 0, 0);
         this.ctx.restore();
       }
+
+      // 8. Dynamic Animated 2-Soldier Duel at Contested Castle
+      if (activeBattle && this.assetsLoaded) {
+        this.drawSoldierDuel(p.x, p.y + drawH * 0.16, activeBattle);
+      }
     });
+  }
+
+  getDominantUnitSprite(units, player) {
+    const isP1 = (player === 1);
+    if (!units) return isP1 ? this.assets.knight_p1 : this.assets.knight_p2;
+    if ((units.guard || 0) > 0) return isP1 ? this.assets.knight_p1 : this.assets.knight_p2;
+    if ((units.raider || 0) > 0) return isP1 ? this.assets.rogue_p1 : this.assets.rogue_p2;
+    if ((units.siege || 0) > 0) return isP1 ? this.assets.cannon_p1 : this.assets.cannon_p2;
+    if ((units.scout || 0) > 0) return isP1 ? this.assets.eagle_p1 : this.assets.eagle_p2;
+    return isP1 ? this.assets.knight_p1 : this.assets.knight_p2;
+  }
+
+  drawSoldierDuel(cx, cy, cb) {
+    if (!this.assetsLoaded) return;
+
+    const attP = cb.attackers_player || 1;
+    const defP = cb.defenders_player || 2;
+    const attImg = this.getDominantUnitSprite(cb.attackers_before, attP);
+    const defImg = this.getDominantUnitSprite(cb.defenders_before, defP);
+
+    // Continuous dynamic combat rhythm
+    const t = (Date.now() * 0.009) % (Math.PI * 2);
+    const clashPhase = Math.sin(t);
+
+    // Attacker (Left) lunges towards right
+    const lungeLeft = Math.max(0, clashPhase) * 16;
+    const jumpLeft = -Math.abs(Math.sin(t * 2)) * 6;
+    const tiltLeft = clashPhase * 0.16;
+    const lx = cx - 26 + lungeLeft;
+    const ly = cy + jumpLeft;
+
+    // Defender (Right) lunges/counters towards left
+    const lungeRight = Math.max(0, -clashPhase) * 16;
+    const jumpRight = -Math.abs(Math.cos(t * 2)) * 6;
+    const tiltRight = -clashPhase * 0.16;
+    const rx = cx + 26 - lungeRight;
+    const ry = cy + jumpRight;
+
+    // Dynamic ground shadows under duelists
+    this.ctx.save();
+    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.32)';
+    this.ctx.beginPath();
+    this.ctx.ellipse(lx, cy + 18, 14, 5, 0, 0, Math.PI * 2);
+    this.ctx.ellipse(rx, cy + 18, 14, 5, 0, 0, Math.PI * 2);
+    this.ctx.fill();
+    this.ctx.restore();
+
+    // Draw Left Attacker (Facing Right)
+    if (attImg) {
+      this.ctx.save();
+      this.ctx.translate(lx, ly);
+      this.ctx.rotate(tiltLeft);
+      this.ctx.drawImage(attImg, -20, -20, 40, 40);
+      this.ctx.restore();
+    }
+
+    // Draw Right Defender (Facing Left - flipped horizontally)
+    if (defImg) {
+      this.ctx.save();
+      this.ctx.translate(rx, ry);
+      this.ctx.scale(-1, 1);
+      this.ctx.rotate(-tiltRight);
+      this.ctx.drawImage(defImg, -20, -20, 40, 40);
+      this.ctx.restore();
+    }
+
+    // Blade Collision Point & Sparks
+    const midX = (lx + rx) / 2;
+    const midY = (ly + ry) / 2 - 2;
+    const isClashing = Math.abs(clashPhase) < 0.35;
+
+    if (isClashing) {
+      this.ctx.save();
+      // Glowing Impact Flash Star
+      const sparkRadius = 14 + Math.random() * 8;
+      const grad = this.ctx.createRadialGradient(midX, midY, 2, midX, midY, sparkRadius);
+      grad.addColorStop(0, '#ffffff');
+      grad.addColorStop(0.35, '#ffd166');
+      grad.addColorStop(0.7, '#ff0055');
+      grad.addColorStop(1, 'rgba(255, 0, 85, 0)');
+      this.ctx.fillStyle = grad;
+      this.ctx.beginPath();
+      this.ctx.arc(midX, midY, sparkRadius, 0, Math.PI * 2);
+      this.ctx.fill();
+
+      // Slashing energy lines
+      this.ctx.strokeStyle = '#ffffff';
+      this.ctx.lineWidth = 3;
+      this.ctx.beginPath();
+      this.ctx.moveTo(midX - 11, midY - 11);
+      this.ctx.lineTo(midX + 11, midY + 11);
+      this.ctx.moveTo(midX + 11, midY - 11);
+      this.ctx.lineTo(midX - 11, midY + 11);
+      this.ctx.stroke();
+
+      // Flying sparks into combat particle system
+      if (Math.random() > 0.4) {
+        this.combatParticles.push({
+          x: midX,
+          y: midY,
+          vx: (Math.random() - 0.5) * 6,
+          vy: -Math.random() * 4 - 1.5,
+          size: 3 + Math.random() * 3,
+          life: 0.8,
+          color: Math.random() > 0.5 ? '#ffd166' : '#ff0055'
+        });
+      }
+      this.ctx.restore();
+    }
   }
 
   drawStreamlinedBadge(x, y, staticNode, dynamicNode) {
@@ -675,32 +794,92 @@ class NodeWarTDVisualizer {
           squadUnits.push({ type: 'scout', img: isP1 ? this.assets.eagle_p1 : this.assets.eagle_p2, rank: 3 });
         }
 
-        // Draw each individual soldier sprite in formation
-        const maxDraw = Math.min(squadUnits.length, 8);
+        // If composition breakdown is not provided, populate from total_count
+        if (squadUnits.length === 0 && fleet.total_count > 0) {
+          for (let i = 0; i < fleet.total_count; i++) {
+            squadUnits.push({ type: 'raider', img: isP1 ? this.assets.rogue_p1 : this.assets.rogue_p2, rank: 1 });
+          }
+        }
+
+        // Draw each individual soldier sprite in tactical formation along the road
+        const maxDraw = Math.min(squadUnits.length, 6);
         for (let i = 0; i < maxDraw; i++) {
           const u = squadUnits[i];
-          const walkBob = Math.sin(Date.now() * 0.016 + i * 0.9 + fleet.fleet_id) * 3;
+          const walkCycle = Math.sin(Date.now() * 0.018 + i * 1.2 + fleet.fleet_id);
+          const walkBob = walkCycle * 3.5;
+          const walkTilt = (fwdX < 0 ? -1 : 1) * walkCycle * 0.08;
 
           // Spread laterally across road and forward/backward
-          const colOffset = ((i % 3) - 1) * 14;
-          const rowOffset = - Math.floor(i / 3) * 16;
+          const colOffset = ((i % 2) - 0.5) * 16;
+          const rowOffset = - Math.floor(i / 2) * 18;
 
           const ux = fx + normX * colOffset + fwdX * rowOffset;
           const uy = fy + normY * colOffset + fwdY * rowOffset;
 
+          // 1. Dynamic ground shadow under moving soldier
+          this.ctx.save();
+          this.ctx.fillStyle = 'rgba(0, 0, 0, 0.28)';
+          this.ctx.beginPath();
+          if (u.type === 'scout') {
+            this.ctx.ellipse(ux, uy + 6, 9, 3, 0, 0, Math.PI * 2);
+          } else {
+            this.ctx.ellipse(ux, uy + 14, 12, 4, 0, 0, Math.PI * 2);
+          }
+          this.ctx.fill();
+          this.ctx.restore();
+
+          // 2. Render Animated Soldier Sprite with Walking Direction & Bob
+          this.ctx.save();
+          this.ctx.translate(ux, uy);
+          if (fwdX < 0) {
+            this.ctx.scale(-1, 1); // Flip horizontally so soldier faces left march direction!
+          }
+          this.ctx.rotate(walkTilt);
+
           if (u.type === 'scout') {
             // Eagle flying overhead
-            this.ctx.drawImage(u.img, ux - 15, uy - 34 + walkBob, 30, 30);
+            this.ctx.drawImage(u.img, -18, -36 + walkBob, 36, 36);
+          } else if (u.type === 'siege') {
+            // Cannon artillery rolling
+            this.ctx.drawImage(u.img, -22, -18 + walkBob * 0.4, 44, 36);
           } else {
             // Ground soldier marching
-            this.ctx.drawImage(u.img, ux - 15, uy - 18 + walkBob, 30, 30);
+            this.ctx.drawImage(u.img, -19, -19 + walkBob, 38, 38);
           }
+          this.ctx.restore();
         }
 
-        // Tactical Esports Squad Banner with Destination & Composition
-        this.drawSquadEsportsBanner(fx, fy - 38, fleet, units, isP1);
+        // Minimal Sleek Floating Squad Tag (No bulky boxes blocking the road!)
+        this.drawCompactSquadBadge(fx, fy - 32, fleet, isP1);
       }
     });
+  }
+
+  drawCompactSquadBadge(x, y, fleet, isP1) {
+    const borderColor = isP1 ? '#00f3ff' : '#ff0055';
+    const tagText = `${isP1 ? 'P1' : 'P2'} · ${fleet.total_count}⚔️`;
+    const w = 48;
+    const h = 16;
+
+    this.ctx.save();
+    this.ctx.fillStyle = 'rgba(10, 14, 26, 0.88)';
+    this.ctx.strokeStyle = borderColor;
+    this.ctx.lineWidth = 1.6;
+    this.ctx.beginPath();
+    if (typeof this.ctx.roundRect === 'function') {
+      this.ctx.roundRect(x - w / 2, y - h / 2, w, h, 4);
+    } else {
+      this.ctx.rect(x - w / 2, y - h / 2, w, h);
+    }
+    this.ctx.fill();
+    this.ctx.stroke();
+
+    this.ctx.fillStyle = borderColor;
+    this.ctx.font = 'bold 9px "Orbitron", monospace';
+    this.ctx.textAlign = 'center';
+    this.ctx.textBaseline = 'middle';
+    this.ctx.fillText(tagText, x, y);
+    this.ctx.restore();
   }
 
   drawMarchDirectionChevrons(fx, fy, fwdX, fwdY, teamColor) {
@@ -745,40 +924,6 @@ class NodeWarTDVisualizer {
     this.ctx.lineWidth = 2;
     this.ctx.setLineDash([6, 6]);
     this.ctx.stroke();
-    this.ctx.restore();
-  }
-
-  drawSquadEsportsBanner(x, y, fleet, units, isP1) {
-    const teamName = isP1 ? 'P1 CYAN' : 'P2 CRIMSON';
-    const borderColor = isP1 ? '#00f3ff' : '#ff0055';
-
-    const w = 120;
-    const h = 28;
-
-    this.ctx.save();
-    // Banner box
-    this.ctx.fillStyle = '#583115';
-    this.ctx.strokeStyle = borderColor;
-    this.ctx.lineWidth = 2.5;
-    this.ctx.shadowColor = borderColor;
-    this.ctx.shadowBlur = 8;
-    this.ctx.beginPath();
-    this.ctx.roundRect(x - w / 2, y, w, h, 6);
-    this.ctx.fill();
-    this.ctx.stroke();
-    this.ctx.shadowBlur = 0;
-
-    // Line 1: Team & Destination
-    this.ctx.fillStyle = borderColor;
-    this.ctx.font = 'bold 9px "Orbitron", monospace';
-    this.ctx.textAlign = 'center';
-    this.ctx.fillText(`${teamName} ➔ NODE ${fleet.dest_node} (${fleet.turns_remaining}T)`, x, y + 10);
-
-    // Line 2: Troop Composition Strip: 🛡️2 🗡️3 💣1 🦅1
-    this.ctx.fillStyle = '#ffffff';
-    this.ctx.font = 'bold 8px "Orbitron", monospace';
-    const troopStr = `🛡️${units.guard || 0} 🗡️${units.raider || 0} 💣${units.siege || 0} 🦅${units.scout || 0}`;
-    this.ctx.fillText(troopStr, x, y + 21);
     this.ctx.restore();
   }
 
@@ -988,15 +1133,62 @@ class NodeWarTDVisualizer {
   }
 
   bindEvents() {
-    this.canvas.addEventListener('click', (e) => {
+    // 1. Mouse Wheel Zoom centered around cursor
+    this.canvas.addEventListener('wheel', (e) => {
+      e.preventDefault();
       const rect = this.canvas.getBoundingClientRect();
-      const clickX = e.clientX - rect.left;
-      const clickY = e.clientY - rect.top;
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+      const factor = e.deltaY < 0 ? 1.15 : 0.87;
+      this.applyZoom(this.zoomLevel * factor, mouseX, mouseY);
+    }, { passive: false });
+
+    // 2. Click & Drag Pan
+    this.canvas.addEventListener('mousedown', (e) => {
+      if (e.button === 0 || e.button === 1) { // Left or middle click
+        this.isPanning = true;
+        this.hasDragged = false;
+        this.dragStartX = e.clientX;
+        this.dragStartY = e.clientY;
+        this.dragStartPanX = this.panOffsetX;
+        this.dragStartPanY = this.panOffsetY;
+        this.canvas.style.cursor = 'grabbing';
+      }
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!this.isPanning) return;
+      const dx = e.clientX - this.dragStartX;
+      const dy = e.clientY - this.dragStartY;
+      if (Math.hypot(dx, dy) > 4) {
+        this.hasDragged = true;
+      }
+      this.panOffsetX = this.dragStartPanX + dx;
+      this.panOffsetY = this.dragStartPanY + dy;
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (this.isPanning) {
+        this.isPanning = false;
+        this.canvas.style.cursor = 'grab';
+      }
+    });
+
+    // 3. Node Selection with Pan & Zoom Coordinate Transform
+    this.canvas.addEventListener('click', (e) => {
+      if (this.hasDragged) return; // Don't select node if user was panning map
+      const rect = this.canvas.getBoundingClientRect();
+      const screenX = e.clientX - rect.left;
+      const screenY = e.clientY - rect.top;
+
+      // Convert screen pixel position to world coordinates taking zoom and pan into account
+      const clickX = (screenX - this.panOffsetX) / this.zoomLevel;
+      const clickY = (screenY - this.panOffsetY) / this.zoomLevel;
 
       if (!this.replayData) return;
       for (const node of this.replayData.map.nodes) {
         const p = this.getNodeScreenPos(node.id);
-        if (p && Math.hypot(p.x - clickX, p.y - clickY) < 45) {
+        if (p && Math.hypot(p.x - clickX, p.y - clickY) < 48) {
           this.selectedNodeId = node.id;
           if (window.nodeWarApp) {
             window.nodeWarApp.selectNode(node.id);
@@ -1005,6 +1197,37 @@ class NodeWarTDVisualizer {
         }
       }
     });
+  }
+
+  applyZoom(newZoom, centerX = this.displayWidth / 2, centerY = this.displayHeight / 2) {
+    const clamped = Math.max(0.75, Math.min(3.0, newZoom));
+    // Zoom centered around (centerX, centerY)
+    this.panOffsetX = centerX - (centerX - this.panOffsetX) * (clamped / this.zoomLevel);
+    this.panOffsetY = centerY - (centerY - this.panOffsetY) * (clamped / this.zoomLevel);
+    this.zoomLevel = clamped;
+    this.updateZoomUI();
+  }
+
+  zoomIn() {
+    this.applyZoom(this.zoomLevel * 1.25);
+  }
+
+  zoomOut() {
+    this.applyZoom(this.zoomLevel / 1.25);
+  }
+
+  resetZoom() {
+    this.zoomLevel = 1.0;
+    this.panOffsetX = 0;
+    this.panOffsetY = 0;
+    this.updateZoomUI();
+  }
+
+  updateZoomUI() {
+    const badge = document.getElementById('zoom-level-badge');
+    if (badge) {
+      badge.textContent = `${Math.round(this.zoomLevel * 100)}%`;
+    }
   }
 }
 

@@ -155,6 +155,7 @@ class NodeWarVisualizer {
     const container3D = document.getElementById('three-container');
     const canvas2D = document.getElementById('game-canvas');
     const camPresets = document.getElementById('camera-presets-bar');
+    const zoomBar = document.getElementById('zoom-controls-bar');
     const btnTD = document.getElementById('btn-mode-td');
     const btn3D = document.getElementById('btn-mode-3d');
     const btn2D = document.getElementById('btn-mode-2d');
@@ -163,6 +164,11 @@ class NodeWarVisualizer {
     if (btnTD) btnTD.classList.remove('active');
     if (btn3D) btn3D.classList.remove('active');
     if (btn2D) btn2D.classList.remove('active');
+
+    if (zoomBar) {
+      if (mode === '3d') zoomBar.classList.add('hidden');
+      else zoomBar.classList.remove('hidden');
+    }
 
     if (mode === 'td') {
       if (canvasTD) canvasTD.classList.remove('hidden');
@@ -277,6 +283,14 @@ class NodeWarVisualizer {
         this.logEvent("Refreshed bots directory.", "system");
       });
     }
+
+    // Viewport Zoom controls
+    const btnZoomIn = document.getElementById('btn-zoom-in');
+    const btnZoomOut = document.getElementById('btn-zoom-out');
+    const btnZoomReset = document.getElementById('btn-zoom-reset');
+    if (btnZoomIn) btnZoomIn.addEventListener('click', () => { if (this.tdViz) this.tdViz.zoomIn(); });
+    if (btnZoomOut) btnZoomOut.addEventListener('click', () => { if (this.tdViz) this.tdViz.zoomOut(); });
+    if (btnZoomReset) btnZoomReset.addEventListener('click', () => { if (this.tdViz) this.tdViz.resetZoom(); });
 
     // Load custom script into editor button
     const loadScriptBtn = document.getElementById('btn-load-script-into-editor');
@@ -1094,11 +1108,12 @@ class NodeWarVisualizer {
     else if (dynamicNode.owner === 2) ownerLabel = '<span style="color:#ff0055">Player 2</span>';
 
     const units = dynamicNode.units || { raider: 0, siege: 0, guard: 0, scout: 0 };
+    const defBonus = (node.id === 0 || node.id === 14) ? '+50% (Fortified Core)' : '+25%';
     const content = `
       <div class="inspector-item"><strong>Node ${node.id}:</strong> ${node.name}</div>
       <div class="inspector-item"><strong>Owner:</strong> ${ownerLabel}</div>
-      <div class="inspector-item"><strong>Production:</strong> +${node.production} Credits/T</div>
-      <div class="inspector-item"><strong>Defense Bonus:</strong> +25%</div>
+      <div class="inspector-item"><strong>Production:</strong> +${node.production} Gold/T 🪙</div>
+      <div class="inspector-item"><strong>Defense Bonus:</strong> ${defBonus}</div>
       <div class="inspector-item"><strong>Capture Progress:</strong> ${dynamicNode.capture_progress}/2</div>
       <hr style="border-color:#232c45; margin: 8px 0;">
       <div class="inspector-item"><strong>Garrison:</strong></div>

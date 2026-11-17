@@ -49,7 +49,7 @@ The battlefield consists of **15 discrete nodes** connected by travel lanes. The
 ```
 
 ### Complete Node Directory
-| ID | Node Name | Position $(X, Y)$ | Default Owner | Production (Credits/T) | Defense Bonus | Initial Garrison |
+| ID | Node Name | Position $(X, Y)$ | Default Owner | Production (Gold/T) | Defense Bonus | Initial Garrison |
 |:--:|:---|:---:|:---:|:---:|:---:|:---|
 | **0** | **Player 1 Core** | $(10.0, 50.0)$ | Player 1 | **15** | +50% | 1 Raider, 1 Guard, 1 Scout |
 | **1** | Alpha Bastion | $(25.0, 25.0)$ | Neutral | **4** | +25% | 1 Raider (Neutral Defender) |
@@ -78,27 +78,27 @@ Nodes are connected by bidirectional lanes with travel costs ranging from **2 to
 ## 3. Economy, Production & Empire Upkeep
 
 ### Starting Capital
-Both players start Turn 1 with **30 Credits**.
+Both players start Turn 1 with **30 Gold** (represented as `obs.my_credits` in the bot API).
 
 ### Income Phase
-At the beginning of each turn, each player collects credits equal to the sum of `production` values of all nodes they currently own:
+At the beginning of each turn, each player collects Gold equal to the sum of `production` values of all nodes they currently own:
 $$\text{Income}_p = \sum_{n \in \text{Owned}_p} \text{Production}(n)$$
 
 - **Tiered Yields**:
-  - **Core Citadels (0, 14)**: +15 credits/turn
-  - **Relic Sanctuary (7)**: +10 credits/turn
-  - **Chokepoint Gates & Outposts (3, 5, 6, 8, 9, 11)**: +7 credits/turn
-  - **Outer Bastions & Rigs (1, 2, 4, 10, 12, 13)**: +4 credits/turn
+  - **Core Citadels (0, 14)**: +15 Gold/turn
+  - **Relic Sanctuary (7)**: +10 Gold/turn
+  - **Chokepoint Gates & Outposts (3, 5, 6, 8, 9, 11)**: +7 Gold/turn
+  - **Outer Bastions & Refineries (1, 2, 4, 10, 12, 13)**: +4 Gold/turn
 
 ### Dynamic Empire Supply Lines (Upkeep)
 Rather than a flat cliff, armies are supported by a dynamic supply capacity scaled to territorial expansion:
 $$\text{Free Supply Cap}_p = 10 + (4 \times \text{Owned Nodes}_p)$$
 
 Armies exceeding this free supply capacity incur per-turn maintenance upkeep:
-- **Domestic Units**: Units stationed on friendly owned nodes incur **1 credit/turn** per unit above cap.
-- **Foreign / Expeditionary Units**: Units stationed on unowned/enemy nodes or traveling on lanes incur **2 credits/turn** (supply line tax).
+- **Domestic Units**: Units stationed on friendly owned nodes incur **1 Gold/turn** per unit above cap.
+- **Foreign / Expeditionary Units**: Units stationed on unowned/enemy nodes or traveling on lanes incur **2 Gold/turn** (supply line tax).
 - Free supply capacity automatically shields domestic forces first before covering expeditionary forces.
-- If a player's credits are insufficient to cover upkeep, their balance is clamped to **0 Credits**, suspending recruitment until losses or node captures restore economic balance.
+- If a player's Gold is insufficient to cover upkeep, their balance is clamped to **0 Gold**, suspending recruitment until losses or node captures restore economic balance.
 
 ---
 

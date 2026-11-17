@@ -91,6 +91,12 @@ f:\Avaneesh\projects\battlecode\
     - Preset Mode "Tournament Standard" sends `relic_spawn_turn: null` to activate the dynamic randomized awakening window (T80–T100).
     - Quick Navigation jump button dynamically reads the actual match relic turn (e.g. `⚡ Relic (T83)`).
     - Timeline scrubber marker and HUD status badge dynamically position and display the match's exact relic turn or `T80-100` window rather than a hardcoded `Turn 95`.
+- **Visual Clarity, Economy Rebranding & Interactive Controls (Latest)**:
+  - **Gold Economy Conversion**: Rebranded all UI, scoreboard HUD, node inspector, and documentation references from "Credits" to **Gold (🪙)** (e.g. `Gold: 30 🪙`, `+15 Gold/T`).
+  - **Road Milestone Cleanup**: Removed all intrusive brown circles and "2T" / "3T" text badges from winding dirt roads, leaving clean, natural paths.
+  - **Animated Marching Soldier Sprites**: Replaced bulky moving text/HUD banner cards on roads with real individual animated soldier sprites (Knights, Rogues, Cannons, Eagles) marching along the path with ground shadows, horizontal facing flip towards the destination (`scale(-1, 1)` when moving left), walking stride bobs, and a sleek minimal squad tag (`P1 · 5⚔️`).
+  - **Animated 2-Soldier Battle Duels**: Implemented dynamic clashing soldier animations at contested battle nodes: attacking and defending soldiers face off, lunge, jump, swing blades, strike with explosive clash starbursts (`💥`), crossed slash energy trails, and recoil.
+  - **Interactive Pan & Zoom**: Added full mouse wheel zoom centered around cursor (0.75x to 3.0x), click-and-drag map panning with `grab`/`grabbing` cursor, and floating on-screen zoom control buttons (`+`, `−`, `⟲`, with dynamic zoom percentage badge).
 - All 20 unit tests, bot integration tests, and HTTP endpoints passing.
 - Balance Matrix tournament evaluation verified: Rusher (0%) vs Turtle (100%), Turtle (0%) vs Balanced (100%), Balanced (0%) vs Rusher (100%) [100% Cycle Valid].
 - All changes committed and pushed to remote git repository (`origin/master`).

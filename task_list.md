@@ -42,3 +42,9 @@
 - [x] Task 40: Fix 2D Tactical canvas resize and immediate rendering upon mode toggle so 2D schematic renders grid, nodes, lanes, and fleets.
 - [x] Task 41: Wire dynamic relic activation turn throughout frontend and replay export: update quick-nav jump button (`⚡ Relic (T...)`), timeline scrubber marker, and HUD badge to reflect actual dynamic relic turn (T80-T100) instead of hardcoded 95.
 - [x] Task 42: Verification, tests, update `context.md`, `architechture.md`, and commit/push to git.
+- [x] Task 43: Convert all references of "Credits" to "Gold" (🪙) across web UI, HUD, and documentation.
+- [x] Task 44: Remove "2T" and "3T" road travel circles from winding paths in `web/td_visualizer.js`.
+- [x] Task 45: Replace moving text/HUD box cards on roads with real animated walking soldier sprites marching in formation between nodes with direction facing and walking stride bob.
+- [x] Task 46: Implement dynamic 2-soldier clashing/dueling animation (sword swings, shield recoil, slash FX, clash sparks) wherever battles take place.
+- [x] Task 47: Add interactive Pan & Zoom controls (mouse wheel zoom, drag-to-pan, on-screen `+` / `-` / `⟲` buttons) to the 2D Tower Defense visualizer.
+- [x] Task 48: Verification, test suite pass, update `context.md`, `architechture.md`, and commit/push to git.

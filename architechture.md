@@ -101,8 +101,9 @@ flowchart TD
         - Modeled after classic 2D cartoon tower defense games (*Kingdom Rush* / *Tower Defender*).
         - Renders winding sandy dirt paths cutting across vibrant grass meadows with procedural trees, rocks, fences, and tribal huts.
         - Castles & Towers: Illustrated stone fortresses with blue/red conical roofs (Nodes 0 & 14), round stone guard towers with flags (Chokepoints 5, 6, 8, 9), fortified stone barracks (Refineries 1–4, 10–13), and the ancient mystical Relic Shrine (Node 7).
-        - Animated Soldier Sprites: Knights with tower shields (Guards), running hooded Rogues with dual daggers (Raiders), wheeled iron Cannons (Siege), and flying Eagles with wing-flaps (Scouts). Every unit in a squad is drawn individually in tactical formation along the road with directional march chevrons (`>>`).
-        - Garrison Defenders: Stationed soldier sprites stand guard directly at castle gates and battlements, accompanied by a clean troop breakdown strip (`🛡️x3 🗡️x2 💣x1`).
+        - Animated Soldier Sprites: Knights with tower shields (Guards), running hooded Rogues with dual daggers (Raiders), wheeled iron Cannons (Siege), and flying Eagles with wing-flaps (Scouts). Every unit in a squad is drawn individually in tactical formation along the road with directional facing (`scale(-1, 1)` when moving leftwards), walking stride bobs, ground shadows, and minimal sleek squad tags (`P1 · 5⚔️`).
+        - Garrison Defenders & Animated Battle Duels: Stationed soldier sprites stand guard directly at castle gates and battlements (`[ 🛡️2  💣1 ]`). When battles occur, dynamic 2-soldier animated duels trigger at castle gates with sword lunges, shield blocks, explosive clash stars (`💥`), slash trails, and flying sparks.
+        - Interactive Pan & Zoom: Mouse wheel zoom centered on cursor (0.75x–3.0x), drag-to-pan, and on-screen zoom control overlay (`+`, `−`, `⟲`, percentage badge).
         - High-Visibility Battle Alerts: Animated crossed-swords badges (`⚔️ BATTLE! ⚔️`), expanding shockwave rings, floating combat casualties, and banner notifications.
         - Dynamic Cartoon Fog of War: Nighttime/twilight shroud parting with warm lantern light radii around castles and scouting eagles.
      2. **3D Isometric Arena (`three_visualizer.js`)**:
