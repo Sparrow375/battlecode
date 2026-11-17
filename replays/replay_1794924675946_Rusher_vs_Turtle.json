@@ -1,0 +1,7446 @@
+{
+  "metadata": {
+    "p1_name": "Rusher",
+    "p2_name": "Turtle",
+    "winner": 1,
+    "win_reason": "Points Tiebreak: P1 (6500917) > P2 (3703310)",
+    "total_turns": 20,
+    "final_scores": {
+      "p1": 65,
+      "p2": 37
+    },
+    "relic_turns": {
+      "p1": 0,
+      "p2": 0
+    }
+  },
+  "map": {
+    "nodes": [
+      {
+        "id": 0,
+        "name": "P1 Core",
+        "x": 10.0,
+        "y": 50.0,
+        "owner": 1,
+        "production": 15,
+        "units": {
+          "raider": 0,
+          "siege": 0,
+          "guard": 1,
+          "scout": 1
+        },
+        "defense_bonus": 0.25,
+        "capture_progress": 0,
+        "capturing_player": 0,
+        "resident_player": 1,
+        "total_units": 2
+      },
+      {
+        "id": 1,
+        "name": "Alpha Bastion",
+        "x": 25.0,
+        "y": 25.0,
+        "owner": 1,
+        "production": 6,
+        "units": {
+          "raider": 0,
+          "siege": 0,
+          "guard": 0,
+          "scout": 0
+        },
+        "defense_bonus": 0.25,
+        "capture_progress": 0,
+        "capturing_player": 0,
+        "resident_player": 0,
+        "total_units": 0
+      },
+      {
+        "id": 2,
+        "name": "Gamma Bastion",
+        "x": 25.0,
+        "y": 75.0,
+        "owner": 0,
+        "production": 6,
+        "units": {
+          "raider": 0,
+          "siege": 0,
+          "guard": 0,
+          "scout": 0
+        },
+        "defense_bonus": 0.25,
+        "capture_progress": 0,
+        "capturing_player": 0,
+        "resident_player": 0,
+        "total_units": 0
+      },
+      {
+        "id": 3,
+        "name": "Vanguard Gate",
+        "x": 32.0,
+        "y": 50.0,
+        "owner": 0,
+        "production": 8,
+        "units": {
+          "raider": 0,
+          "siege": 0,
+          "guard": 0,
+          "scout": 0
+        },
+        "defense_bonus": 0.25,
+        "capture_progress": 0,
+        "capturing_player": 0,
+        "resident_player": 0,
+        "total_units": 0
+      },
+      {
+        "id": 4,
+        "name": "North Rig",
+        "x": 40.0,
+        "y": 15.0,
+        "owner": 0,
+        "production": 5,
+        "units": {
+          "raider": 0,
+          "siege": 0,
+          "guard": 0,
+          "scout": 0
+        },
+        "defense_bonus": 0.25,
+        "capture_progress": 0,
+        "capturing_player": 0,
+        "resident_player": 0,
+        "total_units": 0
+      },
+      {
+        "id": 5,
+        "name": "North Outpost",
+        "x": 45.0,
+        "y": 35.0,
+        "owner": 1,
+        "production": 7,
+        "units": {
+          "raider": 0,
+          "siege": 0,
+          "guard": 0,
+          "scout": 0
+        },
+        "defense_bonus": 0.25,
+        "capture_progress": 0,
+        "capturing_player": 0,
+        "resident_player": 0,
+        "total_units": 0
+      },
+      {
+        "id": 6,
+        "name": "South Outpost",
+        "x": 45.0,
+        "y": 65.0,
+        "owner": 0,
+        "production": 7,
+        "units": {
+          "raider": 0,
+          "siege": 0,
+          "guard": 0,
+          "scout": 0
+        },
+        "defense_bonus": 0.25,
+        "capture_progress": 0,
+        "capturing_player": 0,
+        "resident_player": 0,
+        "total_units": 0
+      },
+      {
+        "id": 7,
+        "name": "Relic Sanctuary",
+        "x": 50.0,
+        "y": 50.0,
+        "owner": 0,
+        "production": 4,
+        "units": {
+          "raider": 0,
+          "siege": 0,
+          "guard": 0,
+          "scout": 0
+        },
+        "defense_bonus": 0.25,
+        "capture_progress": 0,
+        "capturing_player": 0,
+        "resident_player": 0,
+        "total_units": 0
+      },
+      {
+        "id": 8,
+        "name": "Titan Outpost",
+        "x": 55.0,
+        "y": 65.0,
+        "owner": 0,
+        "production": 7,
+        "units": {
+          "raider": 0,
+          "siege": 0,
+          "guard": 0,
+          "scout": 0
+        },
+        "defense_bonus": 0.25,
+        "capture_progress": 0,
+        "capturing_player": 0,
+        "resident_player": 0,
+        "total_units": 0
+      },
+      {
+        "id": 9,
+        "name": "Zenith Outpost",
+        "x": 55.0,
+        "y": 35.0,
+        "owner": 1,
+        "production": 7,
+        "units": {
+          "raider": 4
+        },
+        "defense_bonus": 0.25,
+        "capture_progress": 0,
+        "capturing_player": 0,
+        "resident_player": 1,
+        "total_units": 4
+      },
+      {
+        "id": 10,
+        "name": "Apex Rig",
+        "x": 60.0,
+        "y": 15.0,
+        "owner": 0,
+        "production": 5,
+        "units": {
+          "raider": 0,
+          "siege": 0,
+          "guard": 0,
+          "scout": 0
+        },
+        "defense_bonus": 0.25,
+        "capture_progress": 0,
+        "capturing_player": 0,
+        "resident_player": 0,
+        "total_units": 0
+      },
+      {
+        "id": 11,
+        "name": "Sentinel Gate",
+        "x": 68.0,
+        "y": 50.0,
+        "owner": 0,
+        "production": 8,
+        "units": {
+          "raider": 0,
+          "siege": 0,
+          "guard": 0,
+          "scout": 0
+        },
+        "defense_bonus": 0.25,
+        "capture_progress": 0,
+        "capturing_player": 0,
+        "resident_player": 0,
+        "total_units": 0
+      },
+      {
+        "id": 12,
+        "name": "Omega Bastion",
+        "x": 75.0,
+        "y": 75.0,
+        "owner": 0,
+        "production": 6,
+        "units": {
+          "raider": 0,
+          "siege": 0,
+          "guard": 0,
+          "scout": 0
+        },
+        "defense_bonus": 0.25,
+        "capture_progress": 0,
+        "capturing_player": 0,
+        "resident_player": 0,
+        "total_units": 0
+      },
+      {
+        "id": 13,
+        "name": "Epsilon Bastion",
+        "x": 75.0,
+        "y": 25.0,
+        "owner": 2,
+        "production": 6,
+        "units": {
+          "guard": 25
+        },
+        "defense_bonus": 0.25,
+        "capture_progress": 0,
+        "capturing_player": 0,
+        "resident_player": 2,
+        "total_units": 25
+      },
+      {
+        "id": 14,
+        "name": "P2 Core",
+        "x": 90.0,
+        "y": 50.0,
+        "owner": 2,
+        "production": 15,
+        "units": {
+          "raider": 1,
+          "siege": 0,
+          "guard": 1,
+          "scout": 1
+        },
+        "defense_bonus": 0.25,
+        "capture_progress": 0,
+        "capturing_player": 0,
+        "resident_player": 2,
+        "total_units": 3
+      }
+    ],
+    "lanes": [
+      {
+        "node_a": 0,
+        "node_b": 1,
+        "travel_turns": 2
+      },
+      {
+        "node_a": 0,
+        "node_b": 2,
+        "travel_turns": 2
+      },
+      {
+        "node_a": 0,
+        "node_b": 3,
+        "travel_turns": 3
+      },
+      {
+        "node_a": 1,
+        "node_b": 3,
+        "travel_turns": 2
+      },
+      {
+        "node_a": 2,
+        "node_b": 3,
+        "travel_turns": 2
+      },
+      {
+        "node_a": 1,
+        "node_b": 4,
+        "travel_turns": 2
+      },
+      {
+        "node_a": 1,
+        "node_b": 5,
+        "travel_turns": 2
+      },
+      {
+        "node_a": 2,
+        "node_b": 6,
+        "travel_turns": 2
+      },
+      {
+        "node_a": 4,
+        "node_b": 5,
+        "travel_turns": 2
+      },
+      {
+        "node_a": 3,
+        "node_b": 5,
+        "travel_turns": 2
+      },
+      {
+        "node_a": 3,
+        "node_b": 6,
+        "travel_turns": 2
+      },
+      {
+        "node_a": 5,
+        "node_b": 7,
+        "travel_turns": 2
+      },
+      {
+        "node_a": 6,
+        "node_b": 7,
+        "travel_turns": 2
+      },
+      {
+        "node_a": 3,
+        "node_b": 7,
+        "travel_turns": 3
+      },
+      {
+        "node_a": 5,
+        "node_b": 9,
+        "travel_turns": 2
+      },
+      {
+        "node_a": 6,
+        "node_b": 8,
+        "travel_turns": 2
+      },
+      {
+        "node_a": 4,
+        "node_b": 10,
+        "travel_turns": 3
+      },
+      {
+        "node_a": 14,
+        "node_b": 13,
+        "travel_turns": 2
+      },
+      {
+        "node_a": 14,
+        "node_b": 12,
+        "travel_turns": 2
+      },
+      {
+        "node_a": 14,
+        "node_b": 11,
+        "travel_turns": 3
+      },
+      {
+        "node_a": 13,
+        "node_b": 11,
+        "travel_turns": 2
+      },
+      {
+        "node_a": 12,
+        "node_b": 11,
+        "travel_turns": 2
+      },
+      {
+        "node_a": 13,
+        "node_b": 10,
+        "travel_turns": 2
+      },
+      {
+        "node_a": 13,
+        "node_b": 9,
+        "travel_turns": 2
+      },
+      {
+        "node_a": 12,
+        "node_b": 8,
+        "travel_turns": 2
+      },
+      {
+        "node_a": 10,
+        "node_b": 9,
+        "travel_turns": 2
+      },
+      {
+        "node_a": 11,
+        "node_b": 9,
+        "travel_turns": 2
+      },
+      {
+        "node_a": 11,
+        "node_b": 8,
+        "travel_turns": 2
+      },
+      {
+        "node_a": 9,
+        "node_b": 7,
+        "travel_turns": 2
+      },
+      {
+        "node_a": 8,
+        "node_b": 7,
+        "travel_turns": 2
+      },
+      {
+        "node_a": 11,
+        "node_b": 7,
+        "travel_turns": 3
+      }
+    ]
+  },
+  "frames": [
+    {
+      "turn": 1,
+      "scores": {
+        "p1": 0,
+        "p2": 0
+      },
+      "credits": {
+        "p1": 30,
+        "p2": 30
+      },
+      "income": {
+        "p1": 15,
+        "p2": 15
+      },
+      "upkeep": {
+        "p1": 0,
+        "p2": 0
+      },
+      "relic_active": false,
+      "relic_node_id": 7,
+      "nodes": {
+        "0": {
+          "id": 0,
+          "name": "P1 Core",
+          "x": 10.0,
+          "y": 50.0,
+          "owner": 1,
+          "production": 15,
+          "units": {
+            "raider": 1,
+            "siege": 0,
+            "guard": 1,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 3
+        },
+        "1": {
+          "id": 1,
+          "name": "Alpha Bastion",
+          "x": 25.0,
+          "y": 25.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "2": {
+          "id": 2,
+          "name": "Gamma Bastion",
+          "x": 25.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "3": {
+          "id": 3,
+          "name": "Vanguard Gate",
+          "x": 32.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "4": {
+          "id": 4,
+          "name": "North Rig",
+          "x": 40.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "5": {
+          "id": 5,
+          "name": "North Outpost",
+          "x": 45.0,
+          "y": 35.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "6": {
+          "id": 6,
+          "name": "South Outpost",
+          "x": 45.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "7": {
+          "id": 7,
+          "name": "Relic Sanctuary",
+          "x": 50.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 4,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "8": {
+          "id": 8,
+          "name": "Titan Outpost",
+          "x": 55.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "9": {
+          "id": 9,
+          "name": "Zenith Outpost",
+          "x": 55.0,
+          "y": 35.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "10": {
+          "id": 10,
+          "name": "Apex Rig",
+          "x": 60.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "11": {
+          "id": 11,
+          "name": "Sentinel Gate",
+          "x": 68.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "12": {
+          "id": 12,
+          "name": "Omega Bastion",
+          "x": 75.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "13": {
+          "id": 13,
+          "name": "Epsilon Bastion",
+          "x": 75.0,
+          "y": 25.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "14": {
+          "id": 14,
+          "name": "P2 Core",
+          "x": 90.0,
+          "y": 50.0,
+          "owner": 2,
+          "production": 15,
+          "units": {
+            "raider": 1,
+            "siege": 0,
+            "guard": 1,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 2,
+          "total_units": 3
+        }
+      },
+      "fleets": [],
+      "combat_events": [],
+      "capture_events": []
+    },
+    {
+      "turn": 2,
+      "scores": {
+        "p1": 1,
+        "p2": 1
+      },
+      "credits": {
+        "p1": 15,
+        "p2": 21
+      },
+      "income": {
+        "p1": 15,
+        "p2": 15
+      },
+      "upkeep": {
+        "p1": 0,
+        "p2": 0
+      },
+      "relic_active": false,
+      "relic_node_id": 7,
+      "nodes": {
+        "0": {
+          "id": 0,
+          "name": "P1 Core",
+          "x": 10.0,
+          "y": 50.0,
+          "owner": 1,
+          "production": 15,
+          "units": {
+            "raider": 3,
+            "siege": 0,
+            "guard": 1,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 5
+        },
+        "1": {
+          "id": 1,
+          "name": "Alpha Bastion",
+          "x": 25.0,
+          "y": 25.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "2": {
+          "id": 2,
+          "name": "Gamma Bastion",
+          "x": 25.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "3": {
+          "id": 3,
+          "name": "Vanguard Gate",
+          "x": 32.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "4": {
+          "id": 4,
+          "name": "North Rig",
+          "x": 40.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "5": {
+          "id": 5,
+          "name": "North Outpost",
+          "x": 45.0,
+          "y": 35.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "6": {
+          "id": 6,
+          "name": "South Outpost",
+          "x": 45.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "7": {
+          "id": 7,
+          "name": "Relic Sanctuary",
+          "x": 50.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 4,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "8": {
+          "id": 8,
+          "name": "Titan Outpost",
+          "x": 55.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "9": {
+          "id": 9,
+          "name": "Zenith Outpost",
+          "x": 55.0,
+          "y": 35.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "10": {
+          "id": 10,
+          "name": "Apex Rig",
+          "x": 60.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "11": {
+          "id": 11,
+          "name": "Sentinel Gate",
+          "x": 68.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "12": {
+          "id": 12,
+          "name": "Omega Bastion",
+          "x": 75.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "13": {
+          "id": 13,
+          "name": "Epsilon Bastion",
+          "x": 75.0,
+          "y": 25.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "14": {
+          "id": 14,
+          "name": "P2 Core",
+          "x": 90.0,
+          "y": 50.0,
+          "owner": 2,
+          "production": 15,
+          "units": {
+            "raider": 1,
+            "siege": 0,
+            "guard": 3,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 2,
+          "total_units": 5
+        }
+      },
+      "fleets": [
+        {
+          "id": 1,
+          "owner": 1,
+          "origin_node": 0,
+          "dest_node": 1,
+          "turns_remaining": 1,
+          "total_turns": 2,
+          "units": {
+            "raider": 1
+          },
+          "total_count": 1
+        }
+      ],
+      "combat_events": [],
+      "capture_events": []
+    },
+    {
+      "turn": 3,
+      "scores": {
+        "p1": 2,
+        "p2": 2
+      },
+      "credits": {
+        "p1": 20,
+        "p2": 24
+      },
+      "income": {
+        "p1": 15,
+        "p2": 15
+      },
+      "upkeep": {
+        "p1": 0,
+        "p2": 0
+      },
+      "relic_active": false,
+      "relic_node_id": 7,
+      "nodes": {
+        "0": {
+          "id": 0,
+          "name": "P1 Core",
+          "x": 10.0,
+          "y": 50.0,
+          "owner": 1,
+          "production": 15,
+          "units": {
+            "raider": 1,
+            "siege": 0,
+            "guard": 1,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 3
+        },
+        "1": {
+          "id": 1,
+          "name": "Alpha Bastion",
+          "x": 25.0,
+          "y": 25.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 1,
+          "capturing_player": 1,
+          "resident_player": 1,
+          "total_units": 1
+        },
+        "2": {
+          "id": 2,
+          "name": "Gamma Bastion",
+          "x": 25.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "3": {
+          "id": 3,
+          "name": "Vanguard Gate",
+          "x": 32.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "4": {
+          "id": 4,
+          "name": "North Rig",
+          "x": 40.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "5": {
+          "id": 5,
+          "name": "North Outpost",
+          "x": 45.0,
+          "y": 35.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "6": {
+          "id": 6,
+          "name": "South Outpost",
+          "x": 45.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "7": {
+          "id": 7,
+          "name": "Relic Sanctuary",
+          "x": 50.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 4,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "8": {
+          "id": 8,
+          "name": "Titan Outpost",
+          "x": 55.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "9": {
+          "id": 9,
+          "name": "Zenith Outpost",
+          "x": 55.0,
+          "y": 35.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "10": {
+          "id": 10,
+          "name": "Apex Rig",
+          "x": 60.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "11": {
+          "id": 11,
+          "name": "Sentinel Gate",
+          "x": 68.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "12": {
+          "id": 12,
+          "name": "Omega Bastion",
+          "x": 75.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "13": {
+          "id": 13,
+          "name": "Epsilon Bastion",
+          "x": 75.0,
+          "y": 25.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "14": {
+          "id": 14,
+          "name": "P2 Core",
+          "x": 90.0,
+          "y": 50.0,
+          "owner": 2,
+          "production": 15,
+          "units": {
+            "raider": 1,
+            "siege": 0,
+            "guard": 2,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 2,
+          "total_units": 4
+        }
+      },
+      "fleets": [
+        {
+          "id": 2,
+          "owner": 1,
+          "origin_node": 0,
+          "dest_node": 1,
+          "turns_remaining": 1,
+          "total_turns": 2,
+          "units": {
+            "raider": 3
+          },
+          "total_count": 3
+        },
+        {
+          "id": 3,
+          "owner": 2,
+          "origin_node": 14,
+          "dest_node": 13,
+          "turns_remaining": 1,
+          "total_turns": 2,
+          "units": {
+            "guard": 2
+          },
+          "total_count": 2
+        }
+      ],
+      "combat_events": [],
+      "capture_events": [
+        {
+          "node_id": 1,
+          "type": "contested",
+          "capturing_player": 1,
+          "progress": 1
+        }
+      ]
+    },
+    {
+      "turn": 4,
+      "scores": {
+        "p1": 4,
+        "p2": 3
+      },
+      "credits": {
+        "p1": 15,
+        "p2": 15
+      },
+      "income": {
+        "p1": 21,
+        "p2": 15
+      },
+      "upkeep": {
+        "p1": 0,
+        "p2": 0
+      },
+      "relic_active": false,
+      "relic_node_id": 7,
+      "nodes": {
+        "0": {
+          "id": 0,
+          "name": "P1 Core",
+          "x": 10.0,
+          "y": 50.0,
+          "owner": 1,
+          "production": 15,
+          "units": {
+            "raider": 2,
+            "siege": 0,
+            "guard": 1,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 4
+        },
+        "1": {
+          "id": 1,
+          "name": "Alpha Bastion",
+          "x": 25.0,
+          "y": 25.0,
+          "owner": 1,
+          "production": 6,
+          "units": {
+            "raider": 4
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 4
+        },
+        "2": {
+          "id": 2,
+          "name": "Gamma Bastion",
+          "x": 25.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "3": {
+          "id": 3,
+          "name": "Vanguard Gate",
+          "x": 32.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "4": {
+          "id": 4,
+          "name": "North Rig",
+          "x": 40.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "5": {
+          "id": 5,
+          "name": "North Outpost",
+          "x": 45.0,
+          "y": 35.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "6": {
+          "id": 6,
+          "name": "South Outpost",
+          "x": 45.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "7": {
+          "id": 7,
+          "name": "Relic Sanctuary",
+          "x": 50.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 4,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "8": {
+          "id": 8,
+          "name": "Titan Outpost",
+          "x": 55.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "9": {
+          "id": 9,
+          "name": "Zenith Outpost",
+          "x": 55.0,
+          "y": 35.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "10": {
+          "id": 10,
+          "name": "Apex Rig",
+          "x": 60.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "11": {
+          "id": 11,
+          "name": "Sentinel Gate",
+          "x": 68.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "12": {
+          "id": 12,
+          "name": "Omega Bastion",
+          "x": 75.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "13": {
+          "id": 13,
+          "name": "Epsilon Bastion",
+          "x": 75.0,
+          "y": 25.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "guard": 2
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 1,
+          "capturing_player": 2,
+          "resident_player": 2,
+          "total_units": 2
+        },
+        "14": {
+          "id": 14,
+          "name": "P2 Core",
+          "x": 90.0,
+          "y": 50.0,
+          "owner": 2,
+          "production": 15,
+          "units": {
+            "raider": 1,
+            "siege": 0,
+            "guard": 3,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 2,
+          "total_units": 5
+        }
+      },
+      "fleets": [
+        {
+          "id": 4,
+          "owner": 1,
+          "origin_node": 0,
+          "dest_node": 1,
+          "turns_remaining": 1,
+          "total_turns": 2,
+          "units": {
+            "raider": 1
+          },
+          "total_count": 1
+        },
+        {
+          "id": 5,
+          "owner": 2,
+          "origin_node": 14,
+          "dest_node": 13,
+          "turns_remaining": 1,
+          "total_turns": 2,
+          "units": {
+            "guard": 1
+          },
+          "total_count": 1
+        }
+      ],
+      "combat_events": [],
+      "capture_events": [
+        {
+          "node_id": 1,
+          "type": "flipped",
+          "new_owner": 1,
+          "old_owner": 0
+        },
+        {
+          "node_id": 13,
+          "type": "contested",
+          "capturing_player": 2,
+          "progress": 1
+        }
+      ]
+    },
+    {
+      "turn": 5,
+      "scores": {
+        "p1": 6,
+        "p2": 5
+      },
+      "credits": {
+        "p1": 26,
+        "p2": 18
+      },
+      "income": {
+        "p1": 21,
+        "p2": 21
+      },
+      "upkeep": {
+        "p1": 0,
+        "p2": 0
+      },
+      "relic_active": false,
+      "relic_node_id": 7,
+      "nodes": {
+        "0": {
+          "id": 0,
+          "name": "P1 Core",
+          "x": 10.0,
+          "y": 50.0,
+          "owner": 1,
+          "production": 15,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 1,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 2
+        },
+        "1": {
+          "id": 1,
+          "name": "Alpha Bastion",
+          "x": 25.0,
+          "y": 25.0,
+          "owner": 1,
+          "production": 6,
+          "units": {
+            "raider": 2
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 2
+        },
+        "2": {
+          "id": 2,
+          "name": "Gamma Bastion",
+          "x": 25.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "3": {
+          "id": 3,
+          "name": "Vanguard Gate",
+          "x": 32.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "4": {
+          "id": 4,
+          "name": "North Rig",
+          "x": 40.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "5": {
+          "id": 5,
+          "name": "North Outpost",
+          "x": 45.0,
+          "y": 35.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "6": {
+          "id": 6,
+          "name": "South Outpost",
+          "x": 45.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "7": {
+          "id": 7,
+          "name": "Relic Sanctuary",
+          "x": 50.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 4,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "8": {
+          "id": 8,
+          "name": "Titan Outpost",
+          "x": 55.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "9": {
+          "id": 9,
+          "name": "Zenith Outpost",
+          "x": 55.0,
+          "y": 35.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "10": {
+          "id": 10,
+          "name": "Apex Rig",
+          "x": 60.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "11": {
+          "id": 11,
+          "name": "Sentinel Gate",
+          "x": 68.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "12": {
+          "id": 12,
+          "name": "Omega Bastion",
+          "x": 75.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "13": {
+          "id": 13,
+          "name": "Epsilon Bastion",
+          "x": 75.0,
+          "y": 25.0,
+          "owner": 2,
+          "production": 6,
+          "units": {
+            "guard": 3
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 2,
+          "total_units": 3
+        },
+        "14": {
+          "id": 14,
+          "name": "P2 Core",
+          "x": 90.0,
+          "y": 50.0,
+          "owner": 2,
+          "production": 15,
+          "units": {
+            "raider": 1,
+            "siege": 0,
+            "guard": 2,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 2,
+          "total_units": 4
+        }
+      },
+      "fleets": [
+        {
+          "id": 6,
+          "owner": 1,
+          "origin_node": 0,
+          "dest_node": 1,
+          "turns_remaining": 1,
+          "total_turns": 2,
+          "units": {
+            "raider": 2
+          },
+          "total_count": 2
+        },
+        {
+          "id": 7,
+          "owner": 1,
+          "origin_node": 1,
+          "dest_node": 5,
+          "turns_remaining": 1,
+          "total_turns": 2,
+          "units": {
+            "raider": 4
+          },
+          "total_count": 4
+        },
+        {
+          "id": 8,
+          "owner": 2,
+          "origin_node": 14,
+          "dest_node": 13,
+          "turns_remaining": 1,
+          "total_turns": 2,
+          "units": {
+            "guard": 2
+          },
+          "total_count": 2
+        }
+      ],
+      "combat_events": [],
+      "capture_events": [
+        {
+          "node_id": 13,
+          "type": "flipped",
+          "new_owner": 2,
+          "old_owner": 0
+        }
+      ]
+    },
+    {
+      "turn": 6,
+      "scores": {
+        "p1": 8,
+        "p2": 7
+      },
+      "credits": {
+        "p1": 27,
+        "p2": 27
+      },
+      "income": {
+        "p1": 21,
+        "p2": 21
+      },
+      "upkeep": {
+        "p1": 0,
+        "p2": 0
+      },
+      "relic_active": false,
+      "relic_node_id": 7,
+      "nodes": {
+        "0": {
+          "id": 0,
+          "name": "P1 Core",
+          "x": 10.0,
+          "y": 50.0,
+          "owner": 1,
+          "production": 15,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 1,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 2
+        },
+        "1": {
+          "id": 1,
+          "name": "Alpha Bastion",
+          "x": 25.0,
+          "y": 25.0,
+          "owner": 1,
+          "production": 6,
+          "units": {
+            "raider": 4
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 4
+        },
+        "2": {
+          "id": 2,
+          "name": "Gamma Bastion",
+          "x": 25.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "3": {
+          "id": 3,
+          "name": "Vanguard Gate",
+          "x": 32.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "4": {
+          "id": 4,
+          "name": "North Rig",
+          "x": 40.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "5": {
+          "id": 5,
+          "name": "North Outpost",
+          "x": 45.0,
+          "y": 35.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 4
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 1,
+          "capturing_player": 1,
+          "resident_player": 1,
+          "total_units": 4
+        },
+        "6": {
+          "id": 6,
+          "name": "South Outpost",
+          "x": 45.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "7": {
+          "id": 7,
+          "name": "Relic Sanctuary",
+          "x": 50.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 4,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "8": {
+          "id": 8,
+          "name": "Titan Outpost",
+          "x": 55.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "9": {
+          "id": 9,
+          "name": "Zenith Outpost",
+          "x": 55.0,
+          "y": 35.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "10": {
+          "id": 10,
+          "name": "Apex Rig",
+          "x": 60.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "11": {
+          "id": 11,
+          "name": "Sentinel Gate",
+          "x": 68.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "12": {
+          "id": 12,
+          "name": "Omega Bastion",
+          "x": 75.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "13": {
+          "id": 13,
+          "name": "Epsilon Bastion",
+          "x": 75.0,
+          "y": 25.0,
+          "owner": 2,
+          "production": 6,
+          "units": {
+            "guard": 6
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 2,
+          "total_units": 6
+        },
+        "14": {
+          "id": 14,
+          "name": "P2 Core",
+          "x": 90.0,
+          "y": 50.0,
+          "owner": 2,
+          "production": 15,
+          "units": {
+            "raider": 1,
+            "siege": 0,
+            "guard": 1,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 2,
+          "total_units": 3
+        }
+      },
+      "fleets": [
+        {
+          "id": 9,
+          "owner": 1,
+          "origin_node": 1,
+          "dest_node": 5,
+          "turns_remaining": 1,
+          "total_turns": 2,
+          "units": {
+            "raider": 2
+          },
+          "total_count": 2
+        },
+        {
+          "id": 10,
+          "owner": 2,
+          "origin_node": 14,
+          "dest_node": 13,
+          "turns_remaining": 1,
+          "total_turns": 2,
+          "units": {
+            "guard": 1
+          },
+          "total_count": 1
+        }
+      ],
+      "combat_events": [],
+      "capture_events": [
+        {
+          "node_id": 5,
+          "type": "contested",
+          "capturing_player": 1,
+          "progress": 1
+        }
+      ]
+    },
+    {
+      "turn": 7,
+      "scores": {
+        "p1": 11,
+        "p2": 9
+      },
+      "credits": {
+        "p1": 28,
+        "p2": 24
+      },
+      "income": {
+        "p1": 28,
+        "p2": 21
+      },
+      "upkeep": {
+        "p1": 0,
+        "p2": 0
+      },
+      "relic_active": false,
+      "relic_node_id": 7,
+      "nodes": {
+        "0": {
+          "id": 0,
+          "name": "P1 Core",
+          "x": 10.0,
+          "y": 50.0,
+          "owner": 1,
+          "production": 15,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 1,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 2
+        },
+        "1": {
+          "id": 1,
+          "name": "Alpha Bastion",
+          "x": 25.0,
+          "y": 25.0,
+          "owner": 1,
+          "production": 6,
+          "units": {
+            "raider": 2
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 2
+        },
+        "2": {
+          "id": 2,
+          "name": "Gamma Bastion",
+          "x": 25.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "3": {
+          "id": 3,
+          "name": "Vanguard Gate",
+          "x": 32.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "4": {
+          "id": 4,
+          "name": "North Rig",
+          "x": 40.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "5": {
+          "id": 5,
+          "name": "North Outpost",
+          "x": 45.0,
+          "y": 35.0,
+          "owner": 1,
+          "production": 7,
+          "units": {
+            "raider": 6
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 6
+        },
+        "6": {
+          "id": 6,
+          "name": "South Outpost",
+          "x": 45.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "7": {
+          "id": 7,
+          "name": "Relic Sanctuary",
+          "x": 50.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 4,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "8": {
+          "id": 8,
+          "name": "Titan Outpost",
+          "x": 55.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "9": {
+          "id": 9,
+          "name": "Zenith Outpost",
+          "x": 55.0,
+          "y": 35.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "10": {
+          "id": 10,
+          "name": "Apex Rig",
+          "x": 60.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "11": {
+          "id": 11,
+          "name": "Sentinel Gate",
+          "x": 68.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "12": {
+          "id": 12,
+          "name": "Omega Bastion",
+          "x": 75.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "13": {
+          "id": 13,
+          "name": "Epsilon Bastion",
+          "x": 75.0,
+          "y": 25.0,
+          "owner": 2,
+          "production": 6,
+          "units": {
+            "guard": 9
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 2,
+          "total_units": 9
+        },
+        "14": {
+          "id": 14,
+          "name": "P2 Core",
+          "x": 90.0,
+          "y": 50.0,
+          "owner": 2,
+          "production": 15,
+          "units": {
+            "raider": 1,
+            "siege": 0,
+            "guard": 1,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 2,
+          "total_units": 3
+        }
+      },
+      "fleets": [
+        {
+          "id": 11,
+          "owner": 1,
+          "origin_node": 1,
+          "dest_node": 5,
+          "turns_remaining": 1,
+          "total_turns": 2,
+          "units": {
+            "raider": 4
+          },
+          "total_count": 4
+        }
+      ],
+      "combat_events": [],
+      "capture_events": [
+        {
+          "node_id": 5,
+          "type": "flipped",
+          "new_owner": 1,
+          "old_owner": 0
+        }
+      ]
+    },
+    {
+      "turn": 8,
+      "scores": {
+        "p1": 14,
+        "p2": 11
+      },
+      "credits": {
+        "p1": 36,
+        "p2": 21
+      },
+      "income": {
+        "p1": 28,
+        "p2": 21
+      },
+      "upkeep": {
+        "p1": 0,
+        "p2": 0
+      },
+      "relic_active": false,
+      "relic_node_id": 7,
+      "nodes": {
+        "0": {
+          "id": 0,
+          "name": "P1 Core",
+          "x": 10.0,
+          "y": 50.0,
+          "owner": 1,
+          "production": 15,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 1,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 2
+        },
+        "1": {
+          "id": 1,
+          "name": "Alpha Bastion",
+          "x": 25.0,
+          "y": 25.0,
+          "owner": 1,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "2": {
+          "id": 2,
+          "name": "Gamma Bastion",
+          "x": 25.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "3": {
+          "id": 3,
+          "name": "Vanguard Gate",
+          "x": 32.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "4": {
+          "id": 4,
+          "name": "North Rig",
+          "x": 40.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "5": {
+          "id": 5,
+          "name": "North Outpost",
+          "x": 45.0,
+          "y": 35.0,
+          "owner": 1,
+          "production": 7,
+          "units": {
+            "raider": 6
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 6
+        },
+        "6": {
+          "id": 6,
+          "name": "South Outpost",
+          "x": 45.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "7": {
+          "id": 7,
+          "name": "Relic Sanctuary",
+          "x": 50.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 4,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "8": {
+          "id": 8,
+          "name": "Titan Outpost",
+          "x": 55.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "9": {
+          "id": 9,
+          "name": "Zenith Outpost",
+          "x": 55.0,
+          "y": 35.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "10": {
+          "id": 10,
+          "name": "Apex Rig",
+          "x": 60.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "11": {
+          "id": 11,
+          "name": "Sentinel Gate",
+          "x": 68.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "12": {
+          "id": 12,
+          "name": "Omega Bastion",
+          "x": 75.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "13": {
+          "id": 13,
+          "name": "Epsilon Bastion",
+          "x": 75.0,
+          "y": 25.0,
+          "owner": 2,
+          "production": 6,
+          "units": {
+            "guard": 11
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 2,
+          "total_units": 11
+        },
+        "14": {
+          "id": 14,
+          "name": "P2 Core",
+          "x": 90.0,
+          "y": 50.0,
+          "owner": 2,
+          "production": 15,
+          "units": {
+            "raider": 1,
+            "siege": 0,
+            "guard": 1,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 2,
+          "total_units": 3
+        }
+      },
+      "fleets": [
+        {
+          "id": 12,
+          "owner": 1,
+          "origin_node": 1,
+          "dest_node": 5,
+          "turns_remaining": 1,
+          "total_turns": 2,
+          "units": {
+            "raider": 2
+          },
+          "total_count": 2
+        },
+        {
+          "id": 13,
+          "owner": 1,
+          "origin_node": 5,
+          "dest_node": 9,
+          "turns_remaining": 1,
+          "total_turns": 2,
+          "units": {
+            "raider": 6
+          },
+          "total_count": 6
+        }
+      ],
+      "combat_events": [],
+      "capture_events": []
+    },
+    {
+      "turn": 9,
+      "scores": {
+        "p1": 17,
+        "p2": 13
+      },
+      "credits": {
+        "p1": 34,
+        "p2": 30
+      },
+      "income": {
+        "p1": 28,
+        "p2": 21
+      },
+      "upkeep": {
+        "p1": 0,
+        "p2": 0
+      },
+      "relic_active": false,
+      "relic_node_id": 7,
+      "nodes": {
+        "0": {
+          "id": 0,
+          "name": "P1 Core",
+          "x": 10.0,
+          "y": 50.0,
+          "owner": 1,
+          "production": 15,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 1,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 2
+        },
+        "1": {
+          "id": 1,
+          "name": "Alpha Bastion",
+          "x": 25.0,
+          "y": 25.0,
+          "owner": 1,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "2": {
+          "id": 2,
+          "name": "Gamma Bastion",
+          "x": 25.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "3": {
+          "id": 3,
+          "name": "Vanguard Gate",
+          "x": 32.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "4": {
+          "id": 4,
+          "name": "North Rig",
+          "x": 40.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "5": {
+          "id": 5,
+          "name": "North Outpost",
+          "x": 45.0,
+          "y": 35.0,
+          "owner": 1,
+          "production": 7,
+          "units": {
+            "raider": 5
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 5
+        },
+        "6": {
+          "id": 6,
+          "name": "South Outpost",
+          "x": 45.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "7": {
+          "id": 7,
+          "name": "Relic Sanctuary",
+          "x": 50.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 4,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "8": {
+          "id": 8,
+          "name": "Titan Outpost",
+          "x": 55.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "9": {
+          "id": 9,
+          "name": "Zenith Outpost",
+          "x": 55.0,
+          "y": 35.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 6
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 1,
+          "capturing_player": 1,
+          "resident_player": 1,
+          "total_units": 6
+        },
+        "10": {
+          "id": 10,
+          "name": "Apex Rig",
+          "x": 60.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "11": {
+          "id": 11,
+          "name": "Sentinel Gate",
+          "x": 68.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "12": {
+          "id": 12,
+          "name": "Omega Bastion",
+          "x": 75.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "13": {
+          "id": 13,
+          "name": "Epsilon Bastion",
+          "x": 75.0,
+          "y": 25.0,
+          "owner": 2,
+          "production": 6,
+          "units": {
+            "guard": 12
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 2,
+          "total_units": 12
+        },
+        "14": {
+          "id": 14,
+          "name": "P2 Core",
+          "x": 90.0,
+          "y": 50.0,
+          "owner": 2,
+          "production": 15,
+          "units": {
+            "raider": 1,
+            "siege": 0,
+            "guard": 1,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 2,
+          "total_units": 3
+        }
+      },
+      "fleets": [
+        {
+          "id": 14,
+          "owner": 1,
+          "origin_node": 5,
+          "dest_node": 9,
+          "turns_remaining": 1,
+          "total_turns": 2,
+          "units": {
+            "raider": 6
+          },
+          "total_count": 6
+        }
+      ],
+      "combat_events": [],
+      "capture_events": [
+        {
+          "node_id": 9,
+          "type": "contested",
+          "capturing_player": 1,
+          "progress": 1
+        }
+      ]
+    },
+    {
+      "turn": 10,
+      "scores": {
+        "p1": 21,
+        "p2": 15
+      },
+      "credits": {
+        "p1": 32,
+        "p2": 27
+      },
+      "income": {
+        "p1": 35,
+        "p2": 21
+      },
+      "upkeep": {
+        "p1": 0,
+        "p2": 0
+      },
+      "relic_active": false,
+      "relic_node_id": 7,
+      "nodes": {
+        "0": {
+          "id": 0,
+          "name": "P1 Core",
+          "x": 10.0,
+          "y": 50.0,
+          "owner": 1,
+          "production": 15,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 1,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 2
+        },
+        "1": {
+          "id": 1,
+          "name": "Alpha Bastion",
+          "x": 25.0,
+          "y": 25.0,
+          "owner": 1,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "2": {
+          "id": 2,
+          "name": "Gamma Bastion",
+          "x": 25.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "3": {
+          "id": 3,
+          "name": "Vanguard Gate",
+          "x": 32.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "4": {
+          "id": 4,
+          "name": "North Rig",
+          "x": 40.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "5": {
+          "id": 5,
+          "name": "North Outpost",
+          "x": 45.0,
+          "y": 35.0,
+          "owner": 1,
+          "production": 7,
+          "units": {
+            "raider": 3
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 3
+        },
+        "6": {
+          "id": 6,
+          "name": "South Outpost",
+          "x": 45.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "7": {
+          "id": 7,
+          "name": "Relic Sanctuary",
+          "x": 50.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 4,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "8": {
+          "id": 8,
+          "name": "Titan Outpost",
+          "x": 55.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "9": {
+          "id": 9,
+          "name": "Zenith Outpost",
+          "x": 55.0,
+          "y": 35.0,
+          "owner": 1,
+          "production": 7,
+          "units": {
+            "raider": 12
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 12
+        },
+        "10": {
+          "id": 10,
+          "name": "Apex Rig",
+          "x": 60.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "11": {
+          "id": 11,
+          "name": "Sentinel Gate",
+          "x": 68.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "12": {
+          "id": 12,
+          "name": "Omega Bastion",
+          "x": 75.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "13": {
+          "id": 13,
+          "name": "Epsilon Bastion",
+          "x": 75.0,
+          "y": 25.0,
+          "owner": 2,
+          "production": 6,
+          "units": {
+            "guard": 14
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 2,
+          "total_units": 14
+        },
+        "14": {
+          "id": 14,
+          "name": "P2 Core",
+          "x": 90.0,
+          "y": 50.0,
+          "owner": 2,
+          "production": 15,
+          "units": {
+            "raider": 1,
+            "siege": 0,
+            "guard": 1,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 2,
+          "total_units": 3
+        }
+      },
+      "fleets": [
+        {
+          "id": 15,
+          "owner": 1,
+          "origin_node": 5,
+          "dest_node": 9,
+          "turns_remaining": 1,
+          "total_turns": 2,
+          "units": {
+            "raider": 5
+          },
+          "total_count": 5
+        }
+      ],
+      "combat_events": [],
+      "capture_events": [
+        {
+          "node_id": 9,
+          "type": "flipped",
+          "new_owner": 1,
+          "old_owner": 0
+        }
+      ]
+    },
+    {
+      "turn": 11,
+      "scores": {
+        "p1": 25,
+        "p2": 17
+      },
+      "credits": {
+        "p1": 37,
+        "p2": 24
+      },
+      "income": {
+        "p1": 35,
+        "p2": 21
+      },
+      "upkeep": {
+        "p1": 0,
+        "p2": 0
+      },
+      "relic_active": false,
+      "relic_node_id": 7,
+      "nodes": {
+        "0": {
+          "id": 0,
+          "name": "P1 Core",
+          "x": 10.0,
+          "y": 50.0,
+          "owner": 1,
+          "production": 15,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 1,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 2
+        },
+        "1": {
+          "id": 1,
+          "name": "Alpha Bastion",
+          "x": 25.0,
+          "y": 25.0,
+          "owner": 1,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "2": {
+          "id": 2,
+          "name": "Gamma Bastion",
+          "x": 25.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "3": {
+          "id": 3,
+          "name": "Vanguard Gate",
+          "x": 32.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "4": {
+          "id": 4,
+          "name": "North Rig",
+          "x": 40.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "5": {
+          "id": 5,
+          "name": "North Outpost",
+          "x": 45.0,
+          "y": 35.0,
+          "owner": 1,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "6": {
+          "id": 6,
+          "name": "South Outpost",
+          "x": 45.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "7": {
+          "id": 7,
+          "name": "Relic Sanctuary",
+          "x": 50.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 4,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "8": {
+          "id": 8,
+          "name": "Titan Outpost",
+          "x": 55.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "9": {
+          "id": 9,
+          "name": "Zenith Outpost",
+          "x": 55.0,
+          "y": 35.0,
+          "owner": 1,
+          "production": 7,
+          "units": {
+            "raider": 8
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 8
+        },
+        "10": {
+          "id": 10,
+          "name": "Apex Rig",
+          "x": 60.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "11": {
+          "id": 11,
+          "name": "Sentinel Gate",
+          "x": 68.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "12": {
+          "id": 12,
+          "name": "Omega Bastion",
+          "x": 75.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "13": {
+          "id": 13,
+          "name": "Epsilon Bastion",
+          "x": 75.0,
+          "y": 25.0,
+          "owner": 2,
+          "production": 6,
+          "units": {
+            "guard": 16
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 2,
+          "total_units": 16
+        },
+        "14": {
+          "id": 14,
+          "name": "P2 Core",
+          "x": 90.0,
+          "y": 50.0,
+          "owner": 2,
+          "production": 15,
+          "units": {
+            "raider": 1,
+            "siege": 0,
+            "guard": 1,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 2,
+          "total_units": 3
+        }
+      },
+      "fleets": [
+        {
+          "id": 16,
+          "owner": 1,
+          "origin_node": 5,
+          "dest_node": 9,
+          "turns_remaining": 1,
+          "total_turns": 2,
+          "units": {
+            "raider": 3
+          },
+          "total_count": 3
+        },
+        {
+          "id": 17,
+          "owner": 1,
+          "origin_node": 9,
+          "dest_node": 13,
+          "turns_remaining": 1,
+          "total_turns": 2,
+          "units": {
+            "raider": 12
+          },
+          "total_count": 12
+        }
+      ],
+      "combat_events": [],
+      "capture_events": []
+    },
+    {
+      "turn": 12,
+      "scores": {
+        "p1": 29,
+        "p2": 19
+      },
+      "credits": {
+        "p1": 42,
+        "p2": 21
+      },
+      "income": {
+        "p1": 35,
+        "p2": 21
+      },
+      "upkeep": {
+        "p1": 0,
+        "p2": 0
+      },
+      "relic_active": false,
+      "relic_node_id": 7,
+      "nodes": {
+        "0": {
+          "id": 0,
+          "name": "P1 Core",
+          "x": 10.0,
+          "y": 50.0,
+          "owner": 1,
+          "production": 15,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 1,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 2
+        },
+        "1": {
+          "id": 1,
+          "name": "Alpha Bastion",
+          "x": 25.0,
+          "y": 25.0,
+          "owner": 1,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "2": {
+          "id": 2,
+          "name": "Gamma Bastion",
+          "x": 25.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "3": {
+          "id": 3,
+          "name": "Vanguard Gate",
+          "x": 32.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "4": {
+          "id": 4,
+          "name": "North Rig",
+          "x": 40.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "5": {
+          "id": 5,
+          "name": "North Outpost",
+          "x": 45.0,
+          "y": 35.0,
+          "owner": 1,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "6": {
+          "id": 6,
+          "name": "South Outpost",
+          "x": 45.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "7": {
+          "id": 7,
+          "name": "Relic Sanctuary",
+          "x": 50.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 4,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "8": {
+          "id": 8,
+          "name": "Titan Outpost",
+          "x": 55.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "9": {
+          "id": 9,
+          "name": "Zenith Outpost",
+          "x": 55.0,
+          "y": 35.0,
+          "owner": 1,
+          "production": 7,
+          "units": {
+            "raider": 6
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 6
+        },
+        "10": {
+          "id": 10,
+          "name": "Apex Rig",
+          "x": 60.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "11": {
+          "id": 11,
+          "name": "Sentinel Gate",
+          "x": 68.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "12": {
+          "id": 12,
+          "name": "Omega Bastion",
+          "x": 75.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "13": {
+          "id": 13,
+          "name": "Epsilon Bastion",
+          "x": 75.0,
+          "y": 25.0,
+          "owner": 2,
+          "production": 6,
+          "units": {
+            "guard": 16
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 2,
+          "total_units": 16
+        },
+        "14": {
+          "id": 14,
+          "name": "P2 Core",
+          "x": 90.0,
+          "y": 50.0,
+          "owner": 2,
+          "production": 15,
+          "units": {
+            "raider": 1,
+            "siege": 0,
+            "guard": 1,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 2,
+          "total_units": 3
+        }
+      },
+      "fleets": [
+        {
+          "id": 18,
+          "owner": 1,
+          "origin_node": 9,
+          "dest_node": 13,
+          "turns_remaining": 1,
+          "total_turns": 2,
+          "units": {
+            "raider": 8
+          },
+          "total_count": 8
+        }
+      ],
+      "combat_events": [
+        {
+          "node_id": 13,
+          "defenders_before": {
+            "guard": 18
+          },
+          "attackers_before": {
+            "raider": 12
+          },
+          "defenders_after": {
+            "guard": 16
+          },
+          "attackers_after": {
+            "raider": 0,
+            "scout": 0
+          },
+          "defender_bonus_applied": true
+        }
+      ],
+      "capture_events": []
+    },
+    {
+      "turn": 13,
+      "scores": {
+        "p1": 33,
+        "p2": 21
+      },
+      "credits": {
+        "p1": 37,
+        "p2": 30
+      },
+      "income": {
+        "p1": 35,
+        "p2": 21
+      },
+      "upkeep": {
+        "p1": 0,
+        "p2": 0
+      },
+      "relic_active": false,
+      "relic_node_id": 7,
+      "nodes": {
+        "0": {
+          "id": 0,
+          "name": "P1 Core",
+          "x": 10.0,
+          "y": 50.0,
+          "owner": 1,
+          "production": 15,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 1,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 2
+        },
+        "1": {
+          "id": 1,
+          "name": "Alpha Bastion",
+          "x": 25.0,
+          "y": 25.0,
+          "owner": 1,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "2": {
+          "id": 2,
+          "name": "Gamma Bastion",
+          "x": 25.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "3": {
+          "id": 3,
+          "name": "Vanguard Gate",
+          "x": 32.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "4": {
+          "id": 4,
+          "name": "North Rig",
+          "x": 40.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "5": {
+          "id": 5,
+          "name": "North Outpost",
+          "x": 45.0,
+          "y": 35.0,
+          "owner": 1,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "6": {
+          "id": 6,
+          "name": "South Outpost",
+          "x": 45.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "7": {
+          "id": 7,
+          "name": "Relic Sanctuary",
+          "x": 50.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 4,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "8": {
+          "id": 8,
+          "name": "Titan Outpost",
+          "x": 55.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "9": {
+          "id": 9,
+          "name": "Zenith Outpost",
+          "x": 55.0,
+          "y": 35.0,
+          "owner": 1,
+          "production": 7,
+          "units": {
+            "raider": 4
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 4
+        },
+        "10": {
+          "id": 10,
+          "name": "Apex Rig",
+          "x": 60.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "11": {
+          "id": 11,
+          "name": "Sentinel Gate",
+          "x": 68.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "12": {
+          "id": 12,
+          "name": "Omega Bastion",
+          "x": 75.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "13": {
+          "id": 13,
+          "name": "Epsilon Bastion",
+          "x": 75.0,
+          "y": 25.0,
+          "owner": 2,
+          "production": 6,
+          "units": {
+            "guard": 16
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 2,
+          "total_units": 16
+        },
+        "14": {
+          "id": 14,
+          "name": "P2 Core",
+          "x": 90.0,
+          "y": 50.0,
+          "owner": 2,
+          "production": 15,
+          "units": {
+            "raider": 1,
+            "siege": 0,
+            "guard": 1,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 2,
+          "total_units": 3
+        }
+      },
+      "fleets": [
+        {
+          "id": 19,
+          "owner": 1,
+          "origin_node": 9,
+          "dest_node": 13,
+          "turns_remaining": 1,
+          "total_turns": 2,
+          "units": {
+            "raider": 6
+          },
+          "total_count": 6
+        }
+      ],
+      "combat_events": [
+        {
+          "node_id": 13,
+          "defenders_before": {
+            "guard": 17
+          },
+          "attackers_before": {
+            "raider": 8
+          },
+          "defenders_after": {
+            "guard": 16
+          },
+          "attackers_after": {
+            "raider": 0,
+            "scout": 0
+          },
+          "defender_bonus_applied": true
+        }
+      ],
+      "capture_events": []
+    },
+    {
+      "turn": 14,
+      "scores": {
+        "p1": 37,
+        "p2": 23
+      },
+      "credits": {
+        "p1": 42,
+        "p2": 27
+      },
+      "income": {
+        "p1": 35,
+        "p2": 21
+      },
+      "upkeep": {
+        "p1": 0,
+        "p2": 0
+      },
+      "relic_active": false,
+      "relic_node_id": 7,
+      "nodes": {
+        "0": {
+          "id": 0,
+          "name": "P1 Core",
+          "x": 10.0,
+          "y": 50.0,
+          "owner": 1,
+          "production": 15,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 1,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 2
+        },
+        "1": {
+          "id": 1,
+          "name": "Alpha Bastion",
+          "x": 25.0,
+          "y": 25.0,
+          "owner": 1,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "2": {
+          "id": 2,
+          "name": "Gamma Bastion",
+          "x": 25.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "3": {
+          "id": 3,
+          "name": "Vanguard Gate",
+          "x": 32.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "4": {
+          "id": 4,
+          "name": "North Rig",
+          "x": 40.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "5": {
+          "id": 5,
+          "name": "North Outpost",
+          "x": 45.0,
+          "y": 35.0,
+          "owner": 1,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "6": {
+          "id": 6,
+          "name": "South Outpost",
+          "x": 45.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "7": {
+          "id": 7,
+          "name": "Relic Sanctuary",
+          "x": 50.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 4,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "8": {
+          "id": 8,
+          "name": "Titan Outpost",
+          "x": 55.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "9": {
+          "id": 9,
+          "name": "Zenith Outpost",
+          "x": 55.0,
+          "y": 35.0,
+          "owner": 1,
+          "production": 7,
+          "units": {
+            "raider": 3
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 3
+        },
+        "10": {
+          "id": 10,
+          "name": "Apex Rig",
+          "x": 60.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "11": {
+          "id": 11,
+          "name": "Sentinel Gate",
+          "x": 68.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "12": {
+          "id": 12,
+          "name": "Omega Bastion",
+          "x": 75.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "13": {
+          "id": 13,
+          "name": "Epsilon Bastion",
+          "x": 75.0,
+          "y": 25.0,
+          "owner": 2,
+          "production": 6,
+          "units": {
+            "guard": 17
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 2,
+          "total_units": 17
+        },
+        "14": {
+          "id": 14,
+          "name": "P2 Core",
+          "x": 90.0,
+          "y": 50.0,
+          "owner": 2,
+          "production": 15,
+          "units": {
+            "raider": 1,
+            "siege": 0,
+            "guard": 1,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 2,
+          "total_units": 3
+        }
+      },
+      "fleets": [
+        {
+          "id": 20,
+          "owner": 1,
+          "origin_node": 9,
+          "dest_node": 13,
+          "turns_remaining": 1,
+          "total_turns": 2,
+          "units": {
+            "raider": 4
+          },
+          "total_count": 4
+        }
+      ],
+      "combat_events": [
+        {
+          "node_id": 13,
+          "defenders_before": {
+            "guard": 18
+          },
+          "attackers_before": {
+            "raider": 6
+          },
+          "defenders_after": {
+            "guard": 17
+          },
+          "attackers_after": {
+            "raider": 0,
+            "scout": 0
+          },
+          "defender_bonus_applied": true
+        }
+      ],
+      "capture_events": []
+    },
+    {
+      "turn": 15,
+      "scores": {
+        "p1": 41,
+        "p2": 25
+      },
+      "credits": {
+        "p1": 37,
+        "p2": 24
+      },
+      "income": {
+        "p1": 35,
+        "p2": 21
+      },
+      "upkeep": {
+        "p1": 0,
+        "p2": 0
+      },
+      "relic_active": false,
+      "relic_node_id": 7,
+      "nodes": {
+        "0": {
+          "id": 0,
+          "name": "P1 Core",
+          "x": 10.0,
+          "y": 50.0,
+          "owner": 1,
+          "production": 15,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 1,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 2
+        },
+        "1": {
+          "id": 1,
+          "name": "Alpha Bastion",
+          "x": 25.0,
+          "y": 25.0,
+          "owner": 1,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "2": {
+          "id": 2,
+          "name": "Gamma Bastion",
+          "x": 25.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "3": {
+          "id": 3,
+          "name": "Vanguard Gate",
+          "x": 32.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "4": {
+          "id": 4,
+          "name": "North Rig",
+          "x": 40.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "5": {
+          "id": 5,
+          "name": "North Outpost",
+          "x": 45.0,
+          "y": 35.0,
+          "owner": 1,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "6": {
+          "id": 6,
+          "name": "South Outpost",
+          "x": 45.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "7": {
+          "id": 7,
+          "name": "Relic Sanctuary",
+          "x": 50.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 4,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "8": {
+          "id": 8,
+          "name": "Titan Outpost",
+          "x": 55.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "9": {
+          "id": 9,
+          "name": "Zenith Outpost",
+          "x": 55.0,
+          "y": 35.0,
+          "owner": 1,
+          "production": 7,
+          "units": {
+            "raider": 4
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 4
+        },
+        "10": {
+          "id": 10,
+          "name": "Apex Rig",
+          "x": 60.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "11": {
+          "id": 11,
+          "name": "Sentinel Gate",
+          "x": 68.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "12": {
+          "id": 12,
+          "name": "Omega Bastion",
+          "x": 75.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "13": {
+          "id": 13,
+          "name": "Epsilon Bastion",
+          "x": 75.0,
+          "y": 25.0,
+          "owner": 2,
+          "production": 6,
+          "units": {
+            "guard": 18
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 2,
+          "total_units": 18
+        },
+        "14": {
+          "id": 14,
+          "name": "P2 Core",
+          "x": 90.0,
+          "y": 50.0,
+          "owner": 2,
+          "production": 15,
+          "units": {
+            "raider": 1,
+            "siege": 0,
+            "guard": 1,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 2,
+          "total_units": 3
+        }
+      },
+      "fleets": [
+        {
+          "id": 21,
+          "owner": 1,
+          "origin_node": 9,
+          "dest_node": 13,
+          "turns_remaining": 1,
+          "total_turns": 2,
+          "units": {
+            "raider": 3
+          },
+          "total_count": 3
+        }
+      ],
+      "combat_events": [
+        {
+          "node_id": 13,
+          "defenders_before": {
+            "guard": 19
+          },
+          "attackers_before": {
+            "raider": 4
+          },
+          "defenders_after": {
+            "guard": 18
+          },
+          "attackers_after": {
+            "raider": 0,
+            "scout": 0
+          },
+          "defender_bonus_applied": true
+        }
+      ],
+      "capture_events": []
+    },
+    {
+      "turn": 16,
+      "scores": {
+        "p1": 45,
+        "p2": 27
+      },
+      "credits": {
+        "p1": 42,
+        "p2": 21
+      },
+      "income": {
+        "p1": 35,
+        "p2": 21
+      },
+      "upkeep": {
+        "p1": 0,
+        "p2": 0
+      },
+      "relic_active": false,
+      "relic_node_id": 7,
+      "nodes": {
+        "0": {
+          "id": 0,
+          "name": "P1 Core",
+          "x": 10.0,
+          "y": 50.0,
+          "owner": 1,
+          "production": 15,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 1,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 2
+        },
+        "1": {
+          "id": 1,
+          "name": "Alpha Bastion",
+          "x": 25.0,
+          "y": 25.0,
+          "owner": 1,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "2": {
+          "id": 2,
+          "name": "Gamma Bastion",
+          "x": 25.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "3": {
+          "id": 3,
+          "name": "Vanguard Gate",
+          "x": 32.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "4": {
+          "id": 4,
+          "name": "North Rig",
+          "x": 40.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "5": {
+          "id": 5,
+          "name": "North Outpost",
+          "x": 45.0,
+          "y": 35.0,
+          "owner": 1,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "6": {
+          "id": 6,
+          "name": "South Outpost",
+          "x": 45.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "7": {
+          "id": 7,
+          "name": "Relic Sanctuary",
+          "x": 50.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 4,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "8": {
+          "id": 8,
+          "name": "Titan Outpost",
+          "x": 55.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "9": {
+          "id": 9,
+          "name": "Zenith Outpost",
+          "x": 55.0,
+          "y": 35.0,
+          "owner": 1,
+          "production": 7,
+          "units": {
+            "raider": 3
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 3
+        },
+        "10": {
+          "id": 10,
+          "name": "Apex Rig",
+          "x": 60.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "11": {
+          "id": 11,
+          "name": "Sentinel Gate",
+          "x": 68.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "12": {
+          "id": 12,
+          "name": "Omega Bastion",
+          "x": 75.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "13": {
+          "id": 13,
+          "name": "Epsilon Bastion",
+          "x": 75.0,
+          "y": 25.0,
+          "owner": 2,
+          "production": 6,
+          "units": {
+            "guard": 20
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 2,
+          "total_units": 20
+        },
+        "14": {
+          "id": 14,
+          "name": "P2 Core",
+          "x": 90.0,
+          "y": 50.0,
+          "owner": 2,
+          "production": 15,
+          "units": {
+            "raider": 1,
+            "siege": 0,
+            "guard": 1,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 2,
+          "total_units": 3
+        }
+      },
+      "fleets": [
+        {
+          "id": 22,
+          "owner": 1,
+          "origin_node": 9,
+          "dest_node": 13,
+          "turns_remaining": 1,
+          "total_turns": 2,
+          "units": {
+            "raider": 4
+          },
+          "total_count": 4
+        }
+      ],
+      "combat_events": [
+        {
+          "node_id": 13,
+          "defenders_before": {
+            "guard": 20
+          },
+          "attackers_before": {
+            "raider": 3
+          },
+          "defenders_after": {
+            "guard": 20
+          },
+          "attackers_after": {
+            "raider": 0,
+            "scout": 0
+          },
+          "defender_bonus_applied": true
+        }
+      ],
+      "capture_events": []
+    },
+    {
+      "turn": 17,
+      "scores": {
+        "p1": 49,
+        "p2": 29
+      },
+      "credits": {
+        "p1": 37,
+        "p2": 30
+      },
+      "income": {
+        "p1": 35,
+        "p2": 21
+      },
+      "upkeep": {
+        "p1": 0,
+        "p2": 0
+      },
+      "relic_active": false,
+      "relic_node_id": 7,
+      "nodes": {
+        "0": {
+          "id": 0,
+          "name": "P1 Core",
+          "x": 10.0,
+          "y": 50.0,
+          "owner": 1,
+          "production": 15,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 1,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 2
+        },
+        "1": {
+          "id": 1,
+          "name": "Alpha Bastion",
+          "x": 25.0,
+          "y": 25.0,
+          "owner": 1,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "2": {
+          "id": 2,
+          "name": "Gamma Bastion",
+          "x": 25.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "3": {
+          "id": 3,
+          "name": "Vanguard Gate",
+          "x": 32.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "4": {
+          "id": 4,
+          "name": "North Rig",
+          "x": 40.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "5": {
+          "id": 5,
+          "name": "North Outpost",
+          "x": 45.0,
+          "y": 35.0,
+          "owner": 1,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "6": {
+          "id": 6,
+          "name": "South Outpost",
+          "x": 45.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "7": {
+          "id": 7,
+          "name": "Relic Sanctuary",
+          "x": 50.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 4,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "8": {
+          "id": 8,
+          "name": "Titan Outpost",
+          "x": 55.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "9": {
+          "id": 9,
+          "name": "Zenith Outpost",
+          "x": 55.0,
+          "y": 35.0,
+          "owner": 1,
+          "production": 7,
+          "units": {
+            "raider": 4
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 4
+        },
+        "10": {
+          "id": 10,
+          "name": "Apex Rig",
+          "x": 60.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "11": {
+          "id": 11,
+          "name": "Sentinel Gate",
+          "x": 68.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "12": {
+          "id": 12,
+          "name": "Omega Bastion",
+          "x": 75.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "13": {
+          "id": 13,
+          "name": "Epsilon Bastion",
+          "x": 75.0,
+          "y": 25.0,
+          "owner": 2,
+          "production": 6,
+          "units": {
+            "guard": 20
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 2,
+          "total_units": 20
+        },
+        "14": {
+          "id": 14,
+          "name": "P2 Core",
+          "x": 90.0,
+          "y": 50.0,
+          "owner": 2,
+          "production": 15,
+          "units": {
+            "raider": 1,
+            "siege": 0,
+            "guard": 1,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 2,
+          "total_units": 3
+        }
+      },
+      "fleets": [
+        {
+          "id": 23,
+          "owner": 1,
+          "origin_node": 9,
+          "dest_node": 13,
+          "turns_remaining": 1,
+          "total_turns": 2,
+          "units": {
+            "raider": 3
+          },
+          "total_count": 3
+        }
+      ],
+      "combat_events": [
+        {
+          "node_id": 13,
+          "defenders_before": {
+            "guard": 21
+          },
+          "attackers_before": {
+            "raider": 4
+          },
+          "defenders_after": {
+            "guard": 20
+          },
+          "attackers_after": {
+            "raider": 0,
+            "scout": 0
+          },
+          "defender_bonus_applied": true
+        }
+      ],
+      "capture_events": []
+    },
+    {
+      "turn": 18,
+      "scores": {
+        "p1": 53,
+        "p2": 31
+      },
+      "credits": {
+        "p1": 42,
+        "p2": 27
+      },
+      "income": {
+        "p1": 35,
+        "p2": 21
+      },
+      "upkeep": {
+        "p1": 0,
+        "p2": 0
+      },
+      "relic_active": false,
+      "relic_node_id": 7,
+      "nodes": {
+        "0": {
+          "id": 0,
+          "name": "P1 Core",
+          "x": 10.0,
+          "y": 50.0,
+          "owner": 1,
+          "production": 15,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 1,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 2
+        },
+        "1": {
+          "id": 1,
+          "name": "Alpha Bastion",
+          "x": 25.0,
+          "y": 25.0,
+          "owner": 1,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "2": {
+          "id": 2,
+          "name": "Gamma Bastion",
+          "x": 25.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "3": {
+          "id": 3,
+          "name": "Vanguard Gate",
+          "x": 32.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "4": {
+          "id": 4,
+          "name": "North Rig",
+          "x": 40.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "5": {
+          "id": 5,
+          "name": "North Outpost",
+          "x": 45.0,
+          "y": 35.0,
+          "owner": 1,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "6": {
+          "id": 6,
+          "name": "South Outpost",
+          "x": 45.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "7": {
+          "id": 7,
+          "name": "Relic Sanctuary",
+          "x": 50.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 4,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "8": {
+          "id": 8,
+          "name": "Titan Outpost",
+          "x": 55.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "9": {
+          "id": 9,
+          "name": "Zenith Outpost",
+          "x": 55.0,
+          "y": 35.0,
+          "owner": 1,
+          "production": 7,
+          "units": {
+            "raider": 3
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 3
+        },
+        "10": {
+          "id": 10,
+          "name": "Apex Rig",
+          "x": 60.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "11": {
+          "id": 11,
+          "name": "Sentinel Gate",
+          "x": 68.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "12": {
+          "id": 12,
+          "name": "Omega Bastion",
+          "x": 75.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "13": {
+          "id": 13,
+          "name": "Epsilon Bastion",
+          "x": 75.0,
+          "y": 25.0,
+          "owner": 2,
+          "production": 6,
+          "units": {
+            "guard": 22
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 2,
+          "total_units": 22
+        },
+        "14": {
+          "id": 14,
+          "name": "P2 Core",
+          "x": 90.0,
+          "y": 50.0,
+          "owner": 2,
+          "production": 15,
+          "units": {
+            "raider": 1,
+            "siege": 0,
+            "guard": 1,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 2,
+          "total_units": 3
+        }
+      },
+      "fleets": [
+        {
+          "id": 24,
+          "owner": 1,
+          "origin_node": 9,
+          "dest_node": 13,
+          "turns_remaining": 1,
+          "total_turns": 2,
+          "units": {
+            "raider": 4
+          },
+          "total_count": 4
+        }
+      ],
+      "combat_events": [
+        {
+          "node_id": 13,
+          "defenders_before": {
+            "guard": 22
+          },
+          "attackers_before": {
+            "raider": 3
+          },
+          "defenders_after": {
+            "guard": 22
+          },
+          "attackers_after": {
+            "raider": 0,
+            "scout": 0
+          },
+          "defender_bonus_applied": true
+        }
+      ],
+      "capture_events": []
+    },
+    {
+      "turn": 19,
+      "scores": {
+        "p1": 57,
+        "p2": 33
+      },
+      "credits": {
+        "p1": 37,
+        "p2": 24
+      },
+      "income": {
+        "p1": 35,
+        "p2": 21
+      },
+      "upkeep": {
+        "p1": 0,
+        "p2": 0
+      },
+      "relic_active": false,
+      "relic_node_id": 7,
+      "nodes": {
+        "0": {
+          "id": 0,
+          "name": "P1 Core",
+          "x": 10.0,
+          "y": 50.0,
+          "owner": 1,
+          "production": 15,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 1,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 2
+        },
+        "1": {
+          "id": 1,
+          "name": "Alpha Bastion",
+          "x": 25.0,
+          "y": 25.0,
+          "owner": 1,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "2": {
+          "id": 2,
+          "name": "Gamma Bastion",
+          "x": 25.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "3": {
+          "id": 3,
+          "name": "Vanguard Gate",
+          "x": 32.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "4": {
+          "id": 4,
+          "name": "North Rig",
+          "x": 40.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "5": {
+          "id": 5,
+          "name": "North Outpost",
+          "x": 45.0,
+          "y": 35.0,
+          "owner": 1,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "6": {
+          "id": 6,
+          "name": "South Outpost",
+          "x": 45.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "7": {
+          "id": 7,
+          "name": "Relic Sanctuary",
+          "x": 50.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 4,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "8": {
+          "id": 8,
+          "name": "Titan Outpost",
+          "x": 55.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "9": {
+          "id": 9,
+          "name": "Zenith Outpost",
+          "x": 55.0,
+          "y": 35.0,
+          "owner": 1,
+          "production": 7,
+          "units": {
+            "raider": 4
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 4
+        },
+        "10": {
+          "id": 10,
+          "name": "Apex Rig",
+          "x": 60.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "11": {
+          "id": 11,
+          "name": "Sentinel Gate",
+          "x": 68.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "12": {
+          "id": 12,
+          "name": "Omega Bastion",
+          "x": 75.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "13": {
+          "id": 13,
+          "name": "Epsilon Bastion",
+          "x": 75.0,
+          "y": 25.0,
+          "owner": 2,
+          "production": 6,
+          "units": {
+            "guard": 23
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 2,
+          "total_units": 23
+        },
+        "14": {
+          "id": 14,
+          "name": "P2 Core",
+          "x": 90.0,
+          "y": 50.0,
+          "owner": 2,
+          "production": 15,
+          "units": {
+            "raider": 1,
+            "siege": 0,
+            "guard": 1,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 2,
+          "total_units": 3
+        }
+      },
+      "fleets": [
+        {
+          "id": 25,
+          "owner": 1,
+          "origin_node": 9,
+          "dest_node": 13,
+          "turns_remaining": 1,
+          "total_turns": 2,
+          "units": {
+            "raider": 3
+          },
+          "total_count": 3
+        }
+      ],
+      "combat_events": [
+        {
+          "node_id": 13,
+          "defenders_before": {
+            "guard": 24
+          },
+          "attackers_before": {
+            "raider": 4
+          },
+          "defenders_after": {
+            "guard": 23
+          },
+          "attackers_after": {
+            "raider": 0,
+            "scout": 0
+          },
+          "defender_bonus_applied": true
+        }
+      ],
+      "capture_events": []
+    },
+    {
+      "turn": 20,
+      "scores": {
+        "p1": 61,
+        "p2": 35
+      },
+      "credits": {
+        "p1": 42,
+        "p2": 21
+      },
+      "income": {
+        "p1": 35,
+        "p2": 21
+      },
+      "upkeep": {
+        "p1": 0,
+        "p2": 0
+      },
+      "relic_active": false,
+      "relic_node_id": 7,
+      "nodes": {
+        "0": {
+          "id": 0,
+          "name": "P1 Core",
+          "x": 10.0,
+          "y": 50.0,
+          "owner": 1,
+          "production": 15,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 1,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 2
+        },
+        "1": {
+          "id": 1,
+          "name": "Alpha Bastion",
+          "x": 25.0,
+          "y": 25.0,
+          "owner": 1,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "2": {
+          "id": 2,
+          "name": "Gamma Bastion",
+          "x": 25.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "3": {
+          "id": 3,
+          "name": "Vanguard Gate",
+          "x": 32.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "4": {
+          "id": 4,
+          "name": "North Rig",
+          "x": 40.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "5": {
+          "id": 5,
+          "name": "North Outpost",
+          "x": 45.0,
+          "y": 35.0,
+          "owner": 1,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "6": {
+          "id": 6,
+          "name": "South Outpost",
+          "x": 45.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "7": {
+          "id": 7,
+          "name": "Relic Sanctuary",
+          "x": 50.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 4,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "8": {
+          "id": 8,
+          "name": "Titan Outpost",
+          "x": 55.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "9": {
+          "id": 9,
+          "name": "Zenith Outpost",
+          "x": 55.0,
+          "y": 35.0,
+          "owner": 1,
+          "production": 7,
+          "units": {
+            "raider": 3
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 3
+        },
+        "10": {
+          "id": 10,
+          "name": "Apex Rig",
+          "x": 60.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "11": {
+          "id": 11,
+          "name": "Sentinel Gate",
+          "x": 68.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "12": {
+          "id": 12,
+          "name": "Omega Bastion",
+          "x": 75.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "13": {
+          "id": 13,
+          "name": "Epsilon Bastion",
+          "x": 75.0,
+          "y": 25.0,
+          "owner": 2,
+          "production": 6,
+          "units": {
+            "guard": 25
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 2,
+          "total_units": 25
+        },
+        "14": {
+          "id": 14,
+          "name": "P2 Core",
+          "x": 90.0,
+          "y": 50.0,
+          "owner": 2,
+          "production": 15,
+          "units": {
+            "raider": 1,
+            "siege": 0,
+            "guard": 1,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 2,
+          "total_units": 3
+        }
+      },
+      "fleets": [
+        {
+          "id": 26,
+          "owner": 1,
+          "origin_node": 9,
+          "dest_node": 13,
+          "turns_remaining": 1,
+          "total_turns": 2,
+          "units": {
+            "raider": 4
+          },
+          "total_count": 4
+        }
+      ],
+      "combat_events": [
+        {
+          "node_id": 13,
+          "defenders_before": {
+            "guard": 25
+          },
+          "attackers_before": {
+            "raider": 3
+          },
+          "defenders_after": {
+            "guard": 25
+          },
+          "attackers_after": {
+            "raider": 0,
+            "scout": 0
+          },
+          "defender_bonus_applied": true
+        }
+      ],
+      "capture_events": []
+    },
+    {
+      "turn": 21,
+      "scores": {
+        "p1": 65,
+        "p2": 37
+      },
+      "credits": {
+        "p1": 37,
+        "p2": 30
+      },
+      "income": {
+        "p1": 35,
+        "p2": 21
+      },
+      "upkeep": {
+        "p1": 0,
+        "p2": 0
+      },
+      "relic_active": false,
+      "relic_node_id": 7,
+      "nodes": {
+        "0": {
+          "id": 0,
+          "name": "P1 Core",
+          "x": 10.0,
+          "y": 50.0,
+          "owner": 1,
+          "production": 15,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 1,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 2
+        },
+        "1": {
+          "id": 1,
+          "name": "Alpha Bastion",
+          "x": 25.0,
+          "y": 25.0,
+          "owner": 1,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "2": {
+          "id": 2,
+          "name": "Gamma Bastion",
+          "x": 25.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "3": {
+          "id": 3,
+          "name": "Vanguard Gate",
+          "x": 32.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "4": {
+          "id": 4,
+          "name": "North Rig",
+          "x": 40.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "5": {
+          "id": 5,
+          "name": "North Outpost",
+          "x": 45.0,
+          "y": 35.0,
+          "owner": 1,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "6": {
+          "id": 6,
+          "name": "South Outpost",
+          "x": 45.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "7": {
+          "id": 7,
+          "name": "Relic Sanctuary",
+          "x": 50.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 4,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "8": {
+          "id": 8,
+          "name": "Titan Outpost",
+          "x": 55.0,
+          "y": 65.0,
+          "owner": 0,
+          "production": 7,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "9": {
+          "id": 9,
+          "name": "Zenith Outpost",
+          "x": 55.0,
+          "y": 35.0,
+          "owner": 1,
+          "production": 7,
+          "units": {
+            "raider": 4
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 1,
+          "total_units": 4
+        },
+        "10": {
+          "id": 10,
+          "name": "Apex Rig",
+          "x": 60.0,
+          "y": 15.0,
+          "owner": 0,
+          "production": 5,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "11": {
+          "id": 11,
+          "name": "Sentinel Gate",
+          "x": 68.0,
+          "y": 50.0,
+          "owner": 0,
+          "production": 8,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "12": {
+          "id": 12,
+          "name": "Omega Bastion",
+          "x": 75.0,
+          "y": 75.0,
+          "owner": 0,
+          "production": 6,
+          "units": {
+            "raider": 0,
+            "siege": 0,
+            "guard": 0,
+            "scout": 0
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 0,
+          "total_units": 0
+        },
+        "13": {
+          "id": 13,
+          "name": "Epsilon Bastion",
+          "x": 75.0,
+          "y": 25.0,
+          "owner": 2,
+          "production": 6,
+          "units": {
+            "guard": 25
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 2,
+          "total_units": 25
+        },
+        "14": {
+          "id": 14,
+          "name": "P2 Core",
+          "x": 90.0,
+          "y": 50.0,
+          "owner": 2,
+          "production": 15,
+          "units": {
+            "raider": 1,
+            "siege": 0,
+            "guard": 1,
+            "scout": 1
+          },
+          "defense_bonus": 0.25,
+          "capture_progress": 0,
+          "capturing_player": 0,
+          "resident_player": 2,
+          "total_units": 3
+        }
+      },
+      "fleets": [
+        {
+          "id": 27,
+          "owner": 1,
+          "origin_node": 9,
+          "dest_node": 13,
+          "turns_remaining": 1,
+          "total_turns": 2,
+          "units": {
+            "raider": 3
+          },
+          "total_count": 3
+        }
+      ],
+      "combat_events": [
+        {
+          "node_id": 13,
+          "defenders_before": {
+            "guard": 26
+          },
+          "attackers_before": {
+            "raider": 4
+          },
+          "defenders_after": {
+            "guard": 25
+          },
+          "attackers_after": {
+            "raider": 0,
+            "scout": 0
+          },
+          "defender_bonus_applied": true
+        }
+      ],
+      "capture_events": []
+    }
+  ]
+}

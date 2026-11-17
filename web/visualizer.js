@@ -196,35 +196,63 @@ class NodeWarVisualizer {
     if (!p1Sel || !p2Sel) return;
 
     const prevP1 = p1Sel.value || 'rusher';
-    const prevP2 = p2Sel.value || (data.custom_files && data.custom_files.length > 0 ? data.custom_files[0].id : 'turtle');
+    const prevP2 = p2Sel.value || 'turtle';
 
     const generateOptionsHtml = () => {
       let html = '';
-      if (data.custom_files && data.custom_files.length > 0) {
+
+      // 1. Custom scripts in bots/
+      let customFiles = (data && data.custom_files && data.custom_files.length > 0) ? data.custom_files : null;
+      if (customFiles) {
         html += '<optgroup label="Custom Scripts (bots/)">';
-        data.custom_files.forEach(b => {
-          html += `<option value="${b.id}">${b.display_name}</option>`;
+        customFiles.forEach(b => {
+          html += `<option value="${b.id}">${b.display_name || b.filename}</option>`;
         });
         html += '</optgroup>';
-      }
-      if (data.builtins && data.builtins.length > 0) {
-        html += '<optgroup label="Built-in Baseline Bots">';
-        data.builtins.forEach(b => {
-          html += `<option value="${b.id}">${b.name}</option>`;
-        });
+      } else {
+        html += '<optgroup label="Custom Scripts (bots/)">';
+        html += '<option value="bot1.py">bot1.py (ApexNodeBot)</option>';
         html += '</optgroup>';
       }
-      if (data.lab) {
-        html += '<optgroup label="Browser Lab">';
-        html += `<option value="${data.lab.id}">${data.lab.name}</option>`;
-        html += '</optgroup>';
+
+      // 2. Builtin baseline bots
+      let builtins = (data && data.builtins) ? data.builtins : null;
+      if (!builtins && data && Array.isArray(data.bots)) {
+        builtins = data.bots
+          .filter(b => b !== 'custom' && !b.endsWith('.py'))
+          .map(b => ({
+            id: b,
+            name: b.charAt(0).toUpperCase() + b.slice(1) + ' Bot'
+          }));
       }
+      if (!builtins || builtins.length === 0) {
+        builtins = [
+          { id: 'rusher', name: 'Rusher Bot' },
+          { id: 'turtle', name: 'Turtle Bot' },
+          { id: 'balanced', name: 'Balanced (Scout) Bot' },
+          { id: 'starter', name: 'Starter Bot' }
+        ];
+      }
+
+      html += '<optgroup label="Built-in Baseline Bots">';
+      builtins.forEach(b => {
+        html += `<option value="${b.id}">${b.name}</option>`;
+      });
+      html += '</optgroup>';
+
+      // 3. Browser Lab
+      html += '<optgroup label="Browser Lab">';
+      html += '<option value="custom">Custom Lab Bot (from Code Editor)</option>';
+      html += '</optgroup>';
+
       return html;
     };
 
     const optionsHtml = generateOptionsHtml();
-    p1Sel.innerHTML = optionsHtml;
-    p2Sel.innerHTML = optionsHtml;
+    if (optionsHtml.trim().length > 0) {
+      p1Sel.innerHTML = optionsHtml;
+      p2Sel.innerHTML = optionsHtml;
+    }
 
     if ([...p1Sel.options].some(o => o.value === prevP1)) {
       p1Sel.value = prevP1;
@@ -234,24 +262,27 @@ class NodeWarVisualizer {
 
     if ([...p2Sel.options].some(o => o.value === prevP2)) {
       p2Sel.value = prevP2;
-    } else if (data.custom_files && data.custom_files.length > 0) {
-      p2Sel.value = data.custom_files[0].id;
+    } else if ([...p2Sel.options].some(o => o.value === 'bot1.py')) {
+      p2Sel.value = 'bot1.py';
     } else {
       p2Sel.value = 'turtle';
     }
 
     if (scriptSel) {
       scriptSel.innerHTML = '<option value="">Load from bots/ ...</option>';
-      if (data.custom_files) {
-        data.custom_files.forEach(b => {
-          scriptSel.innerHTML += `<option value="${b.filename}">${b.filename} (${b.class_name || 'Bot'})</option>`;
-        });
-      }
-      if (data.builtins) {
-        data.builtins.forEach(b => {
-          scriptSel.innerHTML += `<option value="${b.id}.py">${b.id}.py (${b.name})</option>`;
-        });
-      }
+      let customFiles = (data && data.custom_files && data.custom_files.length > 0) ? data.custom_files : [{ filename: 'bot1.py', class_name: 'ApexNodeBot' }];
+      customFiles.forEach(b => {
+        scriptSel.innerHTML += `<option value="${b.filename}">${b.filename} (${b.class_name || 'Bot'})</option>`;
+      });
+      let builtins = [
+        { id: 'rusher', name: 'Rusher' },
+        { id: 'turtle', name: 'Turtle' },
+        { id: 'balanced', name: 'Balanced' },
+        { id: 'starter_bot', name: 'Starter' }
+      ];
+      builtins.forEach(b => {
+        scriptSel.innerHTML += `<option value="${b.id}.py">${b.id}.py (${b.name})</option>`;
+      });
     }
   }
 

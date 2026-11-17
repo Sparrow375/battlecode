@@ -72,23 +72,35 @@
             <div class="form-group">
               <label>Player 1 (Cyan):</label>
               <select id="select-p1">
-                <!-- Dynamically loaded from bots/ -->
-                <option value="rusher" selected>Rusher Bot</option>
-                <option value="turtle">Turtle Bot</option>
-                <option value="balanced">Balanced (Scout) Bot</option>
-                <option value="starter">Starter Bot</option>
-                <option value="custom">Custom Lab Bot</option>
+                <optgroup label="Custom Scripts (bots/)">
+                  <option value="bot1.py">bot1.py (ApexNodeBot)</option>
+                </optgroup>
+                <optgroup label="Built-in Baseline Bots">
+                  <option value="rusher" selected>Rusher Bot</option>
+                  <option value="turtle">Turtle Bot</option>
+                  <option value="balanced">Balanced (Scout) Bot</option>
+                  <option value="starter">Starter Bot</option>
+                </optgroup>
+                <optgroup label="Browser Lab">
+                  <option value="custom">Custom Lab Bot</option>
+                </optgroup>
               </select>
             </div>
             <div class="form-group">
               <label>Player 2 (Crimson):</label>
               <select id="select-p2">
-                <!-- Dynamically loaded from bots/ -->
-                <option value="rusher">Rusher Bot</option>
-                <option value="turtle" selected>Turtle Bot</option>
-                <option value="balanced">Balanced (Scout) Bot</option>
-                <option value="starter">Starter Bot</option>
-                <option value="custom">Custom Lab Bot</option>
+                <optgroup label="Custom Scripts (bots/)">
+                  <option value="bot1.py">bot1.py (ApexNodeBot)</option>
+                </optgroup>
+                <optgroup label="Built-in Baseline Bots">
+                  <option value="rusher">Rusher Bot</option>
+                  <option value="turtle" selected>Turtle Bot</option>
+                  <option value="balanced">Balanced (Scout) Bot</option>
+                  <option value="starter">Starter Bot</option>
+                </optgroup>
+                <optgroup label="Browser Lab">
+                  <option value="custom">Custom Lab Bot</option>
+                </optgroup>
               </select>
             </div>
 
