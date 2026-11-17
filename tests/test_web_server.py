@@ -55,5 +55,33 @@ class TestWebServer(unittest.TestCase):
             data = json.loads(response.read().decode("utf-8"))
             self.assertIn("tournament", data)
 
+    def test_get_bots_list(self):
+        url = f"http://127.0.0.1:{self.test_port}/api/bots"
+        with urllib.request.urlopen(url) as response:
+            self.assertEqual(response.status, 200)
+            data = json.loads(response.read().decode("utf-8"))
+            self.assertIn("builtins", data)
+            self.assertIn("custom_files", data)
+            custom_filenames = [b["filename"] for b in data["custom_files"]]
+            self.assertIn("bot1.py", custom_filenames)
+
+    def test_get_bot_source(self):
+        url = f"http://127.0.0.1:{self.test_port}/api/bot-source/bot1.py"
+        with urllib.request.urlopen(url) as response:
+            self.assertEqual(response.status, 200)
+            data = json.loads(response.read().decode("utf-8"))
+            self.assertEqual(data["filename"], "bot1.py")
+            self.assertIn("ApexNodeBot", data["source"])
+
+    def test_post_run_match_with_custom_file(self):
+        url = f"http://127.0.0.1:{self.test_port}/api/run-match"
+        payload = json.dumps({"p1": "bot1.py", "p2": "turtle", "turns": 20}).encode("utf-8")
+        req = urllib.request.Request(url, data=payload, headers={"Content-Type": "application/json"})
+        with urllib.request.urlopen(req) as response:
+            self.assertEqual(response.status, 200)
+            data = json.loads(response.read().decode("utf-8"))
+            self.assertIn("metadata", data)
+            self.assertIn("bot1.py", data["metadata"]["p1_name"])
+
 if __name__ == "__main__":
     unittest.main()

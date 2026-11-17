@@ -75,14 +75,15 @@ flowchart TD
    - `rusher.py`: Aggressive Raider swarm targeting adjacent economy nodes early.
    - `turtle.py`: Heavy Guard defense, chokepoint consolidation, tech/economy buildup.
    - `balanced.py`: Recon-first strategy deploying scouts, reading enemy fleets, and recruiting counter-units (Siege against Guards, Guards against Raiders, Raiders against Siege).
+   - Custom scripts (e.g. `bot1.py`, student submissions): Dynamically discovered and loaded by filename.
 
 3. **`runner/`**:
-   - `match.py`: Head-to-head match executor, per-turn time limits, exception isolation.
+   - `match.py`: Head-to-head match executor, per-turn time limits, exception isolation. Features `load_bot_from_file`, `discover_custom_bots`, and `resolve_bot` for loading custom scripts in `bots/`.
    - `tournament.py`: Automated round-robin matrix testing win-rates to verify RPS balance cycle.
    - `replay.py`: Compact, structured JSON replay serialization.
 
 4. **`web/`**:
    - Web-based spectator frontend displaying interactive nodes, glowing lanes, traveling fleet badges, combat clash animations, spectator vs player view toggle, timeline scrubber, and real-time scoreboard.
-   - Match Control Center: 1v1 Arena match launcher with rule presets, interactive Tournament Matrix evaluator, Custom Bot Lab for live browser-based Python bot code compilation, and saved Replay Vault.
-   - `serve.py`: HTTP server with endpoints (`/api/replays`, `/api/replay/<id>`, `/api/run-match`, `/api/run-tournament`) with automated `sys.path` resolution. Supported via root `serve.py` alias.
+   - Match Control Center: 1v1 Arena match launcher supporting custom scripts in `bots/` with live discovery, interactive Tournament Matrix evaluator, Custom Bot Lab for live browser-based Python bot code compilation/inspection, and saved Replay Vault.
+   - `serve.py`: HTTP server with endpoints (`/api/replays`, `/api/replay/<id>`, `/api/run-match`, `/api/run-tournament`, `/api/bots`, `/api/bot-source/<file>`) with automated `sys.path` resolution. Supported via root `serve.py` alias.
 

@@ -2,8 +2,10 @@ from __future__ import annotations
 import argparse
 import time
 import os
+import importlib.util
+import inspect
 from dataclasses import dataclass
-from typing import Type, Optional, Dict, Any
+from typing import Type, Optional, Dict, Any, Tuple
 
 from engine.models import PlayerId, GameConfig
 from engine.game import NodeWarGame
@@ -20,6 +22,73 @@ BOT_REGISTRY: Dict[str, Type[BotBase]] = {
     "balanced": BalancedBot,
     "starter": StarterBot
 }
+
+def load_bot_from_file(file_path: str) -> Tuple[Type[BotBase], str]:
+    """Dynamically loads a BotBase subclass from a Python file path."""
+    abs_path = os.path.abspath(file_path)
+    if not os.path.exists(abs_path):
+        raise FileNotFoundError(f"Bot script not found at {file_path}")
+    module_name = f"custom_bot_{os.path.splitext(os.path.basename(abs_path))[0]}_{int(time.time()*1000)}"
+    spec = importlib.util.spec_from_file_location(module_name, abs_path)
+    if not spec or not spec.loader:
+        raise ValueError(f"Could not load module from {file_path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    for name, obj in inspect.getmembers(module, inspect.isclass):
+        if issubclass(obj, BotBase) and obj is not BotBase:
+            return obj, name
+    raise ValueError(f"No BotBase subclass found in {file_path}")
+
+def discover_custom_bots(bots_dir: Optional[str] = None) -> Dict[str, Dict[str, Any]]:
+    """Discovers all custom python scripts in the bots directory."""
+    if bots_dir is None:
+        bots_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "bots")
+    discovered = {}
+    builtin_files = {"__init__.py", "base.py", "rusher.py", "turtle.py", "balanced.py", "starter_bot.py"}
+    if not os.path.isdir(bots_dir):
+        return discovered
+    for fname in os.listdir(bots_dir):
+        if fname.endswith(".py") and fname not in builtin_files:
+            fpath = os.path.join(bots_dir, fname)
+            try:
+                bot_cls, cls_name = load_bot_from_file(fpath)
+                discovered[fname] = {
+                    "filename": fname,
+                    "filepath": fpath,
+                    "class_name": cls_name,
+                    "display_name": f"{fname} ({cls_name})",
+                    "class": bot_cls
+                }
+            except Exception as e:
+                discovered[fname] = {
+                    "filename": fname,
+                    "filepath": fpath,
+                    "class_name": "Error",
+                    "display_name": f"{fname} (Error)",
+                    "error": str(e)
+                }
+    return discovered
+
+def resolve_bot(bot_id: str, bots_dir: Optional[str] = None) -> Tuple[Type[BotBase], str]:
+    """Resolves a bot by registry name, file path, or filename in bots/."""
+    if bot_id in BOT_REGISTRY:
+        return BOT_REGISTRY[bot_id], bot_id.capitalize()
+
+    if bots_dir is None:
+        bots_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "bots")
+
+    candidates = [
+        bot_id,
+        os.path.join(bots_dir, bot_id),
+        os.path.join(bots_dir, f"{bot_id}.py") if not bot_id.endswith(".py") else os.path.join(bots_dir, bot_id)
+    ]
+    for c in candidates:
+        if os.path.isfile(c):
+            bot_cls, cls_name = load_bot_from_file(c)
+            fname = os.path.basename(c)
+            return bot_cls, f"{fname} ({cls_name})"
+
+    raise ValueError(f"Unknown bot identifier or script: '{bot_id}'. Available built-ins: {list(BOT_REGISTRY.keys())}")
 
 @dataclass
 class MatchResult:
@@ -93,18 +162,21 @@ def run_match(
 
 def main():
     parser = argparse.ArgumentParser(description="Run a Node War 1v1 match.")
-    parser.add_argument("--p1", type=str, default="rusher", choices=list(BOT_REGISTRY.keys()), help="Player 1 Bot")
-    parser.add_argument("--p2", type=str, default="turtle", choices=list(BOT_REGISTRY.keys()), help="Player 2 Bot")
+    parser.add_argument("--p1", type=str, default="rusher", help="Player 1 Bot (name or bots/ filename)")
+    parser.add_argument("--p2", type=str, default="turtle", help="Player 2 Bot (name or bots/ filename)")
     parser.add_argument("--turns", type=int, default=120, help="Maximum match turns")
     parser.add_argument("--no-replay", action="store_true", help="Disable replay saving")
     args = parser.parse_args()
 
+    p1_class, p1_name = resolve_bot(args.p1)
+    p2_class, p2_name = resolve_bot(args.p2)
+
     cfg = GameConfig(max_turns=args.turns)
     res = run_match(
-        p1_class=BOT_REGISTRY[args.p1],
-        p2_class=BOT_REGISTRY[args.p2],
-        p1_name=args.p1.capitalize(),
-        p2_name=args.p2.capitalize(),
+        p1_class=p1_class,
+        p2_class=p2_class,
+        p1_name=p1_name,
+        p2_name=p2_name,
         config=cfg,
         save_replay=not args.no_replay
     )

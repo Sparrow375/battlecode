@@ -50,10 +50,12 @@ f:\Avaneesh\projects\battlecode\
 
 ## Current Status & Verification
 - `sys.path` import issue resolved in `web/serve.py`; root `serve.py` convenience script added.
+- Dynamic script discovery & loading added for `f:\Avaneesh\projects\battlecode\bots\`: any `.py` file (such as `bot1.py`) is automatically detected, populated in Player 1/2 dropdowns, and loadable via runner CLI (`python -m runner.match --p1 bot1.py --p2 turtle`).
 - Web Spectator Arena upgraded with full match controls:
-  - 1v1 Match Setup with presets (Standard, Blitz, Marathon, Custom).
-  - Web Tournament Matrix Evaluator with dynamic win rate bars.
+  - 1v1 Match Setup with custom bot script dropdown and "Refresh Bots" trigger.
+  - Script source code loader in Bot Lab for inspecting and modifying files in `bots/`.
+  - In-browser Tournament Matrix Evaluator with dynamic win rate bars.
   - Interactive Custom Bot Playground with live browser-based code compilation.
   - Replay Vault with load & refresh capabilities.
   - In-match quick navigation (Relic jump, Clash jump, Finish jump).
-- All 13 unit, integration, and HTTP API tests passing.
+- All 16 unit, integration, and HTTP API tests passing.

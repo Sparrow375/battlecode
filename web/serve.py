@@ -14,7 +14,7 @@ import json
 import glob
 from typing import Dict, Any, Type
 
-from runner.match import run_match, BOT_REGISTRY
+from runner.match import run_match, BOT_REGISTRY, discover_custom_bots, resolve_bot, load_bot_from_file
 from runner.tournament import run_balance_matrix
 from engine.models import GameConfig
 from bots.base import BotBase
@@ -73,8 +73,39 @@ class NodeWarRequestHandler(http.server.SimpleHTTPRequestHandler):
             return
 
         elif self.path == "/api/bots":
-            bots = list(BOT_REGISTRY.keys()) + ["custom"]
-            self._send_json({"bots": bots})
+            custom_map = discover_custom_bots(os.path.join(PROJECT_ROOT, "bots"))
+            custom_list = []
+            for fname, info in custom_map.items():
+                custom_list.append({
+                    "id": fname,
+                    "filename": fname,
+                    "class_name": info.get("class_name", ""),
+                    "display_name": info.get("display_name", fname),
+                    "error": info.get("error")
+                })
+            builtins = [
+                {"id": "rusher", "name": "Rusher Bot", "class": "RusherBot"},
+                {"id": "turtle", "name": "Turtle Bot", "class": "TurtleBot"},
+                {"id": "balanced", "name": "Balanced (Scout) Bot", "class": "BalancedBot"},
+                {"id": "starter", "name": "Starter Bot", "class": "StarterBot"}
+            ]
+            self._send_json({
+                "builtins": builtins,
+                "custom_files": custom_list,
+                "lab": {"id": "custom", "name": "Custom Lab Bot (from Code Editor)"}
+            })
+            return
+
+        elif self.path.startswith("/api/bot-source/"):
+            filename = self.path[len("/api/bot-source/"):]
+            filename = os.path.basename(filename)
+            bot_file = os.path.join(PROJECT_ROOT, "bots", filename)
+            if os.path.exists(bot_file):
+                with open(bot_file, "r", encoding="utf-8") as f:
+                    source = f.read()
+                self._send_json({"filename": filename, "source": source})
+            else:
+                self.send_error(404, "Bot file not found")
             return
 
         # Serve static web files
@@ -95,25 +126,20 @@ class NodeWarRequestHandler(http.server.SimpleHTTPRequestHandler):
             custom_code = params.get("custom_code", "")
 
             # Resolve bot classes
-            p1_class = None
-            p2_class = None
-            p1_name = p1_key.capitalize()
-            p2_name = p2_key.capitalize()
-
             try:
                 if p1_key == "custom":
                     p1_class = compile_custom_bot(custom_code)
                     p1_name = "CustomBot"
-                elif p1_key in BOT_REGISTRY:
-                    p1_class = BOT_REGISTRY[p1_key]
+                else:
+                    p1_class, p1_name = resolve_bot(p1_key, bots_dir=os.path.join(PROJECT_ROOT, "bots"))
 
                 if p2_key == "custom":
                     p2_class = compile_custom_bot(custom_code)
                     p2_name = "CustomBot"
-                elif p2_key in BOT_REGISTRY:
-                    p2_class = BOT_REGISTRY[p2_key]
+                else:
+                    p2_class, p2_name = resolve_bot(p2_key, bots_dir=os.path.join(PROJECT_ROOT, "bots"))
             except Exception as e:
-                self._send_json({"error": f"Failed to compile custom bot: {str(e)}"}, status=400)
+                self._send_json({"error": f"Failed to load or compile bot: {str(e)}"}, status=400)
                 return
 
             if not p1_class or not p2_class:

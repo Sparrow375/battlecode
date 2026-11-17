@@ -68,21 +68,26 @@ python -m runner.tournament --rounds 25
 ```
 
 ### 2. Run a 1v1 Match
-Simulate a match between any two bots and export the replay JSON:
+Simulate a match between any two bots and export the replay JSON (supports baseline bots or custom `.py` scripts in `bots/`):
 ```bash
 python -m runner.match --p1 rusher --p2 turtle --turns 120
+# Or using a custom bot script from bots/:
+python -m runner.match --p1 bot1.py --p2 rusher --turns 120
 ```
 
 ### 3. Launch Web Spectator Arena
 Start the local spectator server:
 ```bash
 python web/serve.py
+# OR
+python serve.py
 ```
 Open **`http://localhost:8000`** in any web browser to:
+- Select custom scripts from `bots/` (e.g. `bot1.py`) directly from the Player 1 & 2 dropdowns.
+- Click **"🔄 Refresh Bots"** to immediately detect new python files in `bots/`.
+- Inspect and tweak bot code in the **Bot Lab** tab.
 - Watch live replays with timeline scrubbing and speed controls ($0.5\times \dots 5\times$).
 - Toggle between **Omniscient Spectator Mode** and **Player 1/2 Fog-of-War Views**.
-- Launch on-demand battles between any bots directly from the web interface.
-- Inspect real-time node telemetry, garrisons, and capture meters.
 
 ---
 

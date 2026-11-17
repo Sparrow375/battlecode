@@ -65,10 +65,14 @@
         <!-- TAB 1: 1v1 MATCH RUNNER -->
         <div id="tab-match" class="tab-content active">
           <div class="panel-section">
-            <h3>Match Setup</h3>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <h3 style="margin:0;">Match Setup</h3>
+              <button id="btn-refresh-bots" class="secondary-btn" style="width:auto; margin:0; padding:2px 8px; font-size:0.75rem;" title="Scan bots/ folder for new scripts">&#8635; Refresh Bots</button>
+            </div>
             <div class="form-group">
               <label>Player 1 (Cyan):</label>
               <select id="select-p1">
+                <!-- Dynamically loaded from bots/ -->
                 <option value="rusher" selected>Rusher Bot</option>
                 <option value="turtle">Turtle Bot</option>
                 <option value="balanced">Balanced (Scout) Bot</option>
@@ -79,6 +83,7 @@
             <div class="form-group">
               <label>Player 2 (Crimson):</label>
               <select id="select-p2">
+                <!-- Dynamically loaded from bots/ -->
                 <option value="rusher">Rusher Bot</option>
                 <option value="turtle" selected>Turtle Bot</option>
                 <option value="balanced">Balanced (Scout) Bot</option>
@@ -158,7 +163,13 @@
         <div id="tab-playground" class="tab-content">
           <div class="panel-section">
             <h3>Custom Bot Playground</h3>
-            <p class="muted-small">Paste or edit Python code below. Select "Custom Lab Bot" in match setup to compete!</p>
+            <p class="muted-small">Edit code below or load any script from <code>bots/</code> to inspect, tweak, and test!</p>
+            <div style="display:flex; gap:6px; margin-top:8px;">
+              <select id="select-load-script">
+                <option value="">Load from bots/ ...</option>
+              </select>
+              <button id="btn-load-script-into-editor" class="secondary-btn" style="width:auto; margin:0; padding:4px 10px; font-size:0.8rem; white-space:nowrap;">Load</button>
+            </div>
             <textarea id="custom-bot-editor" class="code-editor" spellcheck="false">from engine.models import UnitType
 from engine.fog import BotObservation
 from bots.base import BotBase

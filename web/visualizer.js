@@ -18,6 +18,7 @@ class NodeWarVisualizer {
     this.initCanvasResize();
     this.bindEvents();
     this.bindControlCenterEvents();
+    this.loadBotList();
     this.loadReplayList();
     this.startAnimationLoop();
   }
@@ -156,6 +157,117 @@ class NodeWarVisualizer {
 
     // Replay vault refresh button
     document.getElementById('btn-refresh-replays').addEventListener('click', () => this.loadReplayList());
+
+    // Bot list refresh button
+    const refreshBotsBtn = document.getElementById('btn-refresh-bots');
+    if (refreshBotsBtn) {
+      refreshBotsBtn.addEventListener('click', () => {
+        this.loadBotList();
+        this.logEvent("Refreshed bots directory.", "system");
+      });
+    }
+
+    // Load custom script into editor button
+    const loadScriptBtn = document.getElementById('btn-load-script-into-editor');
+    if (loadScriptBtn) {
+      loadScriptBtn.addEventListener('click', () => {
+        const scriptSel = document.getElementById('select-load-script');
+        if (scriptSel && scriptSel.value) {
+          this.loadScriptIntoEditor(scriptSel.value);
+        }
+      });
+    }
+  }
+
+  async loadBotList() {
+    try {
+      const res = await fetch('/api/bots');
+      const data = await res.json();
+      this.populateBotSelects(data);
+    } catch (err) {
+      console.warn("Could not load bot list:", err);
+    }
+  }
+
+  populateBotSelects(data) {
+    const p1Sel = document.getElementById('select-p1');
+    const p2Sel = document.getElementById('select-p2');
+    const scriptSel = document.getElementById('select-load-script');
+    if (!p1Sel || !p2Sel) return;
+
+    const prevP1 = p1Sel.value || 'rusher';
+    const prevP2 = p2Sel.value || (data.custom_files && data.custom_files.length > 0 ? data.custom_files[0].id : 'turtle');
+
+    const generateOptionsHtml = () => {
+      let html = '';
+      if (data.custom_files && data.custom_files.length > 0) {
+        html += '<optgroup label="Custom Scripts (bots/)">';
+        data.custom_files.forEach(b => {
+          html += `<option value="${b.id}">${b.display_name}</option>`;
+        });
+        html += '</optgroup>';
+      }
+      if (data.builtins && data.builtins.length > 0) {
+        html += '<optgroup label="Built-in Baseline Bots">';
+        data.builtins.forEach(b => {
+          html += `<option value="${b.id}">${b.name}</option>`;
+        });
+        html += '</optgroup>';
+      }
+      if (data.lab) {
+        html += '<optgroup label="Browser Lab">';
+        html += `<option value="${data.lab.id}">${data.lab.name}</option>`;
+        html += '</optgroup>';
+      }
+      return html;
+    };
+
+    const optionsHtml = generateOptionsHtml();
+    p1Sel.innerHTML = optionsHtml;
+    p2Sel.innerHTML = optionsHtml;
+
+    if ([...p1Sel.options].some(o => o.value === prevP1)) {
+      p1Sel.value = prevP1;
+    } else {
+      p1Sel.value = 'rusher';
+    }
+
+    if ([...p2Sel.options].some(o => o.value === prevP2)) {
+      p2Sel.value = prevP2;
+    } else if (data.custom_files && data.custom_files.length > 0) {
+      p2Sel.value = data.custom_files[0].id;
+    } else {
+      p2Sel.value = 'turtle';
+    }
+
+    if (scriptSel) {
+      scriptSel.innerHTML = '<option value="">Load from bots/ ...</option>';
+      if (data.custom_files) {
+        data.custom_files.forEach(b => {
+          scriptSel.innerHTML += `<option value="${b.filename}">${b.filename} (${b.class_name || 'Bot'})</option>`;
+        });
+      }
+      if (data.builtins) {
+        data.builtins.forEach(b => {
+          scriptSel.innerHTML += `<option value="${b.id}.py">${b.id}.py (${b.name})</option>`;
+        });
+      }
+    }
+  }
+
+  async loadScriptIntoEditor(filename) {
+    try {
+      const res = await fetch(`/api/bot-source/${filename}`);
+      const data = await res.json();
+      if (data.source) {
+        document.getElementById('custom-bot-editor').value = data.source;
+        this.logEvent(`Loaded ${filename} into code editor.`, 'system');
+      } else if (data.error) {
+        alert(data.error);
+      }
+    } catch (err) {
+      console.error("Failed to load script into editor:", err);
+    }
   }
 
   // =========================================
