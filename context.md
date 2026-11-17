@@ -72,6 +72,10 @@ f:\Avaneesh\projects\battlecode\
   - Winding sand/dirt roads traversing vibrant cartoon grass meadows with procedural trees, rocks, fences, and tribal huts.
   - Nodes rendered as actual game buildings: Blue/Red Stone Castles with spires and banners (Nodes 0 & 14), Stone Watchtowers (Chokepoints 5, 6, 8, 9), Fortified Barracks (Refineries 1–4, 10–13), and Mystic Relic Shrine (Node 7).
   - Units rendered as actual animated cartoon soldiers: Knights with tower shields (Guards), running hooded Rogues with dual daggers (Raiders), wheeled iron Cannons (Siege), and flying Eagles (Scouts).
+  - Every soldier in a marching squad rendered individually in tactical column formation with walking/rolling bobs.
+  - Animated road direction chevrons (`>>`) pulsing forward along roads toward destination nodes with destination attack warning rings.
+  - Stationed garrison soldier sprites standing guard at castle doors, walls, and ramparts with readable troop breakdown strips (`🛡️x3 🗡️x2 💣x1`).
+  - High-visibility battle clash alerts: animated crossed swords (`⚔️ BATTLE! ⚔️`) badges, expanding red shockwaves, floating casualty text (`-2 GUARDS`), and esports banner alerts.
   - Dynamic twilight / lantern Fog of War with light circles radiating from owned castles and flying scouts.
   - Multi-Engine Switcher: Instant 1-click toggle between `[Tower Defense]` (Default), `[3D Arena]`, and `[2D Tactical]`.
   - All 16 unit, integration, and HTTP API tests passing.

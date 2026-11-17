@@ -26,3 +26,7 @@
 - [x] Task 24: Integrate `TDVisualizer` into `web/index.html` and `web/visualizer.js` as the default visualizer with engine switcher (`[Tower Defense]`, `[3D Arena]`, `[2D Tactical]`).
 - [x] Task 25: Add cartoon Tower Defense theme accents to UI (wooden frames, gold coin counters, shield emblems matching the user's reference image).
 - [x] Task 26: Full verification, test runs, update `context.md` & `architechture.md`, and commit/push to git.
+- [x] Task 27: Render individual soldier sprites for marching squads (all Knights, Rogues, Cannons, Eagles visible in formation) with animated road direction arrows and destination indicators.
+- [x] Task 28: Render visible garrison soldier sprites stationed at castles/towers (defenders standing at battlements/gates) with clear unit count breakdown pills.
+- [x] Task 29: Implement high-visibility Battle Clash FX: animated crossed swords (`⚔️ BATTLE!`) badge over contested nodes, battle alert banners, clash shockwaves, and floating casualties.
+- [x] Task 30: Verification, testing, update `context.md` & `architechture.md`, and commit/push to git.

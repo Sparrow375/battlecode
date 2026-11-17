@@ -302,12 +302,18 @@ class NodeWarTDVisualizer {
       const isRelic = (staticNode.id === 7);
       const isHomeP1 = (staticNode.id === 0);
       const isHomeP2 = (staticNode.id === 14);
+      const units = dynamicNode.units || { raider: 0, siege: 0, guard: 0, scout: 0 };
+      const totalUnits = dynamicNode.total_units || (units.raider + units.siege + units.guard + units.scout) || 0;
+      const residentPlayer = dynamicNode.resident_player || owner;
+
+      // Check if battle is active at this node
+      const activeBattle = frame.combat_events && frame.combat_events.find(cb => cb.node_id === staticNode.id);
 
       // Node Selection Highlight Ring
       if (this.selectedNodeId === staticNode.id) {
         this.ctx.save();
         this.ctx.beginPath();
-        this.ctx.arc(p.x, p.y + 4, 48, 0, Math.PI * 2);
+        this.ctx.arc(p.x, p.y + 4, 52, 0, Math.PI * 2);
         this.ctx.strokeStyle = '#ffd166';
         this.ctx.lineWidth = 4;
         this.ctx.setLineDash([8, 6]);
@@ -344,6 +350,18 @@ class NodeWarTDVisualizer {
         drawH = 82;
       }
 
+      // 2. Battle Active Shockwaves & Warning Rings
+      if (activeBattle) {
+        const ringTime = (Date.now() * 0.04) % 45;
+        this.ctx.save();
+        this.ctx.beginPath();
+        this.ctx.arc(p.x, p.y, drawW * 0.42 + ringTime, 0, Math.PI * 2);
+        this.ctx.strokeStyle = `rgba(255, 0, 85, ${1.0 - ringTime / 45})`;
+        this.ctx.lineWidth = 3.5;
+        this.ctx.stroke();
+        this.ctx.restore();
+      }
+
       // Relic Turn 95 Golden Awakening Pulse
       if (isRelic && frame.relic_active) {
         const pulse = 1.0 + Math.sin(Date.now() * 0.006) * 0.08;
@@ -355,47 +373,85 @@ class NodeWarTDVisualizer {
         this.ctx.restore();
       }
 
-      // Draw Structure Image
+      // Draw Main Structure Image
       if (img && this.assetsLoaded) {
         this.ctx.drawImage(img, p.x - drawW / 2, p.y - drawH / 2, drawW, drawH);
       }
 
-      // 2. 2-Turn Capture Progress Arc (over castle gate)
+      // 3. Stationed Garrison Soldiers Drawn Directly on the Castle!
+      if (totalUnits > 0 && this.assetsLoaded) {
+        const isP1 = (residentPlayer === 1);
+        const knightSprite = isP1 ? this.assets.knight_p1 : this.assets.knight_p2;
+        const rogueSprite = isP1 ? this.assets.rogue_p1 : this.assets.rogue_p2;
+        const cannonSprite = isP1 ? this.assets.cannon_p1 : this.assets.cannon_p2;
+        const eagleSprite = isP1 ? this.assets.eagle_p1 : this.assets.eagle_p2;
+
+        const breathe = Math.sin(Date.now() * 0.004 + staticNode.id) * 1.5;
+
+        // Draw Knight Guard stationed at left gate
+        if ((units.guard || 0) > 0 && knightSprite) {
+          this.ctx.drawImage(knightSprite, p.x - drawW * 0.38, p.y + drawH * 0.08 + breathe, 34, 34);
+        }
+
+        // Draw Rogue Raider stationed at right gate
+        if ((units.raider || 0) > 0 && rogueSprite) {
+          this.ctx.drawImage(rogueSprite, p.x + drawW * 0.12, p.y + drawH * 0.08 + breathe, 34, 34);
+        }
+
+        // Draw Cannon Siege parked beside wall
+        if ((units.siege || 0) > 0 && cannonSprite) {
+          this.ctx.drawImage(cannonSprite, p.x - drawW * 0.48, p.y - drawH * 0.12, 36, 32);
+        }
+
+        // Draw Eagle Scout perched on tower spire
+        if ((units.scout || 0) > 0 && eagleSprite) {
+          const wingBob = Math.sin(Date.now() * 0.006) * 3;
+          this.ctx.drawImage(eagleSprite, p.x + drawW * 0.22, p.y - drawH * 0.44 + wingBob, 32, 32);
+        }
+      }
+
+      // 4. 2-Turn Capture Progress Arc (over castle gate)
       if (dynamicNode.capture_progress > 0) {
         this.ctx.save();
         this.ctx.beginPath();
         const capAngle = (dynamicNode.capture_progress / 2) * Math.PI * 2;
-        this.ctx.arc(p.x, p.y, drawW * 0.45, -Math.PI / 2, -Math.PI / 2 + capAngle);
-        this.ctx.strokeStyle = dynamicNode.capturing_player === 1 ? '#3a86ff' : '#e63946';
+        this.ctx.arc(p.x, p.y, drawW * 0.48, -Math.PI / 2, -Math.PI / 2 + capAngle);
+        this.ctx.strokeStyle = dynamicNode.capturing_player === 1 ? '#00f3ff' : '#ff0055';
         this.ctx.lineWidth = 5;
         this.ctx.stroke();
         this.ctx.restore();
       }
 
-      // 3. Cartoon Wooden Nameplate & Income Tag Below Structure
+      // 5. Cartoon Wooden Nameplate & Income Tag Below Structure
       this.drawWoodenNameplate(p.x, p.y + drawH / 2 - 4, staticNode, dynamicNode);
 
-      // 4. Stationed Garrison Soldiers Badge
-      const totalUnits = dynamicNode.total_units || 0;
-      if (totalUnits > 0) {
-        const badgeX = p.x + drawW * 0.38;
-        const badgeY = p.y - drawH * 0.36;
-        const color = dynamicNode.resident_player === 1 ? '#3a86ff' : (dynamicNode.resident_player === 2 ? '#e63946' : '#6c757d');
+      // 6. Troop Inventory Breakdown Pill (e.g. [ 🛡️ 3  🗡️ 2  💣 1  🦅 1 ])
+      this.drawTroopInventoryPill(p.x, p.y + drawH / 2 + 18, units, residentPlayer, totalUnits);
 
+      // 7. Active Battle Alert Badge: Crossed Swords (⚔️ BATTLE! ⚔️)
+      if (activeBattle) {
+        const wobble = Math.sin(Date.now() * 0.02) * 5;
         this.ctx.save();
+        this.ctx.translate(p.x, p.y - drawH * 0.58);
+        this.ctx.rotate(wobble * Math.PI / 180);
+
+        // Glowing Red/Gold Battle Pill
+        this.ctx.fillStyle = '#ff0055';
+        this.ctx.strokeStyle = '#ffd166';
+        this.ctx.lineWidth = 3;
+        this.ctx.shadowColor = '#ff0055';
+        this.ctx.shadowBlur = 14;
         this.ctx.beginPath();
-        this.ctx.arc(badgeX, badgeY, 14, 0, Math.PI * 2);
-        this.ctx.fillStyle = color;
-        this.ctx.strokeStyle = '#ffffff';
-        this.ctx.lineWidth = 2.5;
+        this.ctx.roundRect(-58, -15, 116, 30, 8);
         this.ctx.fill();
         this.ctx.stroke();
+        this.ctx.shadowBlur = 0;
 
         this.ctx.fillStyle = '#ffffff';
-        this.ctx.font = 'bold 12px "Orbitron", sans-serif';
+        this.ctx.font = 'bold 11px "Orbitron", monospace';
         this.ctx.textAlign = 'center';
         this.ctx.textBaseline = 'middle';
-        this.ctx.fillText(totalUnits, badgeX, badgeY);
+        this.ctx.fillText('⚔️ BATTLE! ⚔️', 0, 0);
         this.ctx.restore();
       }
     });
@@ -414,7 +470,7 @@ class NodeWarTDVisualizer {
     this.ctx.strokeStyle = '#2b2d42';
     this.ctx.lineWidth = 2;
     this.ctx.beginPath();
-    this.ctx.roundRect(x - 34, y, 68, 20, 4);
+    this.ctx.roundRect(x - 36, y, 72, 19, 4);
     this.ctx.fill();
     this.ctx.stroke();
 
@@ -427,7 +483,61 @@ class NodeWarTDVisualizer {
 
     this.ctx.fillStyle = '#ffffff';
     this.ctx.font = 'bold 8px "Rajdhani", sans-serif';
-    this.ctx.fillText(`${sub} Credits`, x, y + 14);
+    this.ctx.fillText(`${sub} Credits/T`, x, y + 14);
+    this.ctx.restore();
+  }
+
+  drawTroopInventoryPill(x, y, units, residentPlayer, totalUnits) {
+    const isP1 = (residentPlayer === 1);
+    const isP2 = (residentPlayer === 2);
+    const borderColor = isP1 ? '#00f3ff' : (isP2 ? '#ff0055' : '#7b88a8');
+
+    this.ctx.save();
+    if (totalUnits === 0) {
+      // Empty garrison pill
+      this.ctx.fillStyle = 'rgba(16, 22, 36, 0.85)';
+      this.ctx.strokeStyle = '#3a445d';
+      this.ctx.lineWidth = 1.5;
+      this.ctx.beginPath();
+      this.ctx.roundRect(x - 38, y, 76, 16, 4);
+      this.ctx.fill();
+      this.ctx.stroke();
+
+      this.ctx.fillStyle = '#8c9bbd';
+      this.ctx.font = 'bold 8px "Orbitron", monospace';
+      this.ctx.textAlign = 'center';
+      this.ctx.textBaseline = 'middle';
+      this.ctx.fillText('NO TROOPS', x, y + 8);
+    } else {
+      // Full troop breakdown pill: [ 🛡️3 🗡️2 💣1 🦅1 ]
+      const w = 96;
+      this.ctx.fillStyle = 'rgba(10, 14, 26, 0.92)';
+      this.ctx.strokeStyle = borderColor;
+      this.ctx.lineWidth = 2;
+      this.ctx.beginPath();
+      this.ctx.roundRect(x - w / 2, y, w, 18, 5);
+      this.ctx.fill();
+      this.ctx.stroke();
+
+      // Draw troop counts with color-coded numbers
+      this.ctx.font = 'bold 9px "Orbitron", monospace';
+      this.ctx.textAlign = 'center';
+      this.ctx.textBaseline = 'middle';
+
+      const items = [
+        { icon: '🛡️', count: units.guard || 0, color: '#4caf50' },
+        { icon: '🗡️', count: units.raider || 0, color: '#00f3ff' },
+        { icon: '💣', count: units.siege || 0, color: '#ff9900' },
+        { icon: '🦅', count: units.scout || 0, color: '#ba68c8' }
+      ];
+
+      const step = w / 4;
+      items.forEach((item, idx) => {
+        const ix = (x - w / 2) + step * idx + step / 2;
+        this.ctx.fillStyle = item.count > 0 ? item.color : '#55607a';
+        this.ctx.fillText(`${item.icon}${item.count}`, ix, y + 9);
+      });
+    }
     this.ctx.restore();
   }
 
@@ -439,90 +549,194 @@ class NodeWarTDVisualizer {
       const pB = this.getNodeScreenPos(fleet.dest_node);
       if (!pA || !pB) return;
 
-      const progress = 1.0 - (fleet.turns_remaining / fleet.total_turns);
+      const progress = Math.max(0.0, Math.min(1.0, 1.0 - (fleet.turns_remaining / fleet.total_turns)));
       const fx = pA.x + (pB.x - pA.x) * progress;
       const fy = pA.y + (pB.y - pA.y) * progress;
 
-      // Natural walking bobbing animation
-      const walkBob = Math.sin(Date.now() * 0.015 + fleet.fleet_id) * 3;
+      // Road vector & orientation
+      const dirX = pB.x - pA.x;
+      const dirY = pB.y - pA.y;
+      const dist = Math.hypot(dirX, dirY) || 1;
+      const fwdX = dirX / dist;
+      const fwdY = dirY / dist;
+      const normX = -fwdY;
+      const normY = fwdX;
 
       const isP1 = (fleet.owner === 1);
+      const teamColor = isP1 ? '#00f3ff' : '#ff0055';
       const isMasked = (this.viewMode === 'p1' && !isP1) || (this.viewMode === 'p2' && isP1);
 
+      // 1. Draw Animated Road Direction Chevrons (>> pointing to destination)
+      this.drawMarchDirectionChevrons(fx, fy, fwdX, fwdY, teamColor);
+
+      // 2. Draw Destination Target Warning at Destination Node
+      this.drawDestinationTarget(pB.x, pB.y, fleet);
+
       if (isMasked) {
-        // --- Shrouded Unknown Rogue Silhouette [?] ---
+        // --- Shrouded Unknown Silhouette ---
         const rogueImg = isP1 ? this.assets.rogue_p1 : this.assets.rogue_p2;
+        const walkBob = Math.sin(Date.now() * 0.015 + fleet.fleet_id) * 3;
         if (rogueImg) {
           this.ctx.save();
-          this.ctx.filter = 'brightness(0.2) opacity(0.7)';
-          this.ctx.drawImage(rogueImg, fx - 20, fy - 22 + walkBob, 40, 40);
+          this.ctx.filter = 'brightness(0.15) opacity(0.7)';
+          this.ctx.drawImage(rogueImg, fx - 18, fy - 20 + walkBob, 36, 36);
           this.ctx.restore();
         }
 
-        // Question mark tag
-        this.ctx.fillStyle = '#ffd166';
-        this.ctx.font = 'bold 14px "Orbitron", monospace';
-        this.ctx.textAlign = 'center';
-        this.ctx.fillText('?', fx, fy - 26);
-
-      } else {
-        // --- Actual Animated Cartoon Soldiers (Guards, Raiders, Siege, Scouts) ---
-        const units = fleet.units || {};
-        const models = [];
-
-        // Pick distinct representative unit sprite
-        let leadSprite = null;
-        if ((units.siege || 0) > 0) {
-          leadSprite = isP1 ? this.assets.cannon_p1 : this.assets.cannon_p2;
-        } else if ((units.guard || 0) > 0) {
-          leadSprite = isP1 ? this.assets.knight_p1 : this.assets.knight_p2;
-        } else if ((units.raider || 0) > 0) {
-          leadSprite = isP1 ? this.assets.rogue_p1 : this.assets.rogue_p2;
-        } else {
-          leadSprite = isP1 ? this.assets.eagle_p1 : this.assets.eagle_p2;
-        }
-
-        if (leadSprite) {
-          this.ctx.drawImage(leadSprite, fx - 22, fy - 24 + walkBob, 44, 44);
-        }
-
-        // Flying scout companion overhead if scout present
-        if ((units.scout || 0) > 0) {
-          const eagle = isP1 ? this.assets.eagle_p1 : this.assets.eagle_p2;
-          if (eagle) {
-            const eagleFly = Math.sin(Date.now() * 0.008) * 4;
-            this.ctx.drawImage(eagle, fx - 16, fy - 48 + eagleFly, 32, 32);
-          }
-        }
-
-        // Wooden Banner with Total Unit Count
-        const bannerColor = isP1 ? '#3a86ff' : '#e63946';
+        // Unknown fleet banner
         this.ctx.save();
         this.ctx.fillStyle = '#583115';
-        this.ctx.strokeStyle = bannerColor;
+        this.ctx.strokeStyle = '#ffd166';
         this.ctx.lineWidth = 2;
         this.ctx.beginPath();
-        this.ctx.roundRect(fx - 18, fy - 36, 36, 16, 4);
+        this.ctx.roundRect(fx - 45, fy - 36, 90, 18, 4);
         this.ctx.fill();
         this.ctx.stroke();
 
-        this.ctx.fillStyle = '#ffffff';
-        this.ctx.font = 'bold 10px "Orbitron", monospace';
+        this.ctx.fillStyle = '#ffd166';
+        this.ctx.font = 'bold 9px "Orbitron", monospace';
         this.ctx.textAlign = 'center';
         this.ctx.textBaseline = 'middle';
-        this.ctx.fillText(fleet.total_count, fx, fy - 28);
+        this.ctx.fillText(`? UNKNOWN FLEET`, fx, fy - 27);
         this.ctx.restore();
+
+      } else {
+        // --- Render EVERY Individual Soldier Sprite in Tactical Formation! ---
+        const units = fleet.units || {};
+        const squadUnits = [];
+
+        // Add Guards
+        for (let i = 0; i < (units.guard || 0); i++) {
+          squadUnits.push({ type: 'guard', img: isP1 ? this.assets.knight_p1 : this.assets.knight_p2, rank: 0 });
+        }
+        // Add Raiders
+        for (let i = 0; i < (units.raider || 0); i++) {
+          squadUnits.push({ type: 'raider', img: isP1 ? this.assets.rogue_p1 : this.assets.rogue_p2, rank: 1 });
+        }
+        // Add Siege Cannons
+        for (let i = 0; i < (units.siege || 0); i++) {
+          squadUnits.push({ type: 'siege', img: isP1 ? this.assets.cannon_p1 : this.assets.cannon_p2, rank: 2 });
+        }
+        // Add Scouts
+        for (let i = 0; i < (units.scout || 0); i++) {
+          squadUnits.push({ type: 'scout', img: isP1 ? this.assets.eagle_p1 : this.assets.eagle_p2, rank: 3 });
+        }
+
+        // Draw each individual soldier sprite in formation
+        const maxDraw = Math.min(squadUnits.length, 8);
+        for (let i = 0; i < maxDraw; i++) {
+          const u = squadUnits[i];
+          const walkBob = Math.sin(Date.now() * 0.016 + i * 0.9 + fleet.fleet_id) * 3;
+
+          // Spread laterally across road and forward/backward
+          const colOffset = ((i % 3) - 1) * 14;
+          const rowOffset = - Math.floor(i / 3) * 16;
+
+          const ux = fx + normX * colOffset + fwdX * rowOffset;
+          const uy = fy + normY * colOffset + fwdY * rowOffset;
+
+          if (u.type === 'scout') {
+            // Eagle flying overhead
+            this.ctx.drawImage(u.img, ux - 15, uy - 34 + walkBob, 30, 30);
+          } else {
+            // Ground soldier marching
+            this.ctx.drawImage(u.img, ux - 15, uy - 18 + walkBob, 30, 30);
+          }
+        }
+
+        // Tactical Esports Squad Banner with Destination & Composition
+        this.drawSquadEsportsBanner(fx, fy - 38, fleet, units, isP1);
       }
     });
   }
 
+  drawMarchDirectionChevrons(fx, fy, fwdX, fwdY, teamColor) {
+    this.ctx.save();
+    this.ctx.strokeStyle = teamColor;
+    this.ctx.lineWidth = 2.5;
+    this.ctx.lineCap = 'round';
+
+    const timePhase = (Date.now() * 0.005) % 1.0;
+    for (let c = 0; c < 3; c++) {
+      const distFwd = 24 + ((c + timePhase) * 12);
+      const cx = fx + fwdX * distFwd;
+      const cy = fy + fwdY * distFwd;
+
+      // Draw chevron V pointing forward
+      const tipX = cx + fwdX * 6;
+      const tipY = cy + fwdY * 6;
+      const wing1X = cx - fwdX * 4 + (-fwdY) * 6;
+      const wing1Y = cy - fwdY * 4 + (fwdX) * 6;
+      const wing2X = cx - fwdX * 4 - (-fwdY) * 6;
+      const wing2Y = cy - fwdY * 4 - (fwdX) * 6;
+
+      this.ctx.beginPath();
+      this.ctx.moveTo(wing1X, wing1Y);
+      this.ctx.lineTo(tipX, tipY);
+      this.ctx.lineTo(wing2X, wing2Y);
+      this.ctx.globalAlpha = 1.0 - (c / 3);
+      this.ctx.stroke();
+    }
+    this.ctx.restore();
+  }
+
+  drawDestinationTarget(tx, ty, fleet) {
+    const isP1 = (fleet.owner === 1);
+    const color = isP1 ? '#00f3ff' : '#ff0055';
+    const pulse = 1.0 + Math.sin(Date.now() * 0.008 + fleet.fleet_id) * 0.15;
+
+    this.ctx.save();
+    this.ctx.beginPath();
+    this.ctx.arc(tx, ty, 38 * pulse, 0, Math.PI * 2);
+    this.ctx.strokeStyle = color;
+    this.ctx.lineWidth = 2;
+    this.ctx.setLineDash([6, 6]);
+    this.ctx.stroke();
+    this.ctx.restore();
+  }
+
+  drawSquadEsportsBanner(x, y, fleet, units, isP1) {
+    const teamName = isP1 ? 'P1 CYAN' : 'P2 CRIMSON';
+    const borderColor = isP1 ? '#00f3ff' : '#ff0055';
+
+    const w = 120;
+    const h = 28;
+
+    this.ctx.save();
+    // Banner box
+    this.ctx.fillStyle = '#583115';
+    this.ctx.strokeStyle = borderColor;
+    this.ctx.lineWidth = 2.5;
+    this.ctx.shadowColor = borderColor;
+    this.ctx.shadowBlur = 8;
+    this.ctx.beginPath();
+    this.ctx.roundRect(x - w / 2, y, w, h, 6);
+    this.ctx.fill();
+    this.ctx.stroke();
+    this.ctx.shadowBlur = 0;
+
+    // Line 1: Team & Destination
+    this.ctx.fillStyle = borderColor;
+    this.ctx.font = 'bold 9px "Orbitron", monospace';
+    this.ctx.textAlign = 'center';
+    this.ctx.fillText(`${teamName} ➔ NODE ${fleet.dest_node} (${fleet.turns_remaining}T)`, x, y + 10);
+
+    // Line 2: Troop Composition Strip: 🛡️2 🗡️3 💣1 🦅1
+    this.ctx.fillStyle = '#ffffff';
+    this.ctx.font = 'bold 8px "Orbitron", monospace';
+    const troopStr = `🛡️${units.guard || 0} 🗡️${units.raider || 0} 💣${units.siege || 0} 🦅${units.scout || 0}`;
+    this.ctx.fillText(troopStr, x, y + 21);
+    this.ctx.restore();
+  }
+
   drawCombatFX() {
+    // 1. Draw Particle Sparks
     for (let i = this.combatParticles.length - 1; i >= 0; i--) {
       const p = this.combatParticles[i];
       p.x += p.vx;
       p.y += p.vy;
-      p.vy += 0.15; // Gravity
-      p.life -= 0.04;
+      p.vy += 0.14; // Gravity
+      p.life -= 0.035;
 
       if (p.life <= 0) {
         this.combatParticles.splice(i, 1);
@@ -535,6 +749,28 @@ class NodeWarTDVisualizer {
       this.ctx.fillStyle = p.color;
       this.ctx.globalAlpha = p.life;
       this.ctx.fill();
+      this.ctx.restore();
+    }
+
+    // 2. Draw Floating Battle Casualties Text (e.g. -2 GUARDS, CRIT!)
+    for (let i = this.floatingTexts.length - 1; i >= 0; i--) {
+      const ft = this.floatingTexts[i];
+      ft.y += ft.vy;
+      ft.life -= 0.02;
+
+      if (ft.life <= 0) {
+        this.floatingTexts.splice(i, 1);
+        continue;
+      }
+
+      this.ctx.save();
+      this.ctx.fillStyle = ft.color;
+      this.ctx.globalAlpha = Math.max(0, ft.life);
+      this.ctx.font = ft.font;
+      this.ctx.textAlign = 'center';
+      this.ctx.shadowColor = '#000000';
+      this.ctx.shadowBlur = 4;
+      this.ctx.fillText(ft.text, ft.x, ft.y);
       this.ctx.restore();
     }
   }
@@ -615,20 +851,78 @@ class NodeWarTDVisualizer {
     if (!this.replayData) return;
     this.currentFrameIdx = Math.max(0, Math.min(this.replayData.frames.length - 1, frame.turn - 1));
 
-    // Spawn sparks if combat occurred on this frame
+    // High-Visibility Battle Alerts & Floating Casualties
     if (frame.combat_events && frame.combat_events.length > 0) {
+      const banner = document.getElementById('combat-banner');
+      if (banner) {
+        const firstCb = frame.combat_events[0];
+        banner.textContent = `⚔️ TURN ${frame.turn}: BATTLE AT NODE ${firstCb.node_id}!`;
+        banner.classList.remove('hidden');
+        clearTimeout(this.bannerTimer);
+        this.bannerTimer = setTimeout(() => banner.classList.add('hidden'), 2800);
+      }
+
       frame.combat_events.forEach(cb => {
         const p = this.getNodeScreenPos(cb.node_id);
         if (!p) return;
-        for (let i = 0; i < 22; i++) {
+
+        // Floating Clash Text
+        this.floatingTexts.push({
+          text: '⚔️ CLASH!',
+          x: p.x,
+          y: p.y - 48,
+          vy: -1.3,
+          life: 1.0,
+          color: '#ffd166',
+          font: 'bold 15px "Orbitron", monospace'
+        });
+
+        // Compute casualties if any
+        let defCasualties = 0;
+        let attCasualties = 0;
+        for (const [ut, count] of Object.entries(cb.defenders_before || {})) {
+          const rem = (cb.defenders_after && cb.defenders_after[ut]) || 0;
+          defCasualties += (count - rem);
+        }
+        for (const [ut, count] of Object.entries(cb.attackers_before || {})) {
+          const rem = (cb.attackers_after && cb.attackers_after[ut]) || 0;
+          attCasualties += (count - rem);
+        }
+
+        if (defCasualties > 0 || attCasualties > 0) {
+          this.floatingTexts.push({
+            text: `💥 -${defCasualties + attCasualties} CASUALTIES`,
+            x: p.x,
+            y: p.y - 28,
+            vy: -0.9,
+            life: 1.2,
+            color: '#ff4d6d',
+            font: 'bold 12px "Rajdhani", sans-serif'
+          });
+        }
+
+        if (cb.defender_bonus_applied) {
+          this.floatingTexts.push({
+            text: `🛡️ +25% DEFENSE BONUS`,
+            x: p.x,
+            y: p.y - 12,
+            vy: -0.8,
+            life: 1.3,
+            color: '#4caf50',
+            font: 'bold 11px "Rajdhani", sans-serif'
+          });
+        }
+
+        // Particle sparks
+        for (let i = 0; i < 30; i++) {
           this.combatParticles.push({
             x: p.x,
             y: p.y,
-            vx: (Math.random() - 0.5) * 6,
-            vy: (Math.random() - 0.5) * 6 - 2,
+            vx: (Math.random() - 0.5) * 8,
+            vy: (Math.random() - 0.5) * 8 - 2,
             life: 1.0,
-            size: Math.random() * 4 + 2,
-            color: Math.random() > 0.5 ? '#ffd166' : '#ff4d6d'
+            size: Math.random() * 5 + 2,
+            color: Math.random() > 0.5 ? '#ffd166' : '#ff0055'
           });
         }
       });
