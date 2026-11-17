@@ -37,8 +37,10 @@ f:\Avaneesh\projects\battlecode\
 │   └── replay.py         # Replay serialization
 ├── web/
 │   ├── index.html        # Modern esports spectator UI with 1v1, Matrix, Lab & Vault tabs
-│   ├── style.css         # Dark cyberpunk styling with neon player accents
-│   ├── visualizer.js     # Canvas renderer with smooth fleet interpolation & particle sparks
+│   ├── style.css         # Dark cyberpunk styling with 3D/2D viewport layout & controls
+│   ├── three_visualizer.js # Three.js 3D Isometric Battlefield engine with procedural models & FX
+│   ├── visualizer.js     # Dual-engine orchestrator, canvas fallback, scrubber & match controls
+│   ├── vendor/           # Offline vendor libraries (three.min.js, OrbitControls.js)
 │   └── serve.py          # Local HTTP server with live simulation & tournament endpoints
 ├── tests/
 │   ├── test_engine.py    # Unit tests for combat, symmetry, upkeep, capture, fog
@@ -63,3 +65,13 @@ f:\Avaneesh\projects\battlecode\
 - Web UI dropdowns hardened with fallbacks to guarantee populated options across all browsers.
 - Dynamic bot loader enhanced with MRO inspection and duck-typing fallback, verified working with `bots/bot1.py` (ApexNodeBot) and `bots/equibot.py` (NemesisNodeBot).
 - Comprehensive Game Specification & Mechanics Manual published at `GAME_SPECIFICATION.md` for distribution to event competitors.
+- Three.js 3D Isometric Battlefield engine implemented and set as default:
+  - Procedural 3D Fortresses: Multi-level Command Citadels (Nodes 0 & 14), Industrial Refineries (Nodes 1–4, 10–13), Chokepoint Pillboxes (Nodes 5, 6, 8, 9), and Ancient Relic Sanctuary (Node 7) with dynamic Turn 95 awakening, levitation, and golden skybeam.
+  - Procedural 3D Soldier Models: Raiders (combat speeders), Guards (armored phalanx mechs with energy shields), Siege (heavy crawler artillery tanks), and Scouts (floating recon probes).
+  - Tactical squad formations marching along 3D elevated cyber-rail lanes.
+  - Combat clashing particle FX (spark bursts, laser fire, shield deflections, artillery impacts).
+  - Dynamic Fog of War: Shrouds unscouted sectors in dark mist in P1 and P2 views; full omniscient clarity in Spectator view.
+  - Dual-Engine Toggle: 1-click switch between 3D Arena and 2D Tactical canvas.
+  - OrbitControls & Camera Presets: Isometric, P1 Core, Relic, P2 Core, and Spectator Auto-Orbit.
+  - Fully offline-ready with local vendor libraries in `web/vendor/`.
+  - All 16 unit, integration, and HTTP API tests passing.

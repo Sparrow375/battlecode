@@ -15,3 +15,9 @@
 - [x] Task 13: Fix empty bot dropdowns in UI, add resilient legacy/fallback handling in `visualizer.js`, restart stale server process on port 8000.
 - [x] Task 14: Enhance dynamic bot loader with MRO inspection, duck-typing fallback, and clear syntax/empty-file error reporting for newly saved bots like `equibot.py`.
 - [x] Task 15: Author complete Game Specification & Mechanics Manual (`GAME_SPECIFICATION.md` and artifact).
+- [x] Task 16: Setup Three.js and OrbitControls in `web/index.html` & `web/style.css`, create 3D container with 3D/2D toggle (default: 3D) and camera preset controls.
+- [x] Task 17: Build `web/three_visualizer.js` with procedural 3D architectural node models (Command Citadels, Outposts, Chokepoints, Relic Shrine with Turn 95 awakening).
+- [x] Task 18: Build procedural 3D animated unit models (Raiders, Guards, Siege, Scouts) with squad formation marching along 3D energy lane splines.
+- [x] Task 19: Implement dynamic Fog-of-War shroud and vision masks for P1, P2, and Spectator view modes in 3D.
+- [x] Task 20: Implement Combat Clashing FX (lasers, plasma mortars, shield impacts, voxel disintegration) and wire playback/scrubber sync.
+- [x] Task 21: Verification, tests, update `context.md`, `architechture.md`, and commit/push to git.

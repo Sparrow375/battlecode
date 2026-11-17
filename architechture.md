@@ -25,10 +25,13 @@ flowchart TD
         ReplayGen[Replay JSON Exporter]
     end
 
-    subgraph Spectator & Web UI [Interactive Visualizer]
+    subgraph Spectator & Web UI [Interactive Visualizer & Dual-Engine]
         WebServer[Web Demo / Spectator Server]
-        CanvasUI[Esports Graph & Canvas Visualizer]
-        FOWToggle[Omniscient / Fog-of-War Toggle]
+        DualEngine[Dual-Engine Viewport Toggle (Default: 3D)]
+        ThreeUI[3D Isometric Battlefield (Three.js)]
+        CanvasUI[2D Tactical Canvas Visualizer]
+        FOWToggle[Spectator / P1 / P2 Fog-of-War Shroud]
+        CamBar[OrbitControls & Camera Presets: Iso, P1, Relic, P2, Orbit]
         Playback[Scrubber, Speed Controls & Live Play]
     end
 
@@ -48,8 +51,13 @@ flowchart TD
     Sim --> Runner
     Runner --> Matrix
     Runner --> ReplayGen
-    ReplayGen --> CanvasUI
-    WebServer --> CanvasUI
+    ReplayGen --> DualEngine
+    WebServer --> DualEngine
+    DualEngine --> ThreeUI
+    DualEngine --> CanvasUI
+    FOWToggle --> ThreeUI
+    FOWToggle --> CanvasUI
+    CamBar --> ThreeUI
 ```
 
 ## Core Modules & Structure
@@ -83,7 +91,15 @@ flowchart TD
    - `replay.py`: Compact, structured JSON replay serialization.
 
 4. **`web/`**:
-   - Web-based spectator frontend displaying interactive nodes, glowing lanes, traveling fleet badges, combat clash animations, spectator vs player view toggle, timeline scrubber, and real-time scoreboard.
+   - **Dual-Engine Spectator Frontend**: Features a 1-click toggle between the high-fidelity **3D Isometric Battlefield** (default) and the clean **2D Tactical Canvas**.
+   - `three_visualizer.js`: Dedicated Three.js WebGL rendering pipeline featuring:
+     - Procedural 3D Fortresses: Multi-level Command Citadels (Nodes 0 & 14) with pulsating faction reactors, Industrial Quantum Refineries (Nodes 1–4, 10–13), Chokepoint Pillboxes (Nodes 5, 6, 8, 9), and the levitating central Relic Sanctuary (Node 7) that awakens with golden skybeams and particle rings on Turn 95.
+     - Procedural 3D Soldier Units: Replaces numerical badges with actual 3D models for Raiders (combat speeders), Guards (armored phalanx mechs with energy shields), Siege (heavy crawler artillery tanks), and Scouts (floating recon probes).
+     - Tactical Squad Marching: Multi-unit fleets march in military formations (Guards frontline, Raiders flanking, Siege rearguard) along elevated cyber-rail lanes.
+     - Combat Clashing Choreography: Dynamic particle bursts, laser fire, artillery mortar shells, and voxel disintegration effects on frame combat events.
+     - Dynamic Fog of War: Shrouds unscouted enemy territory and lanes in dark digital mist in P1 and P2 view modes, while maintaining full omniscient clarity in Spectator view.
+     - Camera Presets & OrbitControls: Supports smooth lerping between Isometric Overview, P1 Core, Relic Center, P2 Core, and Spectator Auto-Orbit.
+   - `visualizer.js`: Orchestrates data fetching, 1v1 match playback, timeline scrubbing, Bot Lab script loading, and synchronizes frame state with both 3D and 2D visualizers.
    - Match Control Center: 1v1 Arena match launcher supporting custom scripts in `bots/` with live discovery, interactive Tournament Matrix evaluator, Custom Bot Lab for live browser-based Python bot code compilation/inspection, and saved Replay Vault.
    - `serve.py`: HTTP server with endpoints (`/api/replays`, `/api/replay/<id>`, `/api/run-match`, `/api/run-tournament`, `/api/bots`, `/api/bot-source/<file>`) with automated `sys.path` resolution. Supported via root `serve.py` alias.
 

@@ -92,8 +92,13 @@ body {
   letter-spacing: 1px;
 }
 
-.p1 .player-name { color: var(--p1-color); }
-.p2 .player-name { color: var(--p2-color); }
+.p1 .player-name {
+  color: var(--p1-color);
+}
+
+.p2 .player-name {
+  color: var(--p2-color);
+}
 
 .player-meta {
   font-size: 0.95rem;
@@ -114,8 +119,15 @@ body {
   padding: 0 16px;
 }
 
-.p1 .score-display { color: var(--p1-color); text-shadow: 0 0 12px var(--p1-glow); }
-.p2 .score-display { color: var(--p2-color); text-shadow: 0 0 12px var(--p2-glow); }
+.p1 .score-display {
+  color: var(--p1-color);
+  text-shadow: 0 0 12px var(--p1-glow);
+}
+
+.p2 .score-display {
+  color: var(--p2-color);
+  text-shadow: 0 0 12px var(--p2-glow);
+}
 
 .match-center-hud {
   text-align: center;
@@ -163,8 +175,15 @@ body {
 }
 
 @keyframes pulse-gold {
-  0%, 100% { box-shadow: 0 0 5px var(--relic-glow); }
-  50% { box-shadow: 0 0 20px var(--relic-glow); }
+
+  0%,
+  100% {
+    box-shadow: 0 0 5px var(--relic-glow);
+  }
+
+  50% {
+    box-shadow: 0 0 20px var(--relic-glow);
+  }
 }
 
 .view-mode-toggle {
@@ -293,14 +312,16 @@ body {
   margin-bottom: 8px;
 }
 
-.form-group label, .form-row label {
+.form-group label,
+.form-row label {
   display: block;
   font-size: 0.8rem;
   color: var(--text-muted);
   margin-bottom: 3px;
 }
 
-select, input[type="number"] {
+select,
+input[type="number"] {
   width: 100%;
   background: #090c14;
   border: 1px solid var(--border-color);
@@ -312,7 +333,8 @@ select, input[type="number"] {
   outline: none;
 }
 
-select:focus, input:focus {
+select:focus,
+input:focus {
   border-color: var(--p1-color);
 }
 
@@ -375,10 +397,29 @@ select:focus, input:focus {
   font-family: 'Orbitron', monospace;
 }
 
-.badge.raider { background: rgba(0, 243, 255, 0.15); color: #00f3ff; border: 1px solid #00f3ff; }
-.badge.siege { background: rgba(255, 153, 0, 0.15); color: #ff9900; border: 1px solid #ff9900; }
-.badge.guard { background: rgba(76, 175, 80, 0.15); color: #4caf50; border: 1px solid #4caf50; }
-.badge.scout { background: rgba(156, 39, 176, 0.15); color: #ba68c8; border: 1px solid #ba68c8; }
+.badge.raider {
+  background: rgba(0, 243, 255, 0.15);
+  color: #00f3ff;
+  border: 1px solid #00f3ff;
+}
+
+.badge.siege {
+  background: rgba(255, 153, 0, 0.15);
+  color: #ff9900;
+  border: 1px solid #ff9900;
+}
+
+.badge.guard {
+  background: rgba(76, 175, 80, 0.15);
+  color: #4caf50;
+  border: 1px solid #4caf50;
+}
+
+.badge.scout {
+  background: rgba(156, 39, 176, 0.15);
+  color: #ba68c8;
+  border: 1px solid #ba68c8;
+}
 
 /* Code Editor */
 .code-editor {
@@ -505,29 +546,160 @@ select:focus, input:focus {
 }
 
 /* =========================================
-   Canvas Viewport & Quick Navigation Overlay
+   Canvas Viewport & 3D Three.js Controls
 ========================================= */
 .canvas-viewport {
   position: relative;
-  background: #080a11;
+  background: #060810;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+}
+
+.three-viewport {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
 }
 
 #game-canvas {
   width: 100%;
   height: 100%;
   display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.viewport-top-bar {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  right: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.engine-mode-toggle {
+  display: flex;
+  background: rgba(9, 12, 22, 0.9);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 3px;
+  gap: 3px;
+  pointer-events: auto;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+}
+
+.engine-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  font-family: 'Orbitron', monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.engine-btn:hover {
+  color: #fff;
+  border-color: #3b4970;
+}
+
+.engine-btn.active {
+  background: #1e2844;
+  color: #00f3ff;
+  border-color: #00f3ff;
+  box-shadow: 0 0 10px rgba(0, 243, 255, 0.3);
 }
 
 .quick-nav-overlay {
-  position: absolute;
-  top: 14px;
-  right: 14px;
   display: flex;
   gap: 6px;
-  z-index: 10;
+  pointer-events: auto;
+}
+
+.camera-presets-overlay {
+  position: absolute;
+  bottom: 14px;
+  left: 14px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(9, 12, 22, 0.9);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 3px 8px;
+  z-index: 20;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+}
+
+.cam-label {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.7rem;
+  font-weight: 900;
+  color: #8c9bbd;
+  margin-right: 4px;
+}
+
+.cam-btn {
+  background: rgba(22, 29, 49, 0.7);
+  border: 1px solid var(--border-color);
+  color: #c0cbdf;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cam-btn:hover {
+  background: #232c45;
+  color: #fff;
+  border-color: #00f3ff;
+}
+
+.cam-btn.active {
+  background: #00f3ff;
+  color: #060810;
+  font-weight: 900;
+  border-color: #00f3ff;
+  box-shadow: 0 0 8px rgba(0, 243, 255, 0.4);
+}
+
+.three-tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: rgba(8, 11, 20, 0.95);
+  border: 1px solid #00f3ff;
+  box-shadow: 0 0 15px rgba(0, 243, 255, 0.35);
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: #fff;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.8rem;
+  z-index: 30;
+  transform: translate(-50%, -120%);
+  transition: opacity 0.15s ease;
+  white-space: nowrap;
+}
+
+.hidden {
+  display: none !important;
 }
 
 .quick-nav-btn {
@@ -585,9 +757,17 @@ select:focus, input:focus {
   border-left: 2px solid var(--border-color);
 }
 
-.feed-item.combat { border-color: var(--p2-color); }
-.feed-item.capture { border-color: var(--relic-color); }
-.feed-item.system { border-color: var(--p1-color); }
+.feed-item.combat {
+  border-color: var(--p2-color);
+}
+
+.feed-item.capture {
+  border-color: var(--relic-color);
+}
+
+.feed-item.system {
+  border-color: var(--p1-color);
+}
 
 /* =========================================
    Bottom Playback Bar

@@ -1,4 +1,4 @@
-// Node War - Web Canvas Spectator & Match Control Center
+// Node War - Web Canvas & 3D Isometric Spectator Arena
 
 class NodeWarVisualizer {
   constructor() {
@@ -12,15 +12,32 @@ class NodeWarVisualizer {
     this.speedMs = 250;
     this.viewMode = 'spectator'; // 'spectator' | 'p1' | 'p2'
     this.selectedNodeId = null;
+    this.engineMode = '3d'; // Default to 3D Isometric Battlefield
 
     this.particles = [];
 
+    // Initialize 3D Three.js visualizer if available
+    try {
+      if (window.NodeWarThreeVisualizer) {
+        this.threeViz = new window.NodeWarThreeVisualizer('three-container');
+      }
+    } catch (e) {
+      console.warn("Could not initialize Three.js visualizer:", e);
+      this.engineMode = '2d';
+    }
+
+    window.nodeWarApp = this;
+
     this.initCanvasResize();
     this.bindEvents();
+    this.bindEngineModeEvents();
     this.bindControlCenterEvents();
     this.loadBotList();
     this.loadReplayList();
     this.startAnimationLoop();
+
+    // Set initial 3D mode state
+    this.setEngineMode(this.engineMode);
   }
 
   initCanvasResize() {
@@ -71,6 +88,9 @@ class NodeWarVisualizer {
         e.target.classList.add('active');
         this.viewMode = e.target.dataset.mode;
         this.updateHUD();
+        if (this.threeViz) {
+          this.threeViz.setViewMode(this.viewMode);
+        }
       });
     });
 
@@ -95,6 +115,53 @@ class NodeWarVisualizer {
     // Canvas click & hover
     this.canvas.addEventListener('click', (e) => this.handleCanvasClick(e));
     this.canvas.addEventListener('mousemove', (e) => this.handleCanvasHover(e));
+  }
+
+  bindEngineModeEvents() {
+    const btn3D = document.getElementById('btn-mode-3d');
+    const btn2D = document.getElementById('btn-mode-2d');
+
+    if (btn3D) {
+      btn3D.addEventListener('click', () => this.setEngineMode('3d'));
+    }
+    if (btn2D) {
+      btn2D.addEventListener('click', () => this.setEngineMode('2d'));
+    }
+  }
+
+  setEngineMode(mode) {
+    this.engineMode = mode;
+    const container3D = document.getElementById('three-container');
+    const canvas2D = document.getElementById('game-canvas');
+    const camPresets = document.getElementById('camera-presets-bar');
+    const btn3D = document.getElementById('btn-mode-3d');
+    const btn2D = document.getElementById('btn-mode-2d');
+
+    if (mode === '3d') {
+      if (container3D) container3D.classList.remove('hidden');
+      if (canvas2D) canvas2D.classList.add('hidden');
+      if (camPresets) camPresets.classList.remove('hidden');
+      if (btn3D) btn3D.classList.add('active');
+      if (btn2D) btn2D.classList.remove('active');
+      if (this.threeViz) {
+        this.threeViz.onResize();
+        if (this.replayData && this.replayData.frames) {
+          const currentFrame = this.replayData.frames[this.currentFrameIdx];
+          this.threeViz.syncFrame(currentFrame);
+        }
+      }
+    } else {
+      if (container3D) container3D.classList.add('hidden');
+      if (canvas2D) canvas2D.classList.remove('hidden');
+      if (camPresets) camPresets.classList.add('hidden');
+      if (btn3D) btn3D.classList.remove('active');
+      if (btn2D) btn2D.classList.add('active');
+    }
+  }
+
+  selectNode(nodeId) {
+    this.selectedNodeId = nodeId;
+    this.renderNodeInspector(nodeId);
   }
 
   bindControlCenterEvents() {
@@ -470,6 +537,13 @@ class NodeWarVisualizer {
 
     this.logEvent(`Match Loaded: ${data.metadata.p1_name} vs ${data.metadata.p2_name} (${totalFrames} Turns)`, 'system');
     this.updateHUD();
+
+    if (this.threeViz) {
+      this.threeViz.loadReplay(data);
+      if (data.frames && data.frames.length > 0) {
+        this.threeViz.syncFrame(data.frames[0]);
+      }
+    }
   }
 
   // =========================================
@@ -508,10 +582,17 @@ class NodeWarVisualizer {
   }
 
   setFrame(idx) {
+    const prevIdx = this.currentFrameIdx;
     this.currentFrameIdx = idx;
     document.getElementById('timeline-scrubber').value = idx + 1;
     this.updateHUD();
     this.checkFrameEvents();
+
+    if (this.threeViz && this.replayData && this.replayData.frames) {
+      const currentFrame = this.replayData.frames[idx];
+      const prevFrame = this.replayData.frames[prevIdx];
+      this.threeViz.syncFrame(currentFrame, prevFrame);
+    }
   }
 
   jumpToRelic() {

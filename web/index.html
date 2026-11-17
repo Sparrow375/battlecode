@@ -228,15 +228,42 @@ class MyCustomBot(BotBase):
         </div>
       </aside>
 
-      <!-- Center: Canvas Map -->
-      <main class="canvas-viewport">
-        <canvas id="game-canvas"></canvas>
+      <!-- Center: 3D Battlefield & 2D Tactical Viewport -->
+      <main class="canvas-viewport" id="viewport-container">
+        <!-- 3D Three.js WebGL Container (Default) -->
+        <div id="three-container" class="three-viewport"></div>
+
+        <!-- 2D Canvas Fallback (Hidden by default) -->
+        <canvas id="game-canvas" class="hidden"></canvas>
+
         <div id="combat-banner" class="combat-banner hidden"></div>
-        <div class="quick-nav-overlay">
-          <button id="btn-jump-relic" class="quick-nav-btn" title="Jump to Relic Phase">&#9889; Relic (T95)</button>
-          <button id="btn-jump-clash" class="quick-nav-btn" title="Jump to Next Battle">&#9876; Next Battle</button>
-          <button id="btn-jump-end" class="quick-nav-btn" title="Jump to Match Finish">&#9209; Finish</button>
+
+        <!-- Viewport Top Controls (Engine Mode Toggle & Quick Nav) -->
+        <div class="viewport-top-bar">
+          <div class="engine-mode-toggle">
+            <button id="btn-mode-3d" class="engine-btn active" title="3D Isometric Battlefield">&#9650; 3D Arena</button>
+            <button id="btn-mode-2d" class="engine-btn" title="2D Tactical Schematic">&#9632; 2D Tactical</button>
+          </div>
+          <div class="quick-nav-overlay">
+            <button id="btn-jump-relic" class="quick-nav-btn" title="Jump to Relic Phase">&#9889; Relic (T95)</button>
+            <button id="btn-jump-clash" class="quick-nav-btn" title="Jump to Next Battle">&#9876; Next Battle</button>
+            <button id="btn-jump-end" class="quick-nav-btn" title="Jump to Match Finish">&#9209; Finish</button>
+          </div>
         </div>
+
+        <!-- 3D Camera Presets Bar (Bottom-Left) -->
+        <div class="camera-presets-overlay" id="camera-presets-bar">
+          <span class="cam-label">CAM:</span>
+          <button class="cam-btn active" data-cam="iso" title="Isometric Overhead Angle">Isometric</button>
+          <button class="cam-btn" data-cam="p1" title="Focus Player 1 Citadel">P1 Core</button>
+          <button class="cam-btn" data-cam="relic" title="Focus Relic Sanctuary">Relic</button>
+          <button class="cam-btn" data-cam="p2" title="Focus Player 2 Citadel">P2 Core</button>
+          <button class="cam-btn" data-cam="cinematic" title="Spectator Orbit Flyby">&#9733; Orbit</button>
+          <button class="cam-btn" data-cam="reset" title="Reset Camera View">&#8635;</button>
+        </div>
+
+        <!-- 3D Hover Tooltip -->
+        <div id="three-tooltip" class="three-tooltip hidden"></div>
       </main>
 
       <!-- Right Panel: Node Inspector & Battle Feed -->
@@ -285,6 +312,10 @@ class MyCustomBot(BotBase):
     </footer>
   </div>
 
+  <!-- Three.js 3D Engine & Controls (Vendor + CDN fallback) -->
+  <script src="vendor/three.min.js"></script>
+  <script src="vendor/OrbitControls.js"></script>
+  <script src="three_visualizer.js"></script>
   <script src="visualizer.js"></script>
 </body>
 </html>
