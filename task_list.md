@@ -13,3 +13,4 @@
 - [x] Task 11: Verification of web controls, update `context.md`, `architechture.md`, and commit to git.
 - [x] Task 12: Implement dynamic custom bot file loading from `bots/`.
 - [x] Task 13: Fix empty bot dropdowns in UI, add resilient legacy/fallback handling in `visualizer.js`, restart stale server process on port 8000.
+- [x] Task 14: Enhance dynamic bot loader with MRO inspection, duck-typing fallback, and clear syntax/empty-file error reporting for newly saved bots like `equibot.py`.

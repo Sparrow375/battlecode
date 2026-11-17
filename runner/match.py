@@ -28,16 +28,39 @@ def load_bot_from_file(file_path: str) -> Tuple[Type[BotBase], str]:
     abs_path = os.path.abspath(file_path)
     if not os.path.exists(abs_path):
         raise FileNotFoundError(f"Bot script not found at {file_path}")
+    if os.path.getsize(abs_path) == 0:
+        raise ValueError(f"The bot script '{os.path.basename(file_path)}' is empty. Please ensure your code is saved to the file.")
+
     module_name = f"custom_bot_{os.path.splitext(os.path.basename(abs_path))[0]}_{int(time.time()*1000)}"
     spec = importlib.util.spec_from_file_location(module_name, abs_path)
     if not spec or not spec.loader:
         raise ValueError(f"Could not load module from {file_path}")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
+
+    # 1. Check classes defined in this module that inherit from BotBase
     for name, obj in inspect.getmembers(module, inspect.isclass):
-        if issubclass(obj, BotBase) and obj is not BotBase:
+        if obj.__module__ == module.__name__:
+            if (issubclass(obj, BotBase) or any(b.__name__ == "BotBase" for b in inspect.getmro(obj))) and obj.__name__ != "BotBase":
+                return obj, name
+
+    # 2. Check any class in module that inherits from BotBase (by type or MRO)
+    for name, obj in inspect.getmembers(module, inspect.isclass):
+        if (issubclass(obj, BotBase) or any(b.__name__ == "BotBase" for b in inspect.getmro(obj))) and obj.__name__ != "BotBase":
             return obj, name
-    raise ValueError(f"No BotBase subclass found in {file_path}")
+
+    # 3. Duck-typing fallback: any class with an act(self, obs) method
+    for name, obj in inspect.getmembers(module, inspect.isclass):
+        if obj.__name__ != "BotBase" and hasattr(obj, "act") and callable(getattr(obj, "act")):
+            return obj, name
+
+    classes_found = [name for name, obj in inspect.getmembers(module, inspect.isclass) if obj.__name__ != "BotBase"]
+    if classes_found:
+        raise ValueError(
+            f"Found classes {classes_found} in {os.path.basename(file_path)}, but none inherit from 'BotBase'. "
+            f"Please ensure your bot class inherits from BotBase (e.g. 'class {classes_found[0]}(BotBase):')."
+        )
+    raise ValueError(f"No classes found in {os.path.basename(file_path)}. Ensure your bot defines a class inheriting from BotBase.")
 
 def discover_custom_bots(bots_dir: Optional[str] = None) -> Dict[str, Dict[str, Any]]:
     """Discovers all custom python scripts in the bots directory."""

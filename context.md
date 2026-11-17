@@ -61,3 +61,4 @@ f:\Avaneesh\projects\battlecode\
 - All 16 unit, integration, and HTTP API tests passing.
 - Stale server process on port 8000 stopped and restarted with latest endpoints.
 - Web UI dropdowns hardened with fallbacks to guarantee populated options across all browsers.
+- Dynamic bot loader enhanced with MRO inspection and duck-typing fallback, verified working with `bots/bot1.py` (ApexNodeBot) and `bots/equibot.py` (NemesisNodeBot).
