@@ -96,15 +96,20 @@ class NodeWarTDVisualizer {
 
   initCanvasResize() {
     const resize = () => {
+      if (!this.canvas || !this.canvas.parentElement) return;
       const rect = this.canvas.parentElement.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) return;
       const dpr = window.devicePixelRatio || 1;
       this.canvas.width = rect.width * dpr;
       this.canvas.height = rect.height * dpr;
-      this.ctx.scale(dpr, dpr);
+      this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       this.displayWidth = rect.width;
       this.displayHeight = rect.height;
     };
-    window.addEventListener('resize', resize);
+    if (!this._resizeBound) {
+      window.addEventListener('resize', resize);
+      this._resizeBound = true;
+    }
     resize();
   }
 
@@ -176,6 +181,7 @@ class NodeWarTDVisualizer {
     }
 
     const frame = this.replayData.frames[this.currentFrameIdx];
+    if (!frame) return;
 
     // Layer 2: Winding Sand/Dirt Roads (Lanes)
     this.drawWindingRoads();
@@ -580,10 +586,6 @@ class NodeWarTDVisualizer {
       this.ctx.fillText(`${item.icon}${item.count}`, ix, y + h / 2);
     });
 
-    this.ctx.restore();
-  }
-      });
-    }
     this.ctx.restore();
   }
 

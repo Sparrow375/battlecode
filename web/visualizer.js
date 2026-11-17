@@ -50,15 +50,20 @@ class NodeWarVisualizer {
 
   initCanvasResize() {
     const resize = () => {
+      if (!this.canvas || !this.canvas.parentElement) return;
       const rect = this.canvas.parentElement.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) return;
       const dpr = window.devicePixelRatio || 1;
       this.canvas.width = rect.width * dpr;
       this.canvas.height = rect.height * dpr;
-      this.ctx.scale(dpr, dpr);
+      this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       this.displayWidth = rect.width;
       this.displayHeight = rect.height;
     };
-    window.addEventListener('resize', resize);
+    if (!this._resizeBound) {
+      window.addEventListener('resize', resize);
+      this._resizeBound = true;
+    }
     resize();
   }
 
@@ -191,6 +196,10 @@ class NodeWarVisualizer {
       if (canvas2D) canvas2D.classList.remove('hidden');
       if (camPresets) camPresets.classList.add('hidden');
       if (btn2D) btn2D.classList.add('active');
+      this.initCanvasResize();
+      if (this.replayData && this.replayData.frames) {
+        this.render();
+      }
     }
   }
 
@@ -223,7 +232,7 @@ class NodeWarVisualizer {
         if (mode === 'standard') {
           document.getElementById('input-turns').value = 120;
           document.getElementById('input-credits').value = 30;
-          document.getElementById('input-relic-turn').value = 90;
+          document.getElementById('input-relic-turn').value = "";
           document.getElementById('input-relic-pts').value = 10;
         } else if (mode === 'blitz') {
           document.getElementById('input-turns').value = 60;
@@ -414,7 +423,12 @@ class NodeWarVisualizer {
 
     const turns = parseInt(document.getElementById('input-turns').value) || 120;
     const credits = parseInt(document.getElementById('input-credits').value) || 30;
-    const relicTurn = parseInt(document.getElementById('input-relic-turn').value) || 95;
+    const presetMode = document.getElementById('select-preset').value;
+    let relicTurn = null;
+    if (presetMode !== 'standard') {
+      const val = parseInt(document.getElementById('input-relic-turn').value);
+      if (!isNaN(val)) relicTurn = val;
+    }
     const relicPts = parseInt(document.getElementById('input-relic-pts').value) || 10;
     const customCode = document.getElementById('custom-bot-editor').value;
 
@@ -570,6 +584,34 @@ class NodeWarVisualizer {
     document.getElementById('p1-name').textContent = data.metadata.p1_name;
     document.getElementById('p2-name').textContent = data.metadata.p2_name;
 
+    // Dynamic Relic Activation Turn
+    let relicTurn = (data.metadata && data.metadata.relic_spawn_turn) ? data.metadata.relic_spawn_turn : null;
+    if (!relicTurn && data.frames) {
+      const activeIdx = data.frames.findIndex(f => f.relic_active);
+      if (activeIdx !== -1) {
+        relicTurn = data.frames[activeIdx].turn;
+      }
+    }
+    this.relicSpawnTurn = relicTurn;
+
+    const relicBtn = document.getElementById('btn-jump-relic');
+    if (relicBtn) {
+      relicBtn.innerHTML = relicTurn ? `&#9889; Relic (T${relicTurn})` : `&#9889; Relic`;
+      relicBtn.title = relicTurn ? `Jump to Relic Phase (Turn ${relicTurn})` : `Jump to Relic Phase`;
+    }
+
+    const relicMarker = document.getElementById('scrubber-relic-marker');
+    if (relicMarker) {
+      if (relicTurn) {
+        const relicPct = Math.max(0, Math.min(100, ((relicTurn - 1) / Math.max(1, totalFrames - 1)) * 100));
+        relicMarker.textContent = `Turn ${relicTurn} (Relic)`;
+        relicMarker.style.left = `${relicPct}%`;
+      } else {
+        relicMarker.textContent = `Relic Phase`;
+        relicMarker.style.left = `75%`;
+      }
+    }
+
     this.logEvent(`Match Loaded: ${data.metadata.p1_name} vs ${data.metadata.p2_name} (${totalFrames} Turns)`, 'system');
     this.updateHUD();
 
@@ -649,6 +691,12 @@ class NodeWarVisualizer {
     if (relicIdx !== -1) {
       this.pause();
       this.setFrame(relicIdx);
+    } else if (this.relicSpawnTurn) {
+      const idx = this.replayData.frames.findIndex(f => f.turn >= this.relicSpawnTurn);
+      if (idx !== -1) {
+        this.pause();
+        this.setFrame(idx);
+      }
     }
   }
 
@@ -744,7 +792,11 @@ class NodeWarVisualizer {
       relicBadge.textContent = '⚡ RELIC CHARGING // AWAKENING IMMINENT';
     } else {
       relicBadge.className = 'relic-badge';
-      relicBadge.textContent = `RELIC DORMANT (ACTIVATES TURN 80-100)`;
+      if (this.relicSpawnTurn) {
+        relicBadge.textContent = `RELIC DORMANT (ACTIVATES TURN ${this.relicSpawnTurn})`;
+      } else {
+        relicBadge.textContent = `RELIC DORMANT (ACTIVATES TURN 80-100)`;
+      }
     }
 
     if (this.selectedNodeId !== null) {

@@ -38,3 +38,7 @@
 - [x] Task 36: Implement Best-of-3 series runner with side swapping in `runner/match.py` and `runner/tournament.py`.
 - [x] Task 37: Run and verify all unit tests and bot integration tests.
 - [x] Task 38: Update `context.md`, `architechture.md`, and commit/push to git.
+- [x] Task 39: Fix JS syntax error in `web/td_visualizer.js` that prevented Tower Defense engine initialization and caused empty green canvas.
+- [x] Task 40: Fix 2D Tactical canvas resize and immediate rendering upon mode toggle so 2D schematic renders grid, nodes, lanes, and fleets.
+- [x] Task 41: Wire dynamic relic activation turn throughout frontend and replay export: update quick-nav jump button (`⚡ Relic (T...)`), timeline scrubber marker, and HUD badge to reflect actual dynamic relic turn (T80-T100) instead of hardcoded 95.
+- [x] Task 42: Verification, tests, update `context.md`, `architechture.md`, and commit/push to git.

@@ -83,6 +83,14 @@ f:\Avaneesh\projects\battlecode\
 - **Competitor Starter Kit & Validation**:
   - `bots/starter_bot.py`: De-spoiled docstring with dynamic observation references.
   - `validate_bot.py`: Standalone dry-run validation script verifying inheritance, typed dataclass stubs, methods, and symmetrical P1/P2 execution.
+- **Visual Bug Fixes & Dynamic Relic System Refinements**:
+  - **Tower Defense Blank Canvas Fix**: Resolved a JS syntax error in `web/td_visualizer.js` caused by stray duplicate braces around line 585 that prevented the script from loading, enabling full castle, road, garrison, and animated squad rendering.
+  - **2D Tactical Canvas Fix**: Fixed canvas dimension tracking in `web/visualizer.js` when switching from TD/3D to 2D mode, ensuring the tactical schematic grid, nodes, lanes, and fleets render immediately.
+  - **Dynamic Relic Activation Integration**:
+    - Replay metadata in `runner/replay.py` now exports `"relic_spawn_turn"`.
+    - Preset Mode "Tournament Standard" sends `relic_spawn_turn: null` to activate the dynamic randomized awakening window (T80–T100).
+    - Quick Navigation jump button dynamically reads the actual match relic turn (e.g. `⚡ Relic (T83)`).
+    - Timeline scrubber marker and HUD status badge dynamically position and display the match's exact relic turn or `T80-100` window rather than a hardcoded `Turn 95`.
 - All 20 unit tests, bot integration tests, and HTTP endpoints passing.
 - Balance Matrix tournament evaluation verified: Rusher (0%) vs Turtle (100%), Turtle (0%) vs Balanced (100%), Balanced (0%) vs Rusher (100%) [100% Cycle Valid].
 - All changes committed and pushed to remote git repository (`origin/master`).

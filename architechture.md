@@ -93,7 +93,7 @@ flowchart TD
 3. **`runner/`**:
    - `match.py`: Head-to-head match executor and **Best-of-3 Series Runner (`run_best_of_3_series`)** with alternating sides (P1/P2) to eliminate first-player bias.
    - `tournament.py`: Automated round-robin matrix testing win-rates and Best-of-3 tournament evaluation.
-   - `replay.py`: Compact, structured JSON replay serialization.
+   - `replay.py`: Compact, structured JSON replay serialization including omniscient frames and dynamic `relic_spawn_turn` metadata.
 
 4. **`web/`**:
    - **Multi-Engine Spectator Frontend**: Offers an instant 1-click switcher between three distinct visualizer engines:
