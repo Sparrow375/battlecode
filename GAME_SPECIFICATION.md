@@ -49,23 +49,23 @@ The battlefield consists of **15 discrete nodes** connected by travel lanes. The
 ```
 
 ### Complete Node Directory
-| ID | Node Name | Position $(X, Y)$ | Default Owner | Production (Credits/T) | Initial Garrison |
-|:--:|:---|:---:|:---:|:---:|:---|
-| **0** | **Player 1 Core** | $(10.0, 50.0)$ | Player 1 | **15** | 1 Raider, 1 Guard, 1 Scout |
-| **1** | Alpha Bastion | $(25.0, 25.0)$ | Neutral | **6** | None |
-| **2** | Gamma Bastion | $(25.0, 75.0)$ | Neutral | **6** | None |
-| **3** | Vanguard Gate | $(32.0, 50.0)$ | Neutral | **8** | None |
-| **4** | North Rig | $(40.0, 15.0)$ | Neutral | **5** | None |
-| **5** | North Outpost | $(45.0, 35.0)$ | Neutral | **7** | None |
-| **6** | South Outpost | $(45.0, 65.0)$ | Neutral | **7** | None |
-| **7** | **Relic Sanctuary** | $(50.0, 50.0)$ | Neutral | **4** | None (Activates T95) |
-| **8** | Titan Outpost | $(55.0, 65.0)$ | Neutral | **7** | None (Mirrors Node 6) |
-| **9** | Zenith Outpost | $(55.0, 35.0)$ | Neutral | **7** | None (Mirrors Node 5) |
-| **10** | Apex Rig | $(60.0, 15.0)$ | Neutral | **5** | None (Mirrors Node 4) |
-| **11** | Sentinel Gate | $(68.0, 50.0)$ | Neutral | **8** | None (Mirrors Node 3) |
-| **12** | Omega Bastion | $(75.0, 75.0)$ | Neutral | **6** | None (Mirrors Node 2) |
-| **13** | Epsilon Bastion | $(75.0, 25.0)$ | Neutral | **6** | None (Mirrors Node 1) |
-| **14** | **Player 2 Core** | $(90.0, 50.0)$ | Player 2 | **15** | 1 Raider, 1 Guard, 1 Scout |
+| ID | Node Name | Position $(X, Y)$ | Default Owner | Production (Credits/T) | Defense Bonus | Initial Garrison |
+|:--:|:---|:---:|:---:|:---:|:---:|:---|
+| **0** | **Player 1 Core** | $(10.0, 50.0)$ | Player 1 | **15** | +50% | 1 Raider, 1 Guard, 1 Scout |
+| **1** | Alpha Bastion | $(25.0, 25.0)$ | Neutral | **4** | +25% | 1 Raider (Neutral Defender) |
+| **2** | Gamma Bastion | $(25.0, 75.0)$ | Neutral | **4** | +25% | 1 Raider (Neutral Defender) |
+| **3** | Vanguard Gate | $(32.0, 50.0)$ | Neutral | **7** | +25% | 2 Guards (Neutral Defenders) |
+| **4** | North Rig | $(40.0, 15.0)$ | Neutral | **4** | +25% | 1 Raider (Neutral Defender) |
+| **5** | North Outpost | $(45.0, 35.0)$ | Neutral | **7** | +25% | 2 Guards (Neutral Defenders) |
+| **6** | South Outpost | $(45.0, 65.0)$ | Neutral | **7** | +25% | 2 Guards (Neutral Defenders) |
+| **7** | **Relic Sanctuary** | $(50.0, 50.0)$ | Neutral | **10** | +25% | 2 Guards + 1 Siege (Neutral Defenders) |
+| **8** | Titan Outpost | $(55.0, 65.0)$ | Neutral | **7** | +25% | 2 Guards (Neutral Defenders) |
+| **9** | Zenith Outpost | $(55.0, 35.0)$ | Neutral | **7** | +25% | 2 Guards (Neutral Defenders) |
+| **10** | Apex Rig | $(60.0, 15.0)$ | Neutral | **4** | +25% | 1 Raider (Neutral Defender) |
+| **11** | Sentinel Gate | $(68.0, 50.0)$ | Neutral | **7** | +25% | 2 Guards (Neutral Defenders) |
+| **12** | Omega Bastion | $(75.0, 75.0)$ | Neutral | **4** | +25% | 1 Raider (Neutral Defender) |
+| **13** | Epsilon Bastion | $(75.0, 25.0)$ | Neutral | **4** | +25% | 1 Raider (Neutral Defender) |
+| **14** | **Player 2 Core** | $(90.0, 50.0)$ | Player 2 | **15** | +50% | 1 Raider, 1 Guard, 1 Scout |
 
 ### Lanes & Travel Delays
 Nodes are connected by bidirectional lanes with travel costs ranging from **2 to 3 turns**:
@@ -84,15 +84,21 @@ Both players start Turn 1 with **30 Credits**.
 At the beginning of each turn, each player collects credits equal to the sum of `production` values of all nodes they currently own:
 $$\text{Income}_p = \sum_{n \in \text{Owned}_p} \text{Production}(n)$$
 
-> [!NOTE]
-> If a node is currently **Contested** (under active hostile occupation), its recruitment is halted, but resource income continues until ownership officially flips.
+- **Tiered Yields**:
+  - **Core Citadels (0, 14)**: +15 credits/turn
+  - **Relic Sanctuary (7)**: +10 credits/turn
+  - **Chokepoint Gates & Outposts (3, 5, 6, 8, 9, 11)**: +7 credits/turn
+  - **Outer Bastions & Rigs (1, 2, 4, 10, 12, 13)**: +4 credits/turn
 
-### Empire Upkeep
-To prevent runaway snowballing and incentivize continuous aggression, large empires must pay upkeep:
-- **Free Unit Threshold**: **30 units** (sum of all stationed garrison units and units in traveling fleets).
-- **Upkeep Cost**: **1 credit per turn** for every unit above 30.
-$$\text{Upkeep}_p = \max\left(0, (\text{Total Units}_p - 30) \times 1\right)$$
-- If a player's credits are insufficient to cover upkeep, their balance is clamped to **0 Credits**. When at 0 credits, no new units can be recruited until units are lost in combat or income rises.
+### Dynamic Empire Supply Lines (Upkeep)
+Rather than a flat cliff, armies are supported by a dynamic supply capacity scaled to territorial expansion:
+$$\text{Free Supply Cap}_p = 10 + (4 \times \text{Owned Nodes}_p)$$
+
+Armies exceeding this free supply capacity incur per-turn maintenance upkeep:
+- **Domestic Units**: Units stationed on friendly owned nodes incur **1 credit/turn** per unit above cap.
+- **Foreign / Expeditionary Units**: Units stationed on unowned/enemy nodes or traveling on lanes incur **2 credits/turn** (supply line tax).
+- Free supply capacity automatically shields domestic forces first before covering expeditionary forces.
+- If a player's credits are insufficient to cover upkeep, their balance is clamped to **0 Credits**, suspending recruitment until losses or node captures restore economic balance.
 
 ---
 
@@ -127,7 +133,12 @@ When opposing armies meet at a node:
 2. **Simultaneous Damage**: Both sides deal damage simultaneously according to Lanchester's attrition principles.
 3. **Casualty Distribution**: Damage is distributed across target units proportionally to their HP pool, with integer unit rounding.
 4. **Micro-Round Clashes**: Combat resolves up to 10 simultaneous micro-rounds until one army is completely eliminated.
-5. **Scout Wipeout**: If all combat units (Raiders, Siege, Guards) of an army are eliminated, any non-combat Scouts on that side are destroyed.
+5. **Scout Targeting & Vision Bonus**: Armies fighting with a friendly Scout present (or stationed at an adjacent connected node) receive a **+15% targeting bonus** ($1.15\times$ damage). Conversely, fighting without a scout against an army with scout reconnaissance incurs a **-15% blind penalty** ($0.85\times$ damage).
+6. **Fortification Bonuses**:
+   - **Home Bases (0 and 14)** receive a **+50% defense bonus** (incoming damage reduced by half), preventing early rush eliminations and ensuring matches reach the endgame.
+   - **Standard Outposts** receive a **+25% defense bonus**.
+   - **Neutral Meeting Engagements**: If Player 1 and Player 2 enter an unclaimed neutral node on the same turn, they clash in a meeting engagement with **0% defense bonus** (neither side receives defender advantage). Surviving forces then engage any neutral defenders holding the node.
+7. **Scout Wipeout**: If all combat units (Raiders, Siege, Guards) of an army are eliminated, any non-combat Scouts on that side are destroyed.
 
 ---
 
@@ -175,7 +186,9 @@ stateDiagram-v2
 2. **Turn 2 (Uncontested Confirmation)**:
    - On the following turn, if the occupying force remains uncontested at the node, `capture_progress = 2`.
    - Ownership officially flips: `owner = invader`, and `capture_progress` resets to 0.
-3. **Counter-Attack / Relief Relief Intervention**:
+3. **Scout Contest Utility (Capture Freeze)**:
+   - If an enemy **Scout** arrives or contests the node during occupation, the capture clock **freezes**! The capture progress does not advance for that turn, buying critical time for heavy relief forces to arrive.
+4. **Counter-Attack / Relief Intervention**:
    - If the original defender launches a relief fleet that arrives on Turn 1 of the capture, a new battle immediately takes place at the node!
    - If the relief fleet destroys the occupying invaders, the capture attempt is broken: `capturing_player = None`, `capture_progress = 0`, and the node is saved!
 
@@ -185,14 +198,15 @@ stateDiagram-v2
 
 The match runs for a maximum of **120 turns**.
 
-### Standard Scoring (Turns 1 to 94)
+### Standard Scoring
 - Each owned node generates **1 Point per turn**.
 
-### The Relic Activation Phase (Turns 95 to 120)
-In the final 25 turns, the central **Relic Sanctuary (Node 7)** activates:
-- **Point Doubler**: All standard nodes now generate **2 Points per turn** (doubled).
-- **Relic Harvest**: Controlling Node 7 awards an additional **+15 Bonus Points per turn**!
-- Holding the Relic for the final 25 turns awards up to $25 \times 15 = 375$ bonus points plus double node points, enabling dramatic comebacks even against an opponent with an early territory lead.
+### The Variable Relic Activation Window (Turns 80 to 100)
+To prevent bots from hardcoding static turn triggers, the central **Relic Sanctuary (Node 7)** awakens dynamically between **Turn 80 and Turn 100**:
+- **5-Turn Warning Flag (`obs.relic_charging = True`)**: Exactly 5 turns before activation, the engine broadcasts the charging alert so bots can position their armies for the impending awakening.
+- **Point Doubler**: Once active (`obs.relic_active = True`), all standard owned nodes produce **2 Points per turn** (doubled).
+- **Relic Harvest**: Controlling Node 7 awards an additional **+10 Bonus Points per turn**!
+- Holding the Relic during the endgame phase provides a game-winning point acceleration, rewarding teams that contest the center rather than turtling passively.
 
 ### Strict Deterministic Tiebreaker
 If the match reaches Turn 120, a deterministic composite tiebreak score is computed:

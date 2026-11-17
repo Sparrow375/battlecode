@@ -1,8 +1,15 @@
 from __future__ import annotations
 import argparse
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Any
 from engine.models import GameConfig
-from runner.match import run_match, BOT_REGISTRY
+from runner.match import run_match, run_best_of_3_series, resolve_bot, BOT_REGISTRY, SeriesResult
+
+def run_bo3_matchup(bot_a_name: str, bot_b_name: str, max_turns: int = 120) -> SeriesResult:
+    """Runs a Best-of-3 series between two bots with alternating sides."""
+    bot_a_class, name_a = resolve_bot(bot_a_name)
+    bot_b_class, name_b = resolve_bot(bot_b_name)
+    cfg = GameConfig(max_turns=max_turns)
+    return run_best_of_3_series(bot_a_class, bot_b_class, name_a, name_b, config=cfg)
 
 def run_balance_matrix(rounds_per_pair: int = 10, max_turns: int = 120) -> Dict[str, Any]:
     """
@@ -81,9 +88,22 @@ def main():
     parser = argparse.ArgumentParser(description="Evaluate Node War baseline bot balance matrix.")
     parser.add_argument("--rounds", type=int, default=10, help="Rounds per side per matchup (total matches = rounds * 2)")
     parser.add_argument("--turns", type=int, default=120, help="Maximum match turns")
+    parser.add_argument("--bo3", action="store_true", help="Run Best-of-3 series for each matchup pair")
     args = parser.parse_args()
 
-    run_balance_matrix(rounds_per_pair=args.rounds, max_turns=args.turns)
+    if args.bo3:
+        matchups = [("rusher", "turtle"), ("turtle", "balanced"), ("balanced", "rusher")]
+        print(f"\n=======================================================")
+        print(f"   NODE WAR - BEST-OF-3 TOURNAMENT EVALUATION")
+        print(f"=======================================================\n")
+        for b1, b2 in matchups:
+            res = run_bo3_matchup(b1, b2, max_turns=args.turns)
+            print(f"Matchup: {res.team_a_name} vs {res.team_b_name} -> Winner: {res.winner_name} ({res.score_a}-{res.score_b})")
+            for idx, g in enumerate(res.games, 1):
+                print(f"   Game {idx}: {g.p1_name} vs {g.p2_name} -> {g.winner_name} ({g.total_turns}T)")
+            print()
+    else:
+        run_balance_matrix(rounds_per_pair=args.rounds, max_turns=args.turns)
 
 if __name__ == "__main__":
     main()

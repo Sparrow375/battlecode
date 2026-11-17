@@ -30,3 +30,11 @@
 - [x] Task 28: Render visible garrison soldier sprites stationed at castles/towers (defenders standing at battlements/gates) with clear unit count breakdown pills.
 - [x] Task 29: Implement high-visibility Battle Clash FX: animated crossed swords (`⚔️ BATTLE!`) badge over contested nodes, battle alert banners, clash shockwaves, and floating casualties.
 - [x] Task 30: Verification, testing, update `context.md` & `architechture.md`, and commit/push to git.
+- [x] Task 31: Update Engine Core for tournament balance: tiered yields, neutral garrisons, dynamic supply cap, scout combat targeting & capture lock, meeting engagements, variable relic window (T80-T100) + warning flag, home core +50% defense.
+- [x] Task 32: Update Tower Defense building assets with full-body team coloration (all stone blue for P1, all stone red for P2, slate grey for neutral).
+- [x] Task 33: Update `web/td_visualizer.js` with smooth continuous turn-to-turn interpolation and de-cluttered badges/garrison pills.
+- [x] Task 34: Update `web/visualizer.js` default speed (1000ms at 1x) and fix Relic HUD typo.
+- [x] Task 35: Create `validate_bot.py` dry-run tool with typed dataclasses and de-spoil `bots/starter_bot.py`.
+- [x] Task 36: Implement Best-of-3 series runner with side swapping in `runner/match.py` and `runner/tournament.py`.
+- [x] Task 37: Run and verify all unit tests and bot integration tests.
+- [x] Task 38: Update `context.md`, `architechture.md`, and commit/push to git.

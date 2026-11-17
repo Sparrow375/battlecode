@@ -9,7 +9,7 @@ class NodeWarVisualizer {
     this.currentFrameIdx = 0;
     this.isPlaying = false;
     this.playbackInterval = null;
-    this.speedMs = 250;
+    this.speedMs = 1000;
     this.viewMode = 'spectator'; // 'spectator' | 'p1' | 'p2'
     this.selectedNodeId = null;
     this.engineMode = 'td'; // Default to Cartoon Tower Defense Game Visualizer
@@ -223,18 +223,18 @@ class NodeWarVisualizer {
         if (mode === 'standard') {
           document.getElementById('input-turns').value = 120;
           document.getElementById('input-credits').value = 30;
-          document.getElementById('input-relic-turn').value = 95;
-          document.getElementById('input-relic-pts').value = 15;
+          document.getElementById('input-relic-turn').value = 90;
+          document.getElementById('input-relic-pts').value = 10;
         } else if (mode === 'blitz') {
           document.getElementById('input-turns').value = 60;
           document.getElementById('input-credits').value = 40;
           document.getElementById('input-relic-turn').value = 40;
-          document.getElementById('input-relic-pts').value = 15;
+          document.getElementById('input-relic-pts').value = 10;
         } else if (mode === 'marathon') {
           document.getElementById('input-turns').value = 160;
           document.getElementById('input-credits').value = 20;
-          document.getElementById('input-relic-turn').value = 130;
-          document.getElementById('input-relic-pts').value = 20;
+          document.getElementById('input-relic-turn').value = 120;
+          document.getElementById('input-relic-pts').value = 10;
         }
       }
     });
@@ -415,7 +415,7 @@ class NodeWarVisualizer {
     const turns = parseInt(document.getElementById('input-turns').value) || 120;
     const credits = parseInt(document.getElementById('input-credits').value) || 30;
     const relicTurn = parseInt(document.getElementById('input-relic-turn').value) || 95;
-    const relicPts = parseInt(document.getElementById('input-relic-pts').value) || 15;
+    const relicPts = parseInt(document.getElementById('input-relic-pts').value) || 10;
     const customCode = document.getElementById('custom-bot-editor').value;
 
     try {
@@ -738,10 +738,13 @@ class NodeWarVisualizer {
     const relicBadge = document.getElementById('relic-status');
     if (frame.relic_active) {
       relicBadge.className = 'relic-badge active';
-      relicBadge.textContent = 'RELIC ACTIVE // 2X POINTS & +15/SEC';
+      relicBadge.textContent = 'RELIC ACTIVE // 2X POINTS & +10/TURN';
+    } else if (frame.relic_charging) {
+      relicBadge.className = 'relic-badge charging';
+      relicBadge.textContent = '⚡ RELIC CHARGING // AWAKENING IMMINENT';
     } else {
       relicBadge.className = 'relic-badge';
-      relicBadge.textContent = `RELIC DORMANT (ACTIVATES TURN 95)`;
+      relicBadge.textContent = `RELIC DORMANT (ACTIVATES TURN 80-100)`;
     }
 
     if (this.selectedNodeId !== null) {

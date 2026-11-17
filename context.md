@@ -49,12 +49,13 @@ f:\Avaneesh\projects\battlecode\
 │   ├── test_bots.py      # Integration tests for bots running full games
 │   └── test_web_server.py# HTTP & API endpoint integration tests
 ├── replays/              # Saved match replay JSON files
+├── validate_bot.py       # Standalone dry-run validator tool for student competitors
 └── README.md             # Complete tournament guide & developer docs
 ```
 
 ## Current Status & Verification
 - `sys.path` import issue resolved in `web/serve.py`; root `serve.py` convenience script added.
-- Dynamic script discovery & loading added for `f:\Avaneesh\projects\battlecode\bots\`: any `.py` file (such as `bot1.py`) is automatically detected, populated in Player 1/2 dropdowns, and loadable via runner CLI (`python -m runner.match --p1 bot1.py --p2 turtle`).
+- Dynamic script discovery & loading added for `f:\Avaneesh\projects\battlecode\bots\`: any `.py` file (such as `bot1.py`, `equibot.py`) is automatically detected, populated in Player 1/2 dropdowns, and loadable via runner CLI (`python -m runner.match --p1 bot1.py --p2 turtle`).
 - Web Spectator Arena upgraded with full match controls:
   - 1v1 Match Setup with custom bot script dropdown and "Refresh Bots" trigger.
   - Script source code loader in Bot Lab for inspecting and modifying files in `bots/`.
@@ -62,20 +63,25 @@ f:\Avaneesh\projects\battlecode\
   - Interactive Custom Bot Playground with live browser-based code compilation.
   - Replay Vault with load & refresh capabilities.
   - In-match quick navigation (Relic jump, Clash jump, Finish jump).
-- All 16 unit, integration, and HTTP API tests passing.
-- Stale server process on port 8000 stopped and restarted with latest endpoints.
-- Web UI dropdowns hardened with fallbacks to guarantee populated options across all browsers.
-- Dynamic bot loader enhanced with MRO inspection and duck-typing fallback, verified working with `bots/bot1.py` (ApexNodeBot) and `bots/equibot.py` (NemesisNodeBot).
 - Comprehensive Game Specification & Mechanics Manual published at `GAME_SPECIFICATION.md` for distribution to event competitors.
-- **Cartoon Tower Defense Visualizer Engine** implemented and set as the primary default view:
-  - Recreates the exact cartoon tower defense aesthetic requested by the user (*Kingdom Rush* / *Tower Defender* style).
-  - Winding sand/dirt roads traversing vibrant cartoon grass meadows with procedural trees, rocks, fences, and tribal huts.
-  - Nodes rendered as actual game buildings: Blue/Red Stone Castles with spires and banners (Nodes 0 & 14), Stone Watchtowers (Chokepoints 5, 6, 8, 9), Fortified Barracks (Refineries 1–4, 10–13), and Mystic Relic Shrine (Node 7).
-  - Units rendered as actual animated cartoon soldiers: Knights with tower shields (Guards), running hooded Rogues with dual daggers (Raiders), wheeled iron Cannons (Siege), and flying Eagles (Scouts).
-  - Every soldier in a marching squad rendered individually in tactical column formation with walking/rolling bobs.
-  - Animated road direction chevrons (`>>`) pulsing forward along roads toward destination nodes with destination attack warning rings.
-  - Stationed garrison soldier sprites standing guard at castle doors, walls, and ramparts with readable troop breakdown strips (`🛡️x3 🗡️x2 💣x1`).
-  - High-visibility battle clash alerts: animated crossed swords (`⚔️ BATTLE! ⚔️`) badges, expanding red shockwaves, floating casualty text (`-2 GUARDS`), and esports banner alerts.
-  - Dynamic twilight / lantern Fog of War with light circles radiating from owned castles and flying scouts.
-  - Multi-Engine Switcher: Instant 1-click toggle between `[Tower Defense]` (Default), `[3D Arena]`, and `[2D Tactical]`.
-  - All 16 unit, integration, and HTTP API tests passing.
+- **Node War 32-Team Tournament Balance Upgrade**:
+  - **Tiered Node Yields**: Outer low-yield bastions `+4 cr/turn`, contested mid-lane chokepoints `+7 cr/turn`, Relic Sanctuary `+10 cr/turn`, Home cores `+15 cr/turn`.
+  - **Neutral Defenders on Unclaimed Nodes**: 1 Raider on outer nodes, 2 Guards on mid-lane chokepoints, 2 Guards + 1 Siege on Node 7, halting mindless Turn-1 Raider swarms and ensuring tactical opening expansion.
+  - **Dynamic Empire Supply Lines (Upkeep)**: Replaced flat 30-unit cliff with `10 + (4 × Owned Nodes)`. Units exceeding cap cost 1 credit/turn domestically or 2 credits/turn when stationed on unowned/enemy nodes or in transit (overextension supply tax).
+  - **100% Simultaneous Phase Execution**: Train orders resolve simultaneously for both players, then Move orders resolve simultaneously. Neutral arrivals clash in meeting engagements with 0% defense bonus before capture progress begins.
+  - **Tactical Scout Utility**: Units fighting with friendly Scouts present/adjacent receive a +15% combat targeting bonus (-15% blind penalty without one). Contesting Scouts freeze the 2-turn capture clock.
+  - **Home Base Fortification**: Home nodes 0 and 14 receive a +50% defense bonus (halving incoming damage), eliminating early blitz knockouts and guaranteeing matches reach the late-game Relic phase.
+  - **Variable Relic Activation Window**: Randomly awakens between Turn 80 and Turn 100 with a 5-turn warning broadcast (`obs.relic_charging = True`) and +10 pts/turn reward.
+  - **Best-of-3 Series Runner with Side Swapping**: `run_best_of_3_series` alternates P1/P2 sides across games to eliminate first-player bias.
+- **Visual Clarity & De-Cluttering Upgrades**:
+  - **Full-Body Team Coloration**: Castles, watchtowers, and barracks SVGs tinted entirely in royal blue (`#1e3a8a`, `#2563eb`) for P1, crimson red (`#991b1b`, `#dc2626`) for P2, and slate grey for neutral, providing instant ownership recognition from across the auditorium.
+  - **Glowing Base Aura Rings**: Faction-colored ellipses rendered under fortresses.
+  - **Continuous Sub-Turn Motion Interpolation**: Marching squads glide continuously along winding road curves using `subTurnProgress` lerp rather than teleporting discretely on ticks.
+  - **De-Cluttered Node Nameplates**: Compact badge `[ P1 CORE | +15 ]` and streamlined garrison pills showing only active unit types (`[ 🛡️2  💣1 ]`), omitting redundant boxes on empty nodes.
+  - **Calibrated Pacing**: Default 1x playback speed adjusted to a comfortable 1000ms/turn (1.0 second per turn).
+  - **HUD Banner Correction**: Relic banner corrected to `+10/TURN` (with charging warning support).
+- **Competitor Starter Kit & Validation**:
+  - `bots/starter_bot.py`: De-spoiled docstring with dynamic observation references.
+  - `validate_bot.py`: Standalone dry-run validation script verifying inheritance, typed dataclass stubs, methods, and symmetrical P1/P2 execution.
+- All 20 unit tests, bot integration tests, and HTTP endpoints passing.
+- Balance Matrix tournament evaluation verified: Rusher (0%) vs Turtle (100%), Turtle (0%) vs Balanced (100%), Balanced (0%) vs Rusher (100%) [100% Cycle Valid].

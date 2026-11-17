@@ -5,11 +5,15 @@ from .models import UnitType, UNIT_STATS
 
 def calculate_damage(
     attacker_units: Dict[UnitType, int],
-    defender_units: Dict[UnitType, int]
+    defender_units: Dict[UnitType, int],
+    has_friendly_scout: bool = False,
+    has_enemy_scout: bool = False
 ) -> float:
     """
     Calculates total outgoing damage from attacker_units targeted against defender_units.
     Prioritizes countered units (2.0x damage), then same-type/neutral (1.0x), then weak-to (0.5x).
+    Applies +15% targeting bonus if friendly scout is present/adjacent, or -15% blind penalty if fighting
+    blindly against a scouted enemy army.
     """
     total_defender_count = sum(defender_units.values())
     if total_defender_count == 0:
@@ -33,9 +37,7 @@ def calculate_damage(
         if counter_targets > 0:
             # High priority: Strike the countered unit
             weight = counter_targets / total_defender_count
-            # Bias heavily towards countering target
             eff_mult = 2.0 * weight + 1.0 * (neutral_targets / total_defender_count) + 0.5 * (weak_targets / total_defender_count)
-            # Give a tactical boost when target exists
             eff_mult = max(eff_mult, 1.6)
         elif neutral_targets > 0:
             weight_neutral = neutral_targets / total_defender_count
@@ -45,6 +47,12 @@ def calculate_damage(
             eff_mult = 0.5
 
         total_damage += base_power * eff_mult
+
+    # Scout targeting bonus (+15%) or blind penalty (-15%)
+    if has_friendly_scout:
+        total_damage *= 1.15
+    elif has_enemy_scout:
+        total_damage *= 0.85
 
     return total_damage
 
@@ -98,7 +106,9 @@ def resolve_combat(
     defenders: Dict[UnitType, int],
     attackers: Dict[UnitType, int],
     defender_bonus: float = 0.25,
-    max_rounds: int = 10
+    max_rounds: int = 10,
+    has_defender_scout: bool = False,
+    has_attacker_scout: bool = False
 ) -> Tuple[Dict[UnitType, int], Dict[UnitType, int]]:
     """
     Simulates combat resolution between defenders and attackers.
@@ -106,6 +116,9 @@ def resolve_combat(
     """
     cur_defenders = dict(defenders)
     cur_attackers = dict(attackers)
+
+    def_scout = has_defender_scout or (cur_defenders.get(UnitType.SCOUT, 0) > 0)
+    att_scout = has_attacker_scout or (cur_attackers.get(UnitType.SCOUT, 0) > 0)
 
     for _ in range(max_rounds):
         def_combat_count = cur_defenders.get(UnitType.RAIDER, 0) + cur_defenders.get(UnitType.SIEGE, 0) + cur_defenders.get(UnitType.GUARD, 0)
@@ -115,9 +128,17 @@ def resolve_combat(
         if def_combat_count == 0 or att_combat_count == 0:
             break
 
-        # Calculate simultaneous damage
-        def_damage = calculate_damage(cur_defenders, cur_attackers)
-        att_damage = calculate_damage(cur_attackers, cur_defenders)
+        # Calculate simultaneous damage with scout modifier
+        def_damage = calculate_damage(
+            cur_defenders, cur_attackers,
+            has_friendly_scout=def_scout,
+            has_enemy_scout=att_scout
+        )
+        att_damage = calculate_damage(
+            cur_attackers, cur_defenders,
+            has_friendly_scout=att_scout,
+            has_enemy_scout=def_scout
+        )
 
         # Apply damage simultaneously (defenders receive damage reduction)
         new_defenders = apply_damage_to_army(cur_defenders, att_damage, damage_reduction=defender_bonus)
@@ -150,4 +171,21 @@ def resolve_combat(
         cur_attackers[UnitType.SCOUT] = 0
 
     return cur_defenders, cur_attackers
+
+def resolve_meeting_engagement(
+    side_a: Dict[UnitType, int],
+    side_b: Dict[UnitType, int],
+    has_a_scout: bool = False,
+    has_b_scout: bool = False
+) -> Tuple[Dict[UnitType, int], Dict[UnitType, int]]:
+    """
+    Simulates a neutral meeting engagement where neither side receives defender bonus.
+    """
+    return resolve_combat(
+        defenders=side_a,
+        attackers=side_b,
+        defender_bonus=0.0,
+        has_defender_scout=has_a_scout,
+        has_attacker_scout=has_b_scout
+    )
 

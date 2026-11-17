@@ -1,5 +1,6 @@
 from __future__ import annotations
 import copy
+import random
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Tuple, Any
 
@@ -8,7 +9,7 @@ from .models import (
     TrainOrder, MoveOrder, Order, GameConfig
 )
 from .map import create_default_map, MapGraph
-from .combat import resolve_combat
+from .combat import resolve_combat, resolve_meeting_engagement
 from .fog import BotObservation, generate_player_observation
 
 @dataclass
@@ -43,6 +44,7 @@ class GameSnapshot:
     fleets: List[Dict[str, Any]]
     combat_events: List[Dict[str, Any]]
     capture_events: List[Dict[str, Any]]
+    relic_charging: bool = False
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -52,6 +54,7 @@ class GameSnapshot:
             "income": self.income,
             "upkeep": self.upkeep,
             "relic_active": self.relic_active,
+            "relic_charging": self.relic_charging,
             "relic_node_id": self.relic_node_id,
             "nodes": self.nodes,
             "fleets": self.fleets,
@@ -62,6 +65,9 @@ class GameSnapshot:
 class NodeWarGame:
     def __init__(self, config: Optional[GameConfig] = None):
         self.config = config or GameConfig()
+        if self.config.relic_spawn_turn is None:
+            self.config.relic_spawn_turn = random.randint(self.config.min_relic_turn, self.config.max_relic_turn)
+
         self.nodes, self.lanes = create_default_map()
         self.graph = MapGraph(self.nodes, self.lanes)
 
@@ -94,6 +100,40 @@ class NodeWarGame:
     def relic_active(self) -> bool:
         return self.current_turn >= self.config.relic_spawn_turn
 
+    @property
+    def relic_charging(self) -> bool:
+        return (self.config.relic_spawn_turn - 5 <= self.current_turn < self.config.relic_spawn_turn)
+
+    def get_player_free_supply_cap(self, pid: PlayerId) -> int:
+        """Dynamic supply cap: 10 + (4 * owned_nodes)"""
+        owned_nodes_count = sum(1 for n in self.nodes.values() if n.owner == pid)
+        return self.config.base_supply_cap + (self.config.supply_cap_per_node * owned_nodes_count)
+
+    def _calculate_player_upkeep(self, pid: PlayerId) -> int:
+        """
+        Calculates dynamic upkeep.
+        Free cap covers domestic (friendly owned) units first (1 cr/turn over cap),
+        then foreign/expeditionary units (2 cr/turn over cap).
+        """
+        free_cap = self.get_player_free_supply_cap(pid)
+        home_units = sum(n.total_units for n in self.nodes.values() if n.owner == pid and n.resident_player == pid)
+        foreign_units = sum(n.total_units for n in self.nodes.values() if n.owner != pid and n.resident_player == pid)
+        foreign_units += sum(f.total_count for f in self.fleets if f.owner == pid)
+
+        total_units = home_units + foreign_units
+        if total_units <= free_cap:
+            return 0
+
+        if home_units >= free_cap:
+            home_over = home_units - free_cap
+            foreign_over = foreign_units
+        else:
+            home_over = 0
+            remaining_cap = free_cap - home_units
+            foreign_over = max(0, foreign_units - remaining_cap)
+
+        return (home_over * self.config.upkeep_cost_per_unit) + (foreign_over * self.config.foreign_upkeep_cost_per_unit)
+
     def get_player_observation(self, player_id: PlayerId) -> BotObservation:
         return generate_player_observation(
             player_id=player_id,
@@ -105,12 +145,34 @@ class NodeWarGame:
             relic_node_id=self.config.relic_node_id,
             nodes=self.nodes,
             lanes=self.lanes,
-            fleets=self.fleets
+            fleets=self.fleets,
+            relic_charging=self.relic_charging
         )
+
+    def _player_has_scout(self, pid: PlayerId, nid: int, arrivals: Dict[int, Dict[PlayerId, Dict[UnitType, int]]]) -> bool:
+        """Checks if player has a scout present or adjacent to node nid."""
+        # 1. Scout arriving at this node
+        if arrivals.get(nid, {}).get(pid, {}).get(UnitType.SCOUT, 0) > 0:
+            return True
+        # 2. Scout stationed at this node
+        node = self.nodes.get(nid)
+        if node and node.resident_player == pid and node.units.get(UnitType.SCOUT, 0) > 0:
+            return True
+        # 3. Scout at any adjacent neighbor
+        for neighbor in self.graph.get_neighbors(nid):
+            n_node = self.nodes.get(neighbor)
+            if n_node and n_node.resident_player == pid and n_node.units.get(UnitType.SCOUT, 0) > 0:
+                return True
+        # 4. Scout in fleet traveling on connected lane
+        for fleet in self.fleets:
+            if fleet.owner == pid and fleet.has_scout:
+                if fleet.origin_node == nid or fleet.dest_node == nid:
+                    return True
+        return False
 
     def step(self, p1_orders: List[Order], p2_orders: List[Order]) -> bool:
         """
-        Advances the simulation by 1 turn.
+        Advances the simulation by 1 turn using 100% simultaneous phase execution.
         Returns True if game continues, False if game is over.
         """
         if self.game_over:
@@ -119,23 +181,24 @@ class NodeWarGame:
         combat_events: List[CombatEvent] = []
         capture_events: List[Dict[str, Any]] = []
 
-        # 1. Economy: Production
-        income_map = {PlayerId.PLAYER_1: 0, PlayerId.PLAYER_2: 0}
+        # 1. Economy: Tiered Production
         for node in self.nodes.values():
             if node.owner in [PlayerId.PLAYER_1, PlayerId.PLAYER_2]:
-                income_map[node.owner] += node.production
                 self.player_credits[node.owner] += node.production
 
-        # 2. Economy: Upkeep
+        # 2. Economy: Dynamic Supply Upkeep
         for pid in [PlayerId.PLAYER_1, PlayerId.PLAYER_2]:
-            total_units = self._count_player_units(pid)
-            if total_units > self.config.free_upkeep_cap:
-                upkeep = (total_units - self.config.free_upkeep_cap) * self.config.upkeep_cost_per_unit
-                self.player_credits[pid] = max(0, self.player_credits[pid] - upkeep)
+            upkeep = self._calculate_player_upkeep(pid)
+            self.player_credits[pid] = max(0, self.player_credits[pid] - upkeep)
 
-        # 3. Process Orders: Training & Fleet Launches
-        self._process_player_orders(PlayerId.PLAYER_1, p1_orders)
-        self._process_player_orders(PlayerId.PLAYER_2, p2_orders)
+        # 3. 100% Simultaneous Phase Execution
+        # Phase 3A: Train orders for BOTH players executed simultaneously
+        self._process_train_orders(PlayerId.PLAYER_1, p1_orders)
+        self._process_train_orders(PlayerId.PLAYER_2, p2_orders)
+
+        # Phase 3B: Move orders for BOTH players executed simultaneously
+        self._process_move_orders(PlayerId.PLAYER_1, p1_orders)
+        self._process_move_orders(PlayerId.PLAYER_2, p2_orders)
 
         # 4. Fleet Movement
         arriving_fleets: List[Fleet] = []
@@ -149,8 +212,9 @@ class NodeWarGame:
         self.fleets = in_transit_fleets
 
         # 5. Integrate arriving fleets into destination nodes
-        # Group arriving units by destination and player
-        arrivals: Dict[int, Dict[PlayerId, Dict[UnitType, int]]] = {nid: {PlayerId.PLAYER_1: {}, PlayerId.PLAYER_2: {}} for nid in self.nodes}
+        arrivals: Dict[int, Dict[PlayerId, Dict[UnitType, int]]] = {
+            nid: {PlayerId.PLAYER_1: {}, PlayerId.PLAYER_2: {}} for nid in self.nodes
+        }
         for fleet in arriving_fleets:
             dest = fleet.dest_node
             owner = fleet.owner
@@ -159,112 +223,244 @@ class NodeWarGame:
 
         # 6. Combat Resolution at each node
         for nid, node in self.nodes.items():
-            # Gather all forces at the node
-            # Stationed units belong to node.resident_player (if any)
-            forces: Dict[PlayerId, Dict[UnitType, int]] = {
-                PlayerId.PLAYER_1: dict(arrivals[nid][PlayerId.PLAYER_1]),
-                PlayerId.PLAYER_2: dict(arrivals[nid][PlayerId.PLAYER_2])
-            }
-            if node.resident_player in forces:
-                for ut, count in node.units.items():
-                    forces[node.resident_player][ut] = forces[node.resident_player].get(ut, 0) + count
+            arr_p1 = dict(arrivals[nid][PlayerId.PLAYER_1])
+            arr_p2 = dict(arrivals[nid][PlayerId.PLAYER_2])
 
-            p1_count = sum(forces[PlayerId.PLAYER_1].values())
-            p2_count = sum(forces[PlayerId.PLAYER_2].values())
+            p1_scout = self._player_has_scout(PlayerId.PLAYER_1, nid, arrivals)
+            p2_scout = self._player_has_scout(PlayerId.PLAYER_2, nid, arrivals)
 
-            if p1_count > 0 and p2_count > 0:
-                # Combat erupts!
-                p1_before = {ut.value: c for ut, c in forces[PlayerId.PLAYER_1].items()}
-                p2_before = {ut.value: c for ut, c in forces[PlayerId.PLAYER_2].items()}
-                
-                # Check defender bonus
-                if node.owner == PlayerId.PLAYER_1:
+            if node.owner == PlayerId.PLAYER_1:
+                # P1 owned node
+                p1_forces = dict(arr_p1)
+                if node.resident_player == PlayerId.PLAYER_1:
+                    for ut, count in node.units.items():
+                        p1_forces[ut] = p1_forces.get(ut, 0) + count
+                p2_forces = dict(arr_p2)
+
+                if sum(p1_forces.values()) > 0 and sum(p2_forces.values()) > 0:
+                    p1_before = {ut.value: c for ut, c in p1_forces.items()}
+                    p2_before = {ut.value: c for ut, c in p2_forces.items()}
+
                     surv_def, surv_att = resolve_combat(
-                        defenders=forces[PlayerId.PLAYER_1],
-                        attackers=forces[PlayerId.PLAYER_2],
-                        defender_bonus=node.defense_bonus
+                        defenders=p1_forces,
+                        attackers=p2_forces,
+                        defender_bonus=node.defense_bonus,
+                        has_defender_scout=p1_scout,
+                        has_attacker_scout=p2_scout
                     )
-                    forces[PlayerId.PLAYER_1] = surv_def
-                    forces[PlayerId.PLAYER_2] = surv_att
-                    bonus_applied = True
-                elif node.owner == PlayerId.PLAYER_2:
-                    surv_def, surv_att = resolve_combat(
-                        defenders=forces[PlayerId.PLAYER_2],
-                        attackers=forces[PlayerId.PLAYER_1],
-                        defender_bonus=node.defense_bonus
-                    )
-                    forces[PlayerId.PLAYER_2] = surv_def
-                    forces[PlayerId.PLAYER_1] = surv_att
-                    bonus_applied = True
+                    p1_forces = surv_def
+                    p2_forces = surv_att
+
+                    combat_events.append(CombatEvent(
+                        node_id=nid,
+                        defenders_before=p1_before,
+                        attackers_before=p2_before,
+                        defenders_after={ut.value: c for ut, c in p1_forces.items()},
+                        attackers_after={ut.value: c for ut, c in p2_forces.items()},
+                        defender_bonus_applied=True
+                    ))
+
+                if sum(p1_forces.values()) > 0:
+                    node.units = p1_forces
+                    node.resident_player = PlayerId.PLAYER_1
+                    occupier = PlayerId.PLAYER_1
+                elif sum(p2_forces.values()) > 0:
+                    node.units = p2_forces
+                    node.resident_player = PlayerId.PLAYER_2
+                    occupier = PlayerId.PLAYER_2
                 else:
-                    # Neutral node battle: neither gets defender bonus
-                    surv_p1, surv_p2 = resolve_combat(
-                        defenders=forces[PlayerId.PLAYER_1],
-                        attackers=forces[PlayerId.PLAYER_2],
-                        defender_bonus=0.0
+                    node.units = {ut: 0 for ut in UnitType}
+                    node.resident_player = PlayerId.NONE
+                    occupier = PlayerId.NONE
+
+            elif node.owner == PlayerId.PLAYER_2:
+                # P2 owned node
+                p2_forces = dict(arr_p2)
+                if node.resident_player == PlayerId.PLAYER_2:
+                    for ut, count in node.units.items():
+                        p2_forces[ut] = p2_forces.get(ut, 0) + count
+                p1_forces = dict(arr_p1)
+
+                if sum(p1_forces.values()) > 0 and sum(p2_forces.values()) > 0:
+                    p1_before = {ut.value: c for ut, c in p1_forces.items()}
+                    p2_before = {ut.value: c for ut, c in p2_forces.items()}
+
+                    surv_def, surv_att = resolve_combat(
+                        defenders=p2_forces,
+                        attackers=p1_forces,
+                        defender_bonus=node.defense_bonus,
+                        has_defender_scout=p2_scout,
+                        has_attacker_scout=p1_scout
                     )
-                    forces[PlayerId.PLAYER_1] = surv_p1
-                    forces[PlayerId.PLAYER_2] = surv_p2
-                    bonus_applied = False
+                    p2_forces = surv_def
+                    p1_forces = surv_att
 
-                p1_after = {ut.value: c for ut, c in forces[PlayerId.PLAYER_1].items()}
-                p2_after = {ut.value: c for ut, c in forces[PlayerId.PLAYER_2].items()}
+                    combat_events.append(CombatEvent(
+                        node_id=nid,
+                        defenders_before=p2_before,
+                        attackers_before=p1_before,
+                        defenders_after={ut.value: c for ut, c in p2_forces.items()},
+                        attackers_after={ut.value: c for ut, c in p1_forces.items()},
+                        defender_bonus_applied=True
+                    ))
 
-                combat_events.append(CombatEvent(
-                    node_id=nid,
-                    defenders_before=p1_before if node.owner == PlayerId.PLAYER_1 else p2_before,
-                    attackers_before=p2_before if node.owner == PlayerId.PLAYER_1 else p1_before,
-                    defenders_after=p1_after if node.owner == PlayerId.PLAYER_1 else p2_after,
-                    attackers_after=p2_after if node.owner == PlayerId.PLAYER_1 else p1_after,
-                    defender_bonus_applied=bonus_applied
-                ))
+                if sum(p2_forces.values()) > 0:
+                    node.units = p2_forces
+                    node.resident_player = PlayerId.PLAYER_2
+                    occupier = PlayerId.PLAYER_2
+                elif sum(p1_forces.values()) > 0:
+                    node.units = p1_forces
+                    node.resident_player = PlayerId.PLAYER_1
+                    occupier = PlayerId.PLAYER_1
+                else:
+                    node.units = {ut: 0 for ut in UnitType}
+                    node.resident_player = PlayerId.NONE
+                    occupier = PlayerId.NONE
 
-            # Apply surviving forces to the node
-            rem_p1 = sum(forces[PlayerId.PLAYER_1].values())
-            rem_p2 = sum(forces[PlayerId.PLAYER_2].values())
-
-            if rem_p1 > 0 and rem_p2 == 0:
-                node.units = forces[PlayerId.PLAYER_1]
-                node.resident_player = PlayerId.PLAYER_1
-                occupier = PlayerId.PLAYER_1
-            elif rem_p2 > 0 and rem_p1 == 0:
-                node.units = forces[PlayerId.PLAYER_2]
-                node.resident_player = PlayerId.PLAYER_2
-                occupier = PlayerId.PLAYER_2
             else:
-                # Both wiped or empty
-                node.units = {ut: 0 for ut in UnitType}
-                node.resident_player = PlayerId.NONE
-                occupier = PlayerId.NONE
+                # Neutral Node (node.owner == PlayerId.NONE)
+                stationed_p1 = dict(arr_p1)
+                stationed_p2 = dict(arr_p2)
+                neutral_defenders = {ut: 0 for ut in UnitType}
 
-            # 7. Node Capture Dynamics (2-Turn Flip)
+                if node.resident_player == PlayerId.PLAYER_1:
+                    for ut, count in node.units.items():
+                        stationed_p1[ut] = stationed_p1.get(ut, 0) + count
+                elif node.resident_player == PlayerId.PLAYER_2:
+                    for ut, count in node.units.items():
+                        stationed_p2[ut] = stationed_p2.get(ut, 0) + count
+                else:
+                    neutral_defenders = dict(node.units)
+
+                # Neutral Meeting Engagement: if both P1 and P2 enter on the same turn
+                if sum(stationed_p1.values()) > 0 and sum(stationed_p2.values()) > 0:
+                    p1_before = {ut.value: c for ut, c in stationed_p1.items()}
+                    p2_before = {ut.value: c for ut, c in stationed_p2.items()}
+
+                    surv_p1, surv_p2 = resolve_meeting_engagement(
+                        stationed_p1, stationed_p2,
+                        has_a_scout=p1_scout,
+                        has_b_scout=p2_scout
+                    )
+                    stationed_p1 = surv_p1
+                    stationed_p2 = surv_p2
+
+                    combat_events.append(CombatEvent(
+                        node_id=nid,
+                        defenders_before=p1_before,
+                        attackers_before=p2_before,
+                        defenders_after={ut.value: c for ut, c in stationed_p1.items()},
+                        attackers_after={ut.value: c for ut, c in stationed_p2.items()},
+                        defender_bonus_applied=False
+                    ))
+
+                # If neutral defenders still exist, whoever survived fights neutral garrison
+                if sum(neutral_defenders.values()) > 0:
+                    if sum(stationed_p1.values()) > 0:
+                        neut_before = {ut.value: c for ut, c in neutral_defenders.items()}
+                        p1_before = {ut.value: c for ut, c in stationed_p1.items()}
+
+                        surv_neut, surv_p1 = resolve_combat(
+                            defenders=neutral_defenders,
+                            attackers=stationed_p1,
+                            defender_bonus=node.defense_bonus,
+                            has_defender_scout=False,
+                            has_attacker_scout=p1_scout
+                        )
+                        neutral_defenders = surv_neut
+                        stationed_p1 = surv_p1
+
+                        combat_events.append(CombatEvent(
+                            node_id=nid,
+                            defenders_before=neut_before,
+                            attackers_before=p1_before,
+                            defenders_after={ut.value: c for ut, c in neutral_defenders.items()},
+                            attackers_after={ut.value: c for ut, c in stationed_p1.items()},
+                            defender_bonus_applied=True
+                        ))
+                    elif sum(stationed_p2.values()) > 0:
+                        neut_before = {ut.value: c for ut, c in neutral_defenders.items()}
+                        p2_before = {ut.value: c for ut, c in stationed_p2.items()}
+
+                        surv_neut, surv_p2 = resolve_combat(
+                            defenders=neutral_defenders,
+                            attackers=stationed_p2,
+                            defender_bonus=node.defense_bonus,
+                            has_defender_scout=False,
+                            has_attacker_scout=p2_scout
+                        )
+                        neutral_defenders = surv_neut
+                        stationed_p2 = surv_p2
+
+                        combat_events.append(CombatEvent(
+                            node_id=nid,
+                            defenders_before=neut_before,
+                            attackers_before=p2_before,
+                            defenders_after={ut.value: c for ut, c in neutral_defenders.items()},
+                            attackers_after={ut.value: c for ut, c in stationed_p2.items()},
+                            defender_bonus_applied=True
+                        ))
+
+                # Apply surviving forces to the node
+                if sum(stationed_p1.values()) > 0:
+                    node.units = stationed_p1
+                    node.resident_player = PlayerId.PLAYER_1
+                    occupier = PlayerId.PLAYER_1
+                elif sum(stationed_p2.values()) > 0:
+                    node.units = stationed_p2
+                    node.resident_player = PlayerId.PLAYER_2
+                    occupier = PlayerId.PLAYER_2
+                elif sum(neutral_defenders.values()) > 0:
+                    node.units = neutral_defenders
+                    node.resident_player = PlayerId.NONE
+                    occupier = PlayerId.NONE
+                else:
+                    node.units = {ut: 0 for ut in UnitType}
+                    node.resident_player = PlayerId.NONE
+                    occupier = PlayerId.NONE
+
+            # 7. Node Capture Dynamics & Scout Contest Lock
             if occupier != PlayerId.NONE:
                 if occupier != node.owner:
-                    # An invader occupies the node!
-                    if node.capturing_player == occupier:
-                        node.capture_progress += 1
-                        if node.capture_progress >= self.config.capture_turns_needed:
-                            old_owner = node.owner
-                            node.owner = occupier
-                            node.capture_progress = 0
-                            node.capturing_player = PlayerId.NONE
-                            capture_events.append({
-                                "node_id": nid,
-                                "type": "flipped",
-                                "new_owner": int(occupier),
-                                "old_owner": int(old_owner)
-                            })
-                    else:
-                        node.capturing_player = occupier
-                        node.capture_progress = 1
+                    enemy_pid = occupier.opponent
+                    # Scout Contest Utility: an enemy scout contesting freezes the capture clock
+                    scout_contested = (
+                        arrivals[nid][enemy_pid].get(UnitType.SCOUT, 0) > 0 or
+                        any(f.owner == enemy_pid and f.dest_node == nid and f.has_scout for f in self.fleets)
+                    )
+
+                    if scout_contested:
                         capture_events.append({
                             "node_id": nid,
-                            "type": "contested",
+                            "type": "scout_contested",
                             "capturing_player": int(occupier),
-                            "progress": 1
+                            "progress": node.capture_progress
                         })
+                    else:
+                        if node.capturing_player == occupier:
+                            node.capture_progress += 1
+                            if node.capture_progress >= self.config.capture_turns_needed:
+                                old_owner = node.owner
+                                node.owner = occupier
+                                node.capture_progress = 0
+                                node.capturing_player = PlayerId.NONE
+                                capture_events.append({
+                                    "node_id": nid,
+                                    "type": "flipped",
+                                    "new_owner": int(occupier),
+                                    "old_owner": int(old_owner)
+                                })
+                        else:
+                            node.capturing_player = occupier
+                            node.capture_progress = 1
+                            capture_events.append({
+                                "node_id": nid,
+                                "type": "contested",
+                                "capturing_player": int(occupier),
+                                "progress": 1
+                            })
                 else:
-                    # Legitimate owner is present: any hostile capture attempt is thwarted
+                    # Legitimate owner is present: any hostile capture attempt is relieved
                     if node.capturing_player != PlayerId.NONE:
                         capture_events.append({
                             "node_id": nid,
@@ -273,9 +469,6 @@ class NodeWarGame:
                         })
                         node.capturing_player = PlayerId.NONE
                         node.capture_progress = 0
-            else:
-                # Nobody present
-                pass
 
         # 8. Scoring & Relic Spawning
         pts_mult = self.config.relic_point_multiplier if self.relic_active else 1
@@ -320,18 +513,17 @@ class NodeWarGame:
 
         return True
 
-    def _process_player_orders(self, pid: PlayerId, orders: List[Order]) -> None:
-        """Validates and executes player train and move orders."""
+    def _process_train_orders(self, pid: PlayerId, orders: List[Order]) -> None:
+        """Validates and executes player train orders."""
         if not orders:
             return
-
         for order in orders:
             if isinstance(order, TrainOrder):
                 node = self.nodes.get(order.node_id)
                 if not node or node.owner != pid:
                     continue
                 if node.capturing_player != PlayerId.NONE:
-                    # Node is contested/being captured; recruitment is suspended
+                    # Contested node; recruitment suspended
                     continue
                 if order.count <= 0:
                     continue
@@ -340,7 +532,12 @@ class NodeWarGame:
                     self.player_credits[pid] -= cost
                     node.units[order.unit_type] = node.units.get(order.unit_type, 0) + order.count
 
-            elif isinstance(order, MoveOrder):
+    def _process_move_orders(self, pid: PlayerId, orders: List[Order]) -> None:
+        """Validates and executes player move orders."""
+        if not orders:
+            return
+        for order in orders:
+            if isinstance(order, MoveOrder):
                 u, v = order.origin_node, order.dest_node
                 lane = self.graph.get_lane(u, v)
                 if not lane:
@@ -348,8 +545,7 @@ class NodeWarGame:
                 node = self.nodes.get(u)
                 if not node or node.owner != pid:
                     continue
-                
-                # Verify and deduct units
+
                 valid_move = True
                 units_to_move: Dict[UnitType, int] = {}
                 for ut, count in order.units.items():
@@ -400,7 +596,6 @@ class NodeWarGame:
 
     def _resolve_tiebreak(self) -> None:
         """Computes strict tiebreak score to ensure no draws."""
-        # Score = points * 100000 + relic_turns * 1000 + army_value * 10 + credits
         p1_val = (
             self.scores[PlayerId.PLAYER_1] * 100000 +
             self.relic_turns_held[PlayerId.PLAYER_1] * 1000 +
@@ -421,7 +616,6 @@ class NodeWarGame:
             self.winner = PlayerId.PLAYER_2
             self.win_reason = f"Points Tiebreak: P2 ({p2_val}) > P1 ({p1_val})"
         else:
-            # Deterministic fallback: Home base ownership
             p1_home = self.nodes[0].owner == PlayerId.PLAYER_1
             p2_home = self.nodes[14].owner == PlayerId.PLAYER_2
             if p1_home and not p2_home:
@@ -432,13 +626,12 @@ class NodeWarGame:
                 self.win_reason = "Home Base Tiebreak: P2 survived"
 
     def _record_snapshot(self, combat_events: List[Dict[str, Any]], capture_events: List[Dict[str, Any]]) -> None:
-        # Calculate income & upkeep for logging
         income = {
             "p1": sum(n.production for n in self.nodes.values() if n.owner == PlayerId.PLAYER_1),
             "p2": sum(n.production for n in self.nodes.values() if n.owner == PlayerId.PLAYER_2)
         }
-        u1 = max(0, (self._count_player_units(PlayerId.PLAYER_1) - self.config.free_upkeep_cap) * self.config.upkeep_cost_per_unit)
-        u2 = max(0, (self._count_player_units(PlayerId.PLAYER_2) - self.config.free_upkeep_cap) * self.config.upkeep_cost_per_unit)
+        u1 = self._calculate_player_upkeep(PlayerId.PLAYER_1)
+        u2 = self._calculate_player_upkeep(PlayerId.PLAYER_2)
 
         snapshot = GameSnapshot(
             turn=self.current_turn,
@@ -447,6 +640,7 @@ class NodeWarGame:
             income=income,
             upkeep={"p1": u1, "p2": u2},
             relic_active=self.relic_active,
+            relic_charging=self.relic_charging,
             relic_node_id=self.config.relic_node_id,
             nodes={nid: n.to_dict() for nid, n in self.nodes.items()},
             fleets=[f.to_dict() for f in self.fleets],

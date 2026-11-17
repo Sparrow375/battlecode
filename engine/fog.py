@@ -71,6 +71,7 @@ class BotObservation:
     lanes: List[Dict[str, Any]]
     my_fleets: List[VisibleFleet]
     enemy_fleets: List[VisibleFleet]
+    relic_charging: bool = False
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -81,6 +82,7 @@ class BotObservation:
             "my_score": self.my_score,
             "opponent_score": self.opponent_score,
             "relic_active": self.relic_active,
+            "relic_charging": self.relic_charging,
             "relic_node_id": self.relic_node_id,
             "nodes": {nid: n.to_dict() for nid, n in self.nodes.items()},
             "lanes": self.lanes,
@@ -98,7 +100,8 @@ def generate_player_observation(
     relic_node_id: int,
     nodes: Dict[int, Node],
     lanes: List[Lane],
-    fleets: List[Fleet]
+    fleets: List[Fleet],
+    relic_charging: bool = False
 ) -> BotObservation:
     """
     Creates a fog-of-war filtered observation for the given player.
@@ -204,6 +207,7 @@ def generate_player_observation(
         my_score=scores.get(player_id, 0),
         opponent_score=scores.get(opponent_id, 0),
         relic_active=relic_active,
+        relic_charging=relic_charging,
         relic_node_id=relic_node_id,
         nodes=visible_nodes,
         lanes=lanes_data,

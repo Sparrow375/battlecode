@@ -166,13 +166,20 @@ Order = TrainOrder | MoveOrder
 @dataclass
 class GameConfig:
     max_turns: int = 120
-    relic_spawn_turn: int = 95
+    min_relic_turn: int = 80
+    max_relic_turn: int = 100
+    relic_spawn_turn: Optional[int] = None
     relic_node_id: int = 7
-    relic_points_per_turn: int = 15
+    relic_points_per_turn: int = 10
     relic_point_multiplier: int = 2
+    base_supply_cap: int = 10
+    supply_cap_per_node: int = 4
     free_upkeep_cap: int = 30
     upkeep_cost_per_unit: int = 1
+    foreign_upkeep_cost_per_unit: int = 2
     capture_turns_needed: int = 2
     defender_bonus: float = 0.25
+    home_defense_bonus: float = 0.50
+    scout_vision_bonus: float = 0.15
     initial_credits: int = 30
     base_production: int = 15

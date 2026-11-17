@@ -82,9 +82,12 @@ class TestEngine(unittest.TestCase):
         self.assertEqual(node1.capturing_player, PlayerId.NONE)
 
     def test_upkeep_deduction(self):
-        config = GameConfig(free_upkeep_cap=30, upkeep_cost_per_unit=1)
-        game = NodeWarGame(config)
-        # Give P1 exactly 40 units (10 over free cap of 30)
+        game = NodeWarGame()
+        # P1 starts with 1 owned node (Node 0). Free cap = 10 + (4 * 1) = 14
+        free_cap = game.get_player_free_supply_cap(PlayerId.PLAYER_1)
+        self.assertEqual(free_cap, 14)
+
+        # Place 40 guards at home node (Node 0)
         game.nodes[0].units = {ut: 0 for ut in UnitType}
         game.nodes[0].units[UnitType.GUARD] = 40
         initial_credits = game.player_credits[PlayerId.PLAYER_1]
@@ -92,9 +95,106 @@ class TestEngine(unittest.TestCase):
 
         # Step 1 turn
         game.step(p1_orders=[], p2_orders=[])
-        # Expected credits = initial + income - (40 - 30)*1
-        expected = initial_credits + p1_income - 10
+        # Expected upkeep = (40 - 14) * 1 = 26
+        expected = initial_credits + p1_income - (40 - free_cap) * 1
         self.assertEqual(game.player_credits[PlayerId.PLAYER_1], expected)
+
+        # Test foreign unit upkeep (2 cr/unit)
+        game2 = NodeWarGame()
+        # 14 home units (covers free cap), plus 5 units stationed on unowned node
+        game2.nodes[0].units = {UnitType.GUARD: 14, UnitType.RAIDER: 0, UnitType.SIEGE: 0, UnitType.SCOUT: 0}
+        game2.nodes[1].owner = PlayerId.NONE
+        game2.nodes[1].resident_player = PlayerId.PLAYER_1
+        game2.nodes[1].units = {UnitType.RAIDER: 5, UnitType.GUARD: 0, UnitType.SIEGE: 0, UnitType.SCOUT: 0}
+        
+        init_cr2 = game2.player_credits[PlayerId.PLAYER_1]
+        inc2 = sum(n.production for n in game2.nodes.values() if n.owner == PlayerId.PLAYER_1)
+        game2.step(p1_orders=[], p2_orders=[])
+        # 5 foreign units over free cap cost 2 credits each = 10
+        self.assertEqual(game2.player_credits[PlayerId.PLAYER_1], init_cr2 + inc2 - 10)
+
+    def test_tiered_yields_and_neutral_garrisons(self):
+        nodes, _ = create_default_map()
+        # Outer nodes: +4 prod, 1 Raider garrison
+        for nid in [1, 2, 4, 10, 12, 13]:
+            self.assertEqual(nodes[nid].production, 4)
+            self.assertEqual(nodes[nid].units[UnitType.RAIDER], 1)
+
+        # Mid chokes: +7 prod, 2 Guard garrison
+        for nid in [3, 5, 6, 8, 9, 11]:
+            self.assertEqual(nodes[nid].production, 7)
+            self.assertEqual(nodes[nid].units[UnitType.GUARD], 2)
+
+        # Relic node: +10 prod, 2 Guards + 1 Siege
+        self.assertEqual(nodes[7].production, 10)
+        self.assertEqual(nodes[7].units[UnitType.GUARD], 2)
+        self.assertEqual(nodes[7].units[UnitType.SIEGE], 1)
+
+        # Home nodes: +15 prod, +50% defense bonus
+        self.assertEqual(nodes[0].production, 15)
+        self.assertEqual(nodes[0].defense_bonus, 0.50)
+        self.assertEqual(nodes[14].production, 15)
+        self.assertEqual(nodes[14].defense_bonus, 0.50)
+
+    def test_scout_combat_targeting_bonus(self):
+        from engine.combat import calculate_damage
+        army_a = {UnitType.GUARD: 5, UnitType.RAIDER: 0, UnitType.SIEGE: 0, UnitType.SCOUT: 0}
+        army_b = {UnitType.GUARD: 5, UnitType.RAIDER: 0, UnitType.SIEGE: 0, UnitType.SCOUT: 0}
+
+        dmg_normal = calculate_damage(army_a, army_b, has_friendly_scout=False, has_enemy_scout=False)
+        dmg_with_scout = calculate_damage(army_a, army_b, has_friendly_scout=True, has_enemy_scout=False)
+        dmg_blind = calculate_damage(army_a, army_b, has_friendly_scout=False, has_enemy_scout=True)
+
+        self.assertAlmostEqual(dmg_with_scout, dmg_normal * 1.15, places=4)
+        self.assertAlmostEqual(dmg_blind, dmg_normal * 0.85, places=4)
+
+    def test_scout_capture_freeze(self):
+        game = NodeWarGame()
+        node1 = game.nodes[1]
+        node1.units = {ut: 0 for ut in UnitType}
+        node1.owner = PlayerId.NONE
+        node1.capturing_player = PlayerId.PLAYER_1
+        node1.capture_progress = 1
+        node1.resident_player = PlayerId.PLAYER_1
+        node1.units[UnitType.RAIDER] = 5
+
+        # P2 sends a fleet with a scout arriving at Node 1
+        from engine.models import Fleet
+        game.fleets.append(Fleet(
+            id=99,
+            owner=PlayerId.PLAYER_2,
+            origin_node=3,
+            dest_node=1,
+            turns_remaining=1,
+            total_turns=1,
+            units={UnitType.SCOUT: 1}
+        ))
+
+        # Advance step: scout contest should freeze progress at 1 instead of flipping to 2
+        game.step(p1_orders=[], p2_orders=[])
+        self.assertEqual(node1.owner, PlayerId.NONE)
+        self.assertEqual(node1.capture_progress, 1)
+
+    def test_variable_relic_charging(self):
+        cfg = GameConfig(min_relic_turn=80, max_relic_turn=100, relic_spawn_turn=90)
+        game = NodeWarGame(cfg)
+        game.current_turn = 84
+        self.assertFalse(game.relic_charging)
+        self.assertFalse(game.relic_active)
+
+        # At turn 85 (90 - 5), warning flag activates
+        game.current_turn = 85
+        self.assertTrue(game.relic_charging)
+        self.assertFalse(game.relic_active)
+
+        obs = game.get_player_observation(PlayerId.PLAYER_1)
+        self.assertTrue(obs.relic_charging)
+        self.assertFalse(obs.relic_active)
+
+        # At turn 90, relic activates
+        game.current_turn = 90
+        self.assertFalse(game.relic_charging)
+        self.assertTrue(game.relic_active)
 
     def test_relic_scoring(self):
         config = GameConfig(max_turns=100, relic_spawn_turn=50, relic_node_id=7, relic_points_per_turn=10, relic_point_multiplier=2)

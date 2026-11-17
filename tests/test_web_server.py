@@ -48,7 +48,7 @@ class TestWebServer(unittest.TestCase):
 
     def test_post_run_tournament(self):
         url = f"http://127.0.0.1:{self.test_port}/api/run-tournament"
-        payload = json.dumps({"rounds": 2, "turns": 20}).encode("utf-8")
+        payload = json.dumps({"rounds": 2, "turns": 120}).encode("utf-8")
         req = urllib.request.Request(url, data=payload, headers={"Content-Type": "application/json"})
         with urllib.request.urlopen(req) as response:
             self.assertEqual(response.status, 200)

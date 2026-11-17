@@ -2,30 +2,34 @@
   <!-- Shadow -->
   <ellipse cx="60" cy="136" rx="46" ry="10" fill="#000000" opacity="0.25"/>
 
-  <!-- Tower Base & Shaft -->
-  <path d="M36 132 L42 56 L78 56 L84 132 Z" fill="#8d99ae" stroke="#2b2d42" stroke-width="3.5"/>
-  <path d="M40 128 L45 60 L75 60 L80 128 Z" fill="#a4b0c6"/>
+  <!-- Tower Base & Shaft (Entirely Team Colored) -->
+  <path d="M36 132 L42 56 L78 56 L84 132 Z" fill="#475569" stroke="#181a20" stroke-width="3.5"/>
+  <path d="M40 128 L45 60 L75 60 L80 128 Z" fill="#64748b"/>
+
+  <!-- Bricks -->
+  <rect x="50" y="80" width="12" height="5" rx="1" fill="#334155"/>
+  <rect x="66" y="98" width="10" height="5" rx="1" fill="#334155"/>
 
   <!-- Arrow Slits -->
-  <rect x="58" y="72" width="4" height="14" rx="2" fill="#2b2d42"/>
-  <rect x="58" y="96" width="4" height="14" rx="2" fill="#2b2d42"/>
+  <rect x="58" y="70" width="4" height="14" rx="2" fill="#181a20"/>
+  <rect x="58" y="94" width="4" height="14" rx="2" fill="#181a20"/>
 
   <!-- Wooden Arched Door -->
-  <path d="M52 132 L52 116 Q60 110 68 116 L68 132 Z" fill="#583115" stroke="#2b2d42" stroke-width="2.5"/>
+  <path d="M52 132 L52 116 Q60 110 68 116 L68 132 Z" fill="#422510" stroke="#181a20" stroke-width="2.5"/>
 
   <!-- Tower Parapet Battlements -->
-  <rect x="30" y="42" width="60" height="16" rx="2" fill="#8d99ae" stroke="#2b2d42" stroke-width="3"/>
-  <rect x="34" y="34" width="10" height="10" fill="#8d99ae" stroke="#2b2d42" stroke-width="2.5"/>
-  <rect x="55" y="34" width="10" height="10" fill="#8d99ae" stroke="#2b2d42" stroke-width="2.5"/>
-  <rect x="76" y="34" width="10" height="10" fill="#8d99ae" stroke="#2b2d42" stroke-width="2.5"/>
+  <rect x="30" y="42" width="60" height="16" rx="2" fill="#475569" stroke="#181a20" stroke-width="3"/>
+  <rect x="34" y="34" width="10" height="10" fill="#475569" stroke="#181a20" stroke-width="2.5"/>
+  <rect x="55" y="34" width="10" height="10" fill="#475569" stroke="#181a20" stroke-width="2.5"/>
+  <rect x="76" y="34" width="10" height="10" fill="#475569" stroke="#181a20" stroke-width="2.5"/>
 
   <!-- Dual Flags -->
-  <line x1="39" y1="34" x2="39" y2="12" stroke="#2b2d42" stroke-width="2.5"/>
-  <path d="M39 12 L22 18 L39 24 Z" fill="#e63946" stroke="#2b2d42" stroke-width="1.5"/>
+  <line x1="39" y1="34" x2="39" y2="12" stroke="#181a20" stroke-width="2.5"/>
+  <path d="M39 12 L22 18 L39 24 Z" fill="#cbd5e1" stroke="#181a20" stroke-width="1.5"/>
 
-  <line x1="81" y1="34" x2="81" y2="12" stroke="#2b2d42" stroke-width="2.5"/>
-  <path d="M81 12 L98 18 L81 24 Z" fill="#e63946" stroke="#2b2d42" stroke-width="1.5"/>
+  <line x1="81" y1="34" x2="81" y2="12" stroke="#181a20" stroke-width="2.5"/>
+  <path d="M81 12 L98 18 L81 24 Z" fill="#cbd5e1" stroke="#181a20" stroke-width="1.5"/>
 
   <!-- Crest Banner -->
-  <path d="M54 58 L66 58 L66 70 L60 74 L54 70 Z" fill="#e63946" stroke="#2b2d42" stroke-width="1.5"/>
+  <path d="M54 56 L66 56 L66 68 L60 72 L54 68 Z" fill="#cbd5e1" stroke="#181a20" stroke-width="1.5"/>
 </svg>

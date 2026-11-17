@@ -45,7 +45,13 @@ class NodeWarTDVisualizer {
       castle_p1: 'assets/td/buildings/castle_p1.svg',
       castle_p2: 'assets/td/buildings/castle_p2.svg',
       castle_neutral: 'assets/td/buildings/castle_neutral.svg',
+      tower_p1: 'assets/td/buildings/tower_p1.svg',
+      tower_p2: 'assets/td/buildings/tower_p2.svg',
+      tower_neutral: 'assets/td/buildings/tower_neutral.svg',
       tower_stone: 'assets/td/buildings/tower_stone.svg',
+      barracks_p1: 'assets/td/buildings/barracks_p1.svg',
+      barracks_p2: 'assets/td/buildings/barracks_p2.svg',
+      barracks_neutral: 'assets/td/buildings/barracks_neutral.svg',
       barracks: 'assets/td/buildings/barracks.svg',
       relic_shrine: 'assets/td/buildings/relic_shrine.svg',
 
@@ -151,6 +157,15 @@ class NodeWarTDVisualizer {
 
   render() {
     this.ctx.clearRect(0, 0, this.displayWidth, this.displayHeight);
+
+    // Continuous Sub-Turn Lerp Progress for Smooth Motion Interpolation
+    if (window.nodeWarApp && window.nodeWarApp.isPlaying) {
+      const elapsed = performance.now() - (this.currentTurnStartTime || performance.now());
+      const duration = Math.max(50, window.nodeWarApp.speedMs || 1000);
+      this.subTurnProgress = Math.min(1.0, Math.max(0.0, elapsed / duration));
+    } else {
+      this.subTurnProgress = 1.0;
+    }
 
     // Layer 1: Cartoon Grass Meadow
     this.drawMeadowBackground();
@@ -321,10 +336,11 @@ class NodeWarTDVisualizer {
         this.ctx.restore();
       }
 
-      // 1. Pick Castle / Tower Asset
+      // 1. Pick Castle / Tower / Barracks Asset with full team coloration
       let img = null;
       let drawW = 80;
       let drawH = 80;
+      const ownerSuffix = (owner === 1) ? '_p1' : (owner === 2 ? '_p2' : '_neutral');
 
       if (isHomeP1) {
         img = this.assets.castle_p1;
@@ -338,17 +354,38 @@ class NodeWarTDVisualizer {
         img = this.assets.relic_shrine;
         drawW = 110;
         drawH = 115;
-      } else if (staticNode.id === 5 || staticNode.id === 6 || staticNode.id === 8 || staticNode.id === 9) {
-        // Chokepoints -> Stone Guard Tower
-        img = this.assets.tower_stone;
+      } else if (staticNode.id === 5 || staticNode.id === 6 || staticNode.id === 8 || staticNode.id === 9 || staticNode.id === 3 || staticNode.id === 11) {
+        // Chokepoint Watchtowers (Full Team Tinting)
+        img = this.assets['tower' + ownerSuffix] || this.assets.tower_stone;
         drawW = 85;
         drawH = 105;
       } else {
-        // Economy Outposts -> Barracks
-        img = this.assets.barracks;
+        // Economy Bastions / Refineries (Full Team Tinting)
+        img = this.assets['barracks' + ownerSuffix] || this.assets.barracks;
         drawW = 95;
         drawH = 82;
       }
+
+      // Ground Faction Base Ring
+      this.ctx.save();
+      this.ctx.beginPath();
+      this.ctx.ellipse(p.x, p.y + drawH * 0.36, drawW * 0.44, drawH * 0.16, 0, 0, Math.PI * 2);
+      if (owner === 1) {
+        this.ctx.fillStyle = 'rgba(0, 210, 255, 0.25)';
+        this.ctx.strokeStyle = '#00f0ff';
+        this.ctx.lineWidth = 2.5;
+      } else if (owner === 2) {
+        this.ctx.fillStyle = 'rgba(255, 0, 85, 0.25)';
+        this.ctx.strokeStyle = '#ff0055';
+        this.ctx.lineWidth = 2.5;
+      } else {
+        this.ctx.fillStyle = 'rgba(100, 116, 139, 0.18)';
+        this.ctx.strokeStyle = '#64748b';
+        this.ctx.lineWidth = 1.8;
+      }
+      this.ctx.fill();
+      this.ctx.stroke();
+      this.ctx.restore();
 
       // 2. Battle Active Shockwaves & Warning Rings
       if (activeBattle) {
@@ -422,11 +459,11 @@ class NodeWarTDVisualizer {
         this.ctx.restore();
       }
 
-      // 5. Cartoon Wooden Nameplate & Income Tag Below Structure
-      this.drawWoodenNameplate(p.x, p.y + drawH / 2 - 4, staticNode, dynamicNode);
+      // 5. Streamlined Nameplate & Income Badge Below Structure
+      this.drawStreamlinedBadge(p.x, p.y + drawH / 2 - 2, staticNode, dynamicNode);
 
-      // 6. Troop Inventory Breakdown Pill (e.g. [ 🛡️ 3  🗡️ 2  💣 1  🦅 1 ])
-      this.drawTroopInventoryPill(p.x, p.y + drawH / 2 + 18, units, residentPlayer, totalUnits);
+      // 6. Clean Troop Breakdown Pill (only active unit types)
+      this.drawTroopInventoryPill(p.x, p.y + drawH / 2 + 19, units, residentPlayer, totalUnits);
 
       // 7. Active Battle Alert Badge: Crossed Swords (⚔️ BATTLE! ⚔️)
       if (activeBattle) {
@@ -442,7 +479,11 @@ class NodeWarTDVisualizer {
         this.ctx.shadowColor = '#ff0055';
         this.ctx.shadowBlur = 14;
         this.ctx.beginPath();
-        this.ctx.roundRect(-58, -15, 116, 30, 8);
+        if (typeof this.ctx.roundRect === 'function') {
+          this.ctx.roundRect(-58, -15, 116, 30, 8);
+        } else {
+          this.ctx.rect(-58, -15, 116, 30);
+        }
         this.ctx.fill();
         this.ctx.stroke();
         this.ctx.shadowBlur = 0;
@@ -457,85 +498,90 @@ class NodeWarTDVisualizer {
     });
   }
 
-  drawWoodenNameplate(x, y, staticNode, dynamicNode) {
+  drawStreamlinedBadge(x, y, staticNode, dynamicNode) {
     const isRelic = (staticNode.id === 7);
-    const isHome = (staticNode.id === 0 || staticNode.id === 14);
+    const owner = dynamicNode.owner;
 
-    const title = isRelic ? `RELIC [7]` : (isHome ? `P${staticNode.id === 0 ? 1 : 2} CASTLE` : `NODE ${staticNode.id}`);
-    const sub = `+${staticNode.production}`;
+    let title = `NODE ${staticNode.id}`;
+    if (isRelic) title = `RELIC [7]`;
+    else if (staticNode.id === 0) title = `P1 CORE`;
+    else if (staticNode.id === 14) title = `P2 CORE`;
+    else if (owner === 1) title = `P1 BASTION`;
+    else if (owner === 2) title = `P2 BASTION`;
 
-    // Wooden Plank
+    const label = `${title} | +${staticNode.production}`;
+
     this.ctx.save();
-    this.ctx.fillStyle = '#583115';
-    this.ctx.strokeStyle = '#2b2d42';
+    this.ctx.fillStyle = 'rgba(10, 14, 26, 0.92)';
+    this.ctx.strokeStyle = owner === 1 ? '#00f3ff' : (owner === 2 ? '#ff0055' : '#718096');
     this.ctx.lineWidth = 2;
     this.ctx.beginPath();
-    this.ctx.roundRect(x - 36, y, 72, 19, 4);
+    const bw = 96;
+    const bh = 18;
+    if (typeof this.ctx.roundRect === 'function') {
+      this.ctx.roundRect(x - bw / 2, y, bw, bh, 5);
+    } else {
+      this.ctx.rect(x - bw / 2, y, bw, bh);
+    }
     this.ctx.fill();
     this.ctx.stroke();
 
-    // Text
-    this.ctx.fillStyle = '#ffd166';
+    this.ctx.fillStyle = owner === 1 ? '#00f3ff' : (owner === 2 ? '#ff7096' : '#ffd166');
     this.ctx.font = 'bold 9px "Orbitron", monospace';
     this.ctx.textAlign = 'center';
     this.ctx.textBaseline = 'middle';
-    this.ctx.fillText(title, x, y + 6);
-
-    this.ctx.fillStyle = '#ffffff';
-    this.ctx.font = 'bold 8px "Rajdhani", sans-serif';
-    this.ctx.fillText(`${sub} Credits/T`, x, y + 14);
+    this.ctx.fillText(label, x, y + bh / 2);
     this.ctx.restore();
   }
 
   drawTroopInventoryPill(x, y, units, residentPlayer, totalUnits) {
+    if (totalUnits <= 0) {
+      // De-clutter: don't render empty pills
+      return;
+    }
+
     const isP1 = (residentPlayer === 1);
     const isP2 = (residentPlayer === 2);
     const borderColor = isP1 ? '#00f3ff' : (isP2 ? '#ff0055' : '#7b88a8');
 
+    // Only collect non-zero unit types
+    const activeItems = [];
+    if ((units.guard || 0) > 0) activeItems.push({ icon: '🛡️', count: units.guard, color: '#4caf50' });
+    if ((units.raider || 0) > 0) activeItems.push({ icon: '🗡️', count: units.raider, color: '#00f3ff' });
+    if ((units.siege || 0) > 0) activeItems.push({ icon: '💣', count: units.siege, color: '#ff9900' });
+    if ((units.scout || 0) > 0) activeItems.push({ icon: '🦅', count: units.scout, color: '#ba68c8' });
+
+    if (activeItems.length === 0) return;
+
+    const itemWidth = 24;
+    const w = Math.max(32, activeItems.length * itemWidth + 8);
+    const h = 18;
+
     this.ctx.save();
-    if (totalUnits === 0) {
-      // Empty garrison pill
-      this.ctx.fillStyle = 'rgba(16, 22, 36, 0.85)';
-      this.ctx.strokeStyle = '#3a445d';
-      this.ctx.lineWidth = 1.5;
-      this.ctx.beginPath();
-      this.ctx.roundRect(x - 38, y, 76, 16, 4);
-      this.ctx.fill();
-      this.ctx.stroke();
-
-      this.ctx.fillStyle = '#8c9bbd';
-      this.ctx.font = 'bold 8px "Orbitron", monospace';
-      this.ctx.textAlign = 'center';
-      this.ctx.textBaseline = 'middle';
-      this.ctx.fillText('NO TROOPS', x, y + 8);
+    this.ctx.fillStyle = 'rgba(10, 14, 26, 0.92)';
+    this.ctx.strokeStyle = borderColor;
+    this.ctx.lineWidth = 1.8;
+    this.ctx.beginPath();
+    if (typeof this.ctx.roundRect === 'function') {
+      this.ctx.roundRect(x - w / 2, y, w, h, 5);
     } else {
-      // Full troop breakdown pill: [ 🛡️3 🗡️2 💣1 🦅1 ]
-      const w = 96;
-      this.ctx.fillStyle = 'rgba(10, 14, 26, 0.92)';
-      this.ctx.strokeStyle = borderColor;
-      this.ctx.lineWidth = 2;
-      this.ctx.beginPath();
-      this.ctx.roundRect(x - w / 2, y, w, 18, 5);
-      this.ctx.fill();
-      this.ctx.stroke();
+      this.ctx.rect(x - w / 2, y, w, h);
+    }
+    this.ctx.fill();
+    this.ctx.stroke();
 
-      // Draw troop counts with color-coded numbers
-      this.ctx.font = 'bold 9px "Orbitron", monospace';
-      this.ctx.textAlign = 'center';
-      this.ctx.textBaseline = 'middle';
+    this.ctx.font = 'bold 9px "Orbitron", monospace';
+    this.ctx.textAlign = 'center';
+    this.ctx.textBaseline = 'middle';
 
-      const items = [
-        { icon: '🛡️', count: units.guard || 0, color: '#4caf50' },
-        { icon: '🗡️', count: units.raider || 0, color: '#00f3ff' },
-        { icon: '💣', count: units.siege || 0, color: '#ff9900' },
-        { icon: '🦅', count: units.scout || 0, color: '#ba68c8' }
-      ];
+    activeItems.forEach((item, idx) => {
+      const ix = (x - w / 2) + 4 + idx * itemWidth + itemWidth / 2;
+      this.ctx.fillStyle = item.color;
+      this.ctx.fillText(`${item.icon}${item.count}`, ix, y + h / 2);
+    });
 
-      const step = w / 4;
-      items.forEach((item, idx) => {
-        const ix = (x - w / 2) + step * idx + step / 2;
-        this.ctx.fillStyle = item.count > 0 ? item.color : '#55607a';
-        this.ctx.fillText(`${item.icon}${item.count}`, ix, y + 9);
+    this.ctx.restore();
+  }
       });
     }
     this.ctx.restore();
@@ -549,7 +595,12 @@ class NodeWarTDVisualizer {
       const pB = this.getNodeScreenPos(fleet.dest_node);
       if (!pA || !pB) return;
 
-      const progress = Math.max(0.0, Math.min(1.0, 1.0 - (fleet.turns_remaining / fleet.total_turns)));
+      const turnsRemaining = fleet.turns_remaining;
+      const totalTurns = fleet.total_turns;
+      const turnStep = 1.0 / totalTurns;
+      const baseProgress = 1.0 - (turnsRemaining / totalTurns);
+      const subProg = (this.subTurnProgress !== undefined) ? this.subTurnProgress : 1.0;
+      const progress = Math.max(0.0, Math.min(1.0, baseProgress + subProg * turnStep));
       const fx = pA.x + (pB.x - pA.x) * progress;
       const fy = pA.y + (pB.y - pA.y) * progress;
 
@@ -849,6 +900,7 @@ class NodeWarTDVisualizer {
 
   syncFrame(frame) {
     if (!this.replayData) return;
+    this.currentTurnStartTime = performance.now();
     this.currentFrameIdx = Math.max(0, Math.min(this.replayData.frames.length - 1, frame.turn - 1));
 
     // High-Visibility Battle Alerts & Floating Casualties

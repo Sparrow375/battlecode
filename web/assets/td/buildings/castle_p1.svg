@@ -7,51 +7,51 @@
   <!-- Ground Shadow -->
   <ellipse cx="80" cy="144" rx="70" ry="14" fill="#000000" opacity="0.25"/>
 
-  <!-- Main Stone Keep -->
-  <rect x="42" y="70" width="76" height="68" rx="4" fill="#8d99ae" stroke="#2b2d42" stroke-width="3.5" filter="url(#shadow)"/>
-  <rect x="46" y="74" width="68" height="60" fill="#a4b0c6"/>
+  <!-- Main Stone Keep (Entirely Team Colored) -->
+  <rect x="42" y="70" width="76" height="68" rx="4" fill="#1e3a8a" stroke="#181a20" stroke-width="3.5" filter="url(#shadow)"/>
+  <rect x="46" y="74" width="68" height="60" fill="#2563eb"/>
 
   <!-- Stone Wall Bricks Texture -->
-  <rect x="52" y="82" width="14" height="6" rx="1" fill="#758299"/>
-  <rect x="74" y="82" width="16" height="6" rx="1" fill="#758299"/>
-  <rect x="96" y="82" width="12" height="6" rx="1" fill="#758299"/>
-  <rect x="62" y="94" width="16" height="6" rx="1" fill="#758299"/>
-  <rect x="84" y="94" width="14" height="6" rx="1" fill="#758299"/>
-  <rect x="54" y="106" width="14" height="6" rx="1" fill="#758299"/>
-  <rect x="92" y="106" width="16" height="6" rx="1" fill="#758299"/>
+  <rect x="52" y="82" width="14" height="6" rx="1" fill="#1d4ed8"/>
+  <rect x="74" y="82" width="16" height="6" rx="1" fill="#1d4ed8"/>
+  <rect x="96" y="82" width="12" height="6" rx="1" fill="#1d4ed8"/>
+  <rect x="62" y="94" width="16" height="6" rx="1" fill="#1d4ed8"/>
+  <rect x="84" y="94" width="14" height="6" rx="1" fill="#1d4ed8"/>
+  <rect x="54" y="106" width="14" height="6" rx="1" fill="#1d4ed8"/>
+  <rect x="92" y="106" width="16" height="6" rx="1" fill="#1d4ed8"/>
 
   <!-- Main Keep Battlements -->
-  <rect x="40" y="58" width="80" height="14" fill="#8d99ae" stroke="#2b2d42" stroke-width="3.5"/>
-  <rect x="48" y="52" width="12" height="8" fill="#8d99ae" stroke="#2b2d42" stroke-width="3"/>
-  <rect x="74" y="52" width="12" height="8" fill="#8d99ae" stroke="#2b2d42" stroke-width="3"/>
-  <rect x="100" y="52" width="12" height="8" fill="#8d99ae" stroke="#2b2d42" stroke-width="3"/>
+  <rect x="40" y="58" width="80" height="14" fill="#1e3a8a" stroke="#181a20" stroke-width="3.5"/>
+  <rect x="48" y="52" width="12" height="8" fill="#1e3a8a" stroke="#181a20" stroke-width="3"/>
+  <rect x="74" y="52" width="12" height="8" fill="#1e3a8a" stroke="#181a20" stroke-width="3"/>
+  <rect x="100" y="52" width="12" height="8" fill="#1e3a8a" stroke="#181a20" stroke-width="3"/>
 
   <!-- Left Tower -->
-  <rect x="14" y="56" width="34" height="82" rx="3" fill="#8d99ae" stroke="#2b2d42" stroke-width="3.5"/>
-  <rect x="17" y="60" width="28" height="74" fill="#a4b0c6"/>
-  <rect x="12" y="46" width="38" height="12" fill="#8d99ae" stroke="#2b2d42" stroke-width="3"/>
-  <path d="M12 46 L31 16 L50 46 Z" fill="#3a86ff" stroke="#2b2d42" stroke-width="3.5"/>
+  <rect x="14" y="56" width="34" height="82" rx="3" fill="#1e3a8a" stroke="#181a20" stroke-width="3.5"/>
+  <rect x="17" y="60" width="28" height="74" fill="#2563eb"/>
+  <rect x="12" y="46" width="38" height="12" fill="#1e3a8a" stroke="#181a20" stroke-width="3"/>
+  <path d="M12 46 L31 16 L50 46 Z" fill="#38bdf8" stroke="#181a20" stroke-width="3.5"/>
   <!-- Left Flag -->
-  <line x1="31" y1="16" x2="31" y2="4" stroke="#2b2d42" stroke-width="2.5"/>
-  <path d="M31 4 L45 9 L31 15 Z" fill="#00b4d8" stroke="#2b2d42" stroke-width="1.5"/>
+  <line x1="31" y1="16" x2="31" y2="4" stroke="#181a20" stroke-width="2.5"/>
+  <path d="M31 4 L45 9 L31 15 Z" fill="#00f0ff" stroke="#181a20" stroke-width="1.5"/>
 
   <!-- Right Tower -->
-  <rect x="112" y="56" width="34" height="82" rx="3" fill="#8d99ae" stroke="#2b2d42" stroke-width="3.5"/>
-  <rect x="115" y="60" width="28" height="74" fill="#a4b0c6"/>
-  <rect x="110" y="46" width="38" height="12" fill="#8d99ae" stroke="#2b2d42" stroke-width="3"/>
-  <path d="M110 46 L129 16 L148 46 Z" fill="#3a86ff" stroke="#2b2d42" stroke-width="3.5"/>
+  <rect x="112" y="56" width="34" height="82" rx="3" fill="#1e3a8a" stroke="#181a20" stroke-width="3.5"/>
+  <rect x="115" y="60" width="28" height="74" fill="#2563eb"/>
+  <rect x="110" y="46" width="38" height="12" fill="#1e3a8a" stroke="#181a20" stroke-width="3"/>
+  <path d="M110 46 L129 16 L148 46 Z" fill="#38bdf8" stroke="#181a20" stroke-width="3.5"/>
   <!-- Right Flag -->
-  <line x1="129" y1="16" x2="129" y2="4" stroke="#2b2d42" stroke-width="2.5"/>
-  <path d="M129 4 L143 9 L129 15 Z" fill="#00b4d8" stroke="#2b2d42" stroke-width="1.5"/>
+  <line x1="129" y1="16" x2="129" y2="4" stroke="#181a20" stroke-width="2.5"/>
+  <path d="M129 4 L143 9 L129 15 Z" fill="#00f0ff" stroke="#181a20" stroke-width="1.5"/>
 
   <!-- Center Spire -->
-  <path d="M60 52 L80 18 L100 52 Z" fill="#3a86ff" stroke="#2b2d42" stroke-width="3.5"/>
-  <line x1="80" y1="18" x2="80" y2="2" stroke="#2b2d42" stroke-width="3"/>
-  <path d="M80 2 L98 8 L80 15 Z" fill="#00b4d8" stroke="#2b2d42" stroke-width="2"/>
+  <path d="M60 52 L80 18 L100 52 Z" fill="#38bdf8" stroke="#181a20" stroke-width="3.5"/>
+  <line x1="80" y1="18" x2="80" y2="2" stroke="#181a20" stroke-width="3"/>
+  <path d="M80 2 L98 8 L80 15 Z" fill="#00f0ff" stroke="#181a20" stroke-width="2"/>
 
   <!-- Arched Wooden Gate -->
-  <path d="M64 138 L64 108 Q80 96 96 108 L96 138 Z" fill="#583115" stroke="#2b2d42" stroke-width="3"/>
-  <line x1="80" y1="102" x2="80" y2="138" stroke="#361f0f" stroke-width="2.5"/>
+  <path d="M64 138 L64 108 Q80 96 96 108 L96 138 Z" fill="#422510" stroke="#181a20" stroke-width="3"/>
+  <line x1="80" y1="102" x2="80" y2="138" stroke="#251508" stroke-width="2.5"/>
   <!-- Iron Studs on Gate -->
   <circle cx="70" cy="115" r="1.8" fill="#ffd166"/>
   <circle cx="70" cy="128" r="1.8" fill="#ffd166"/>
@@ -59,6 +59,6 @@
   <circle cx="90" cy="128" r="1.8" fill="#ffd166"/>
 
   <!-- Faction Crest Banner above Gate -->
-  <path d="M72 88 L88 88 L88 102 L80 108 L72 102 Z" fill="#3a86ff" stroke="#2b2d42" stroke-width="2"/>
+  <path d="M72 88 L88 88 L88 102 L80 108 L72 102 Z" fill="#00f0ff" stroke="#181a20" stroke-width="2"/>
   <circle cx="80" cy="96" r="3" fill="#ffffff"/>
 </svg>

@@ -125,6 +125,15 @@ class MatchResult:
     p2_score: int
     replay_path: Optional[str] = None
 
+@dataclass
+class SeriesResult:
+    team_a_name: str
+    team_b_name: str
+    winner_name: str
+    score_a: int
+    score_b: int
+    games: List[MatchResult]
+
 def run_match(
     p1_class: Type[BotBase],
     p2_class: Type[BotBase],
@@ -183,38 +192,115 @@ def run_match(
         replay_path=replay_path
     )
 
+def run_best_of_3_series(
+    team_a_class: Type[BotBase],
+    team_b_class: Type[BotBase],
+    team_a_name: Optional[str] = None,
+    team_b_name: Optional[str] = None,
+    config: Optional[GameConfig] = None,
+    save_replay: bool = True,
+    replay_dir: str = "replays"
+) -> SeriesResult:
+    """
+    Executes a Best-of-3 match series with side swapping:
+    - Game 1: Team A as Player 1, Team B as Player 2
+    - Game 2: Team B as Player 1, Team A as Player 2 (Side Swap)
+    - Game 3 (if needed): Decider match
+    """
+    name_a = team_a_name or team_a_class.__name__
+    name_b = team_b_name or team_b_class.__name__
+
+    games: List[MatchResult] = []
+    wins_a = 0
+    wins_b = 0
+
+    # Game 1
+    g1 = run_match(team_a_class, team_b_class, name_a, name_b, config=config, save_replay=save_replay, replay_dir=replay_dir)
+    games.append(g1)
+    if g1.winner == 1:
+        wins_a += 1
+    elif g1.winner == 2:
+        wins_b += 1
+
+    # Game 2 (Swapped Sides)
+    g2 = run_match(team_b_class, team_a_class, name_b, name_a, config=config, save_replay=save_replay, replay_dir=replay_dir)
+    games.append(g2)
+    if g2.winner == 1:
+        wins_b += 1
+    elif g2.winner == 2:
+        wins_a += 1
+
+    # Game 3 Tiebreaker if 1-1
+    if wins_a == 1 and wins_b == 1:
+        g3 = run_match(team_a_class, team_b_class, name_a, name_b, config=config, save_replay=save_replay, replay_dir=replay_dir)
+        games.append(g3)
+        if g3.winner == 1:
+            wins_a += 1
+        elif g3.winner == 2:
+            wins_b += 1
+
+    winner_name = name_a if wins_a > wins_b else name_b
+    return SeriesResult(
+        team_a_name=name_a,
+        team_b_name=name_b,
+        winner_name=winner_name,
+        score_a=wins_a,
+        score_b=wins_b,
+        games=games
+    )
+
 def main():
     parser = argparse.ArgumentParser(description="Run a Node War 1v1 match.")
     parser.add_argument("--p1", type=str, default="rusher", help="Player 1 Bot (name or bots/ filename)")
     parser.add_argument("--p2", type=str, default="turtle", help="Player 2 Bot (name or bots/ filename)")
     parser.add_argument("--turns", type=int, default=120, help="Maximum match turns")
     parser.add_argument("--no-replay", action="store_true", help="Disable replay saving")
+    parser.add_argument("--bo3", action="store_true", help="Run Best-of-3 series with side swapping")
     args = parser.parse_args()
 
     p1_class, p1_name = resolve_bot(args.p1)
     p2_class, p2_name = resolve_bot(args.p2)
 
     cfg = GameConfig(max_turns=args.turns)
-    res = run_match(
-        p1_class=p1_class,
-        p2_class=p2_class,
-        p1_name=p1_name,
-        p2_name=p2_name,
-        config=cfg,
-        save_replay=not args.no_replay
-    )
 
-    print("=" * 60)
-    print("MATCH RESULT")
-    print("=" * 60)
-    print(f"Match: {res.p1_name} (P1) vs {res.p2_name} (P2)")
-    print(f"Winner: {res.winner_name} (Player {res.winner})")
-    print(f"Reason: {res.win_reason}")
-    print(f"Total Turns: {res.total_turns}")
-    print(f"Scores: P1={res.p1_score} | P2={res.p2_score}")
-    if res.replay_path:
-        print(f"Replay saved to: {res.replay_path}")
-    print("=" * 60)
+    if args.bo3:
+        series = run_best_of_3_series(
+            team_a_class=p1_class,
+            team_b_class=p2_class,
+            team_a_name=p1_name,
+            team_b_name=p2_name,
+            config=cfg,
+            save_replay=not args.no_replay
+        )
+        print("=" * 60)
+        print("BEST-OF-3 SERIES RESULT")
+        print("=" * 60)
+        print(f"Series: {series.team_a_name} vs {series.team_b_name}")
+        print(f"Winner: {series.winner_name} (Series Score: {series.score_a} - {series.score_b})")
+        for i, g in enumerate(series.games, 1):
+            print(f"  Game {i}: {g.p1_name} (P1) vs {g.p2_name} (P2) -> Winner: {g.winner_name} ({g.total_turns}T)")
+        print("=" * 60)
+    else:
+        res = run_match(
+            p1_class=p1_class,
+            p2_class=p2_class,
+            p1_name=p1_name,
+            p2_name=p2_name,
+            config=cfg,
+            save_replay=not args.no_replay
+        )
+
+        print("=" * 60)
+        print("MATCH RESULT")
+        print("=" * 60)
+        print(f"Match: {res.p1_name} (P1) vs {res.p2_name} (P2)")
+        print(f"Winner: {res.winner_name} (Player {res.winner})")
+        print(f"Reason: {res.win_reason}")
+        print(f"Total Turns: {res.total_turns}")
+        print(f"Scores: P1={res.p1_score} | P2={res.p2_score}")
+        if res.replay_path:
+            print(f"Replay saved to: {res.replay_path}")
+        print("=" * 60)
 
 if __name__ == "__main__":
     main()

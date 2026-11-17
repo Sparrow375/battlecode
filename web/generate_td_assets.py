@@ -13,7 +13,7 @@ def save_svg(relative_path, content):
 # BUILDINGS
 # ==============================================================================
 
-def make_castle_svg(roof_color, flag_color, banner_color):
+def make_castle_svg(stone_dark, stone_light, stone_brick, roof_color, flag_color, banner_color):
     return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
   <defs>
     <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
@@ -23,51 +23,51 @@ def make_castle_svg(roof_color, flag_color, banner_color):
   <!-- Ground Shadow -->
   <ellipse cx="80" cy="144" rx="70" ry="14" fill="#000000" opacity="0.25"/>
 
-  <!-- Main Stone Keep -->
-  <rect x="42" y="70" width="76" height="68" rx="4" fill="#8d99ae" stroke="#2b2d42" stroke-width="3.5" filter="url(#shadow)"/>
-  <rect x="46" y="74" width="68" height="60" fill="#a4b0c6"/>
+  <!-- Main Stone Keep (Entirely Team Colored) -->
+  <rect x="42" y="70" width="76" height="68" rx="4" fill="{stone_dark}" stroke="#181a20" stroke-width="3.5" filter="url(#shadow)"/>
+  <rect x="46" y="74" width="68" height="60" fill="{stone_light}"/>
 
   <!-- Stone Wall Bricks Texture -->
-  <rect x="52" y="82" width="14" height="6" rx="1" fill="#758299"/>
-  <rect x="74" y="82" width="16" height="6" rx="1" fill="#758299"/>
-  <rect x="96" y="82" width="12" height="6" rx="1" fill="#758299"/>
-  <rect x="62" y="94" width="16" height="6" rx="1" fill="#758299"/>
-  <rect x="84" y="94" width="14" height="6" rx="1" fill="#758299"/>
-  <rect x="54" y="106" width="14" height="6" rx="1" fill="#758299"/>
-  <rect x="92" y="106" width="16" height="6" rx="1" fill="#758299"/>
+  <rect x="52" y="82" width="14" height="6" rx="1" fill="{stone_brick}"/>
+  <rect x="74" y="82" width="16" height="6" rx="1" fill="{stone_brick}"/>
+  <rect x="96" y="82" width="12" height="6" rx="1" fill="{stone_brick}"/>
+  <rect x="62" y="94" width="16" height="6" rx="1" fill="{stone_brick}"/>
+  <rect x="84" y="94" width="14" height="6" rx="1" fill="{stone_brick}"/>
+  <rect x="54" y="106" width="14" height="6" rx="1" fill="{stone_brick}"/>
+  <rect x="92" y="106" width="16" height="6" rx="1" fill="{stone_brick}"/>
 
   <!-- Main Keep Battlements -->
-  <rect x="40" y="58" width="80" height="14" fill="#8d99ae" stroke="#2b2d42" stroke-width="3.5"/>
-  <rect x="48" y="52" width="12" height="8" fill="#8d99ae" stroke="#2b2d42" stroke-width="3"/>
-  <rect x="74" y="52" width="12" height="8" fill="#8d99ae" stroke="#2b2d42" stroke-width="3"/>
-  <rect x="100" y="52" width="12" height="8" fill="#8d99ae" stroke="#2b2d42" stroke-width="3"/>
+  <rect x="40" y="58" width="80" height="14" fill="{stone_dark}" stroke="#181a20" stroke-width="3.5"/>
+  <rect x="48" y="52" width="12" height="8" fill="{stone_dark}" stroke="#181a20" stroke-width="3"/>
+  <rect x="74" y="52" width="12" height="8" fill="{stone_dark}" stroke="#181a20" stroke-width="3"/>
+  <rect x="100" y="52" width="12" height="8" fill="{stone_dark}" stroke="#181a20" stroke-width="3"/>
 
   <!-- Left Tower -->
-  <rect x="14" y="56" width="34" height="82" rx="3" fill="#8d99ae" stroke="#2b2d42" stroke-width="3.5"/>
-  <rect x="17" y="60" width="28" height="74" fill="#a4b0c6"/>
-  <rect x="12" y="46" width="38" height="12" fill="#8d99ae" stroke="#2b2d42" stroke-width="3"/>
-  <path d="M12 46 L31 16 L50 46 Z" fill="{roof_color}" stroke="#2b2d42" stroke-width="3.5"/>
+  <rect x="14" y="56" width="34" height="82" rx="3" fill="{stone_dark}" stroke="#181a20" stroke-width="3.5"/>
+  <rect x="17" y="60" width="28" height="74" fill="{stone_light}"/>
+  <rect x="12" y="46" width="38" height="12" fill="{stone_dark}" stroke="#181a20" stroke-width="3"/>
+  <path d="M12 46 L31 16 L50 46 Z" fill="{roof_color}" stroke="#181a20" stroke-width="3.5"/>
   <!-- Left Flag -->
-  <line x1="31" y1="16" x2="31" y2="4" stroke="#2b2d42" stroke-width="2.5"/>
-  <path d="M31 4 L45 9 L31 15 Z" fill="{flag_color}" stroke="#2b2d42" stroke-width="1.5"/>
+  <line x1="31" y1="16" x2="31" y2="4" stroke="#181a20" stroke-width="2.5"/>
+  <path d="M31 4 L45 9 L31 15 Z" fill="{flag_color}" stroke="#181a20" stroke-width="1.5"/>
 
   <!-- Right Tower -->
-  <rect x="112" y="56" width="34" height="82" rx="3" fill="#8d99ae" stroke="#2b2d42" stroke-width="3.5"/>
-  <rect x="115" y="60" width="28" height="74" fill="#a4b0c6"/>
-  <rect x="110" y="46" width="38" height="12" fill="#8d99ae" stroke="#2b2d42" stroke-width="3"/>
-  <path d="M110 46 L129 16 L148 46 Z" fill="{roof_color}" stroke="#2b2d42" stroke-width="3.5"/>
+  <rect x="112" y="56" width="34" height="82" rx="3" fill="{stone_dark}" stroke="#181a20" stroke-width="3.5"/>
+  <rect x="115" y="60" width="28" height="74" fill="{stone_light}"/>
+  <rect x="110" y="46" width="38" height="12" fill="{stone_dark}" stroke="#181a20" stroke-width="3"/>
+  <path d="M110 46 L129 16 L148 46 Z" fill="{roof_color}" stroke="#181a20" stroke-width="3.5"/>
   <!-- Right Flag -->
-  <line x1="129" y1="16" x2="129" y2="4" stroke="#2b2d42" stroke-width="2.5"/>
-  <path d="M129 4 L143 9 L129 15 Z" fill="{flag_color}" stroke="#2b2d42" stroke-width="1.5"/>
+  <line x1="129" y1="16" x2="129" y2="4" stroke="#181a20" stroke-width="2.5"/>
+  <path d="M129 4 L143 9 L129 15 Z" fill="{flag_color}" stroke="#181a20" stroke-width="1.5"/>
 
   <!-- Center Spire -->
-  <path d="M60 52 L80 18 L100 52 Z" fill="{roof_color}" stroke="#2b2d42" stroke-width="3.5"/>
-  <line x1="80" y1="18" x2="80" y2="2" stroke="#2b2d42" stroke-width="3"/>
-  <path d="M80 2 L98 8 L80 15 Z" fill="{flag_color}" stroke="#2b2d42" stroke-width="2"/>
+  <path d="M60 52 L80 18 L100 52 Z" fill="{roof_color}" stroke="#181a20" stroke-width="3.5"/>
+  <line x1="80" y1="18" x2="80" y2="2" stroke="#181a20" stroke-width="3"/>
+  <path d="M80 2 L98 8 L80 15 Z" fill="{flag_color}" stroke="#181a20" stroke-width="2"/>
 
   <!-- Arched Wooden Gate -->
-  <path d="M64 138 L64 108 Q80 96 96 108 L96 138 Z" fill="#583115" stroke="#2b2d42" stroke-width="3"/>
-  <line x1="80" y1="102" x2="80" y2="138" stroke="#361f0f" stroke-width="2.5"/>
+  <path d="M64 138 L64 108 Q80 96 96 108 L96 138 Z" fill="#422510" stroke="#181a20" stroke-width="3"/>
+  <line x1="80" y1="102" x2="80" y2="138" stroke="#251508" stroke-width="2.5"/>
   <!-- Iron Studs on Gate -->
   <circle cx="70" cy="115" r="1.8" fill="#ffd166"/>
   <circle cx="70" cy="128" r="1.8" fill="#ffd166"/>
@@ -75,65 +75,75 @@ def make_castle_svg(roof_color, flag_color, banner_color):
   <circle cx="90" cy="128" r="1.8" fill="#ffd166"/>
 
   <!-- Faction Crest Banner above Gate -->
-  <path d="M72 88 L88 88 L88 102 L80 108 L72 102 Z" fill="{banner_color}" stroke="#2b2d42" stroke-width="2"/>
+  <path d="M72 88 L88 88 L88 102 L80 108 L72 102 Z" fill="{banner_color}" stroke="#181a20" stroke-width="2"/>
   <circle cx="80" cy="96" r="3" fill="#ffffff"/>
 </svg>'''
 
-def make_watchtower_svg(flag_color):
+def make_watchtower_svg(stone_dark, stone_light, stone_brick, flag_color, banner_color):
     return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 150" width="120" height="150">
   <!-- Shadow -->
   <ellipse cx="60" cy="136" rx="46" ry="10" fill="#000000" opacity="0.25"/>
 
-  <!-- Tower Base & Shaft -->
-  <path d="M36 132 L42 56 L78 56 L84 132 Z" fill="#8d99ae" stroke="#2b2d42" stroke-width="3.5"/>
-  <path d="M40 128 L45 60 L75 60 L80 128 Z" fill="#a4b0c6"/>
+  <!-- Tower Base & Shaft (Entirely Team Colored) -->
+  <path d="M36 132 L42 56 L78 56 L84 132 Z" fill="{stone_dark}" stroke="#181a20" stroke-width="3.5"/>
+  <path d="M40 128 L45 60 L75 60 L80 128 Z" fill="{stone_light}"/>
+
+  <!-- Bricks -->
+  <rect x="50" y="80" width="12" height="5" rx="1" fill="{stone_brick}"/>
+  <rect x="66" y="98" width="10" height="5" rx="1" fill="{stone_brick}"/>
 
   <!-- Arrow Slits -->
-  <rect x="58" y="72" width="4" height="14" rx="2" fill="#2b2d42"/>
-  <rect x="58" y="96" width="4" height="14" rx="2" fill="#2b2d42"/>
+  <rect x="58" y="70" width="4" height="14" rx="2" fill="#181a20"/>
+  <rect x="58" y="94" width="4" height="14" rx="2" fill="#181a20"/>
 
   <!-- Wooden Arched Door -->
-  <path d="M52 132 L52 116 Q60 110 68 116 L68 132 Z" fill="#583115" stroke="#2b2d42" stroke-width="2.5"/>
+  <path d="M52 132 L52 116 Q60 110 68 116 L68 132 Z" fill="#422510" stroke="#181a20" stroke-width="2.5"/>
 
   <!-- Tower Parapet Battlements -->
-  <rect x="30" y="42" width="60" height="16" rx="2" fill="#8d99ae" stroke="#2b2d42" stroke-width="3"/>
-  <rect x="34" y="34" width="10" height="10" fill="#8d99ae" stroke="#2b2d42" stroke-width="2.5"/>
-  <rect x="55" y="34" width="10" height="10" fill="#8d99ae" stroke="#2b2d42" stroke-width="2.5"/>
-  <rect x="76" y="34" width="10" height="10" fill="#8d99ae" stroke="#2b2d42" stroke-width="2.5"/>
+  <rect x="30" y="42" width="60" height="16" rx="2" fill="{stone_dark}" stroke="#181a20" stroke-width="3"/>
+  <rect x="34" y="34" width="10" height="10" fill="{stone_dark}" stroke="#181a20" stroke-width="2.5"/>
+  <rect x="55" y="34" width="10" height="10" fill="{stone_dark}" stroke="#181a20" stroke-width="2.5"/>
+  <rect x="76" y="34" width="10" height="10" fill="{stone_dark}" stroke="#181a20" stroke-width="2.5"/>
 
   <!-- Dual Flags -->
-  <line x1="39" y1="34" x2="39" y2="12" stroke="#2b2d42" stroke-width="2.5"/>
-  <path d="M39 12 L22 18 L39 24 Z" fill="{flag_color}" stroke="#2b2d42" stroke-width="1.5"/>
+  <line x1="39" y1="34" x2="39" y2="12" stroke="#181a20" stroke-width="2.5"/>
+  <path d="M39 12 L22 18 L39 24 Z" fill="{flag_color}" stroke="#181a20" stroke-width="1.5"/>
 
-  <line x1="81" y1="34" x2="81" y2="12" stroke="#2b2d42" stroke-width="2.5"/>
-  <path d="M81 12 L98 18 L81 24 Z" fill="{flag_color}" stroke="#2b2d42" stroke-width="1.5"/>
+  <line x1="81" y1="34" x2="81" y2="12" stroke="#181a20" stroke-width="2.5"/>
+  <path d="M81 12 L98 18 L81 24 Z" fill="{flag_color}" stroke="#181a20" stroke-width="1.5"/>
 
   <!-- Crest Banner -->
-  <path d="M54 58 L66 58 L66 70 L60 74 L54 70 Z" fill="{flag_color}" stroke="#2b2d42" stroke-width="1.5"/>
+  <path d="M54 56 L66 56 L66 68 L60 72 L54 68 Z" fill="{banner_color}" stroke="#181a20" stroke-width="1.5"/>
 </svg>'''
 
-def make_barracks_svg(flag_color):
+def make_barracks_svg(stone_dark, stone_light, stone_brick, flag_color):
     return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 120" width="140" height="120">
   <ellipse cx="70" cy="108" rx="55" ry="10" fill="#000000" opacity="0.25"/>
-  <!-- Fortified Stone Block -->
-  <rect x="25" y="44" width="90" height="62" rx="3" fill="#8d99ae" stroke="#2b2d42" stroke-width="3.5"/>
-  <rect x="29" y="48" width="82" height="54" fill="#a4b0c6"/>
+  <!-- Fortified Stone Block (Entirely Team Colored) -->
+  <rect x="25" y="44" width="90" height="62" rx="3" fill="{stone_dark}" stroke="#181a20" stroke-width="3.5"/>
+  <rect x="29" y="48" width="82" height="54" fill="{stone_light}"/>
+
+  <!-- Bricks -->
+  <rect x="36" y="60" width="14" height="6" rx="1" fill="{stone_brick}"/>
+  <rect x="88" y="60" width="14" height="6" rx="1" fill="{stone_brick}"/>
+  <rect x="38" y="80" width="12" height="6" rx="1" fill="{stone_brick}"/>
+  <rect x="90" y="80" width="14" height="6" rx="1" fill="{stone_brick}"/>
 
   <!-- Battlements -->
-  <rect x="20" y="34" width="100" height="12" fill="#8d99ae" stroke="#2b2d42" stroke-width="3"/>
-  <rect x="26" y="26" width="12" height="10" fill="#8d99ae" stroke="#2b2d42" stroke-width="2.5"/>
-  <rect x="48" y="26" width="12" height="10" fill="#8d99ae" stroke="#2b2d42" stroke-width="2.5"/>
-  <rect x="80" y="26" width="12" height="10" fill="#8d99ae" stroke="#2b2d42" stroke-width="2.5"/>
-  <rect x="102" y="26" width="12" height="10" fill="#8d99ae" stroke="#2b2d42" stroke-width="2.5"/>
+  <rect x="20" y="34" width="100" height="12" fill="{stone_dark}" stroke="#181a20" stroke-width="3"/>
+  <rect x="26" y="26" width="12" height="10" fill="{stone_dark}" stroke="#181a20" stroke-width="2.5"/>
+  <rect x="48" y="26" width="12" height="10" fill="{stone_dark}" stroke="#181a20" stroke-width="2.5"/>
+  <rect x="80" y="26" width="12" height="10" fill="{stone_dark}" stroke="#181a20" stroke-width="2.5"/>
+  <rect x="102" y="26" width="12" height="10" fill="{stone_dark}" stroke="#181a20" stroke-width="2.5"/>
 
   <!-- Double Wooden Doors -->
-  <rect x="52" y="72" width="36" height="34" fill="#583115" stroke="#2b2d42" stroke-width="3"/>
-  <line x1="70" y1="72" x2="70" y2="106" stroke="#2b2d42" stroke-width="2"/>
+  <rect x="52" y="72" width="36" height="34" fill="#422510" stroke="#181a20" stroke-width="3"/>
+  <line x1="70" y1="72" x2="70" y2="106" stroke="#181a20" stroke-width="2"/>
   <circle cx="64" cy="90" r="2" fill="#ffd166"/>
   <circle cx="76" cy="90" r="2" fill="#ffd166"/>
 
   <!-- Crest Banner hanging over door -->
-  <path d="M62 46 L78 46 L78 62 L70 68 L62 62 Z" fill="{flag_color}" stroke="#2b2d42" stroke-width="2"/>
+  <path d="M62 46 L78 46 L78 62 L70 68 L62 62 Z" fill="{flag_color}" stroke="#181a20" stroke-width="2"/>
   <polygon points="70,52 73,58 67,58" fill="#ffffff"/>
 </svg>'''
 
@@ -348,14 +358,26 @@ def make_fence_svg():
 # ==============================================================================
 
 if __name__ == "__main__":
-    print("Generating Cartoon Tower Defense Game Assets...")
+    print("Generating Cartoon Tower Defense Game Assets with Full Faction Coloration...")
 
-    # Buildings
-    save_svg("buildings/castle_p1.svg", make_castle_svg("#3a86ff", "#00b4d8", "#3a86ff")) # P1 Cyan/Blue
-    save_svg("buildings/castle_p2.svg", make_castle_svg("#e63946", "#ff4d6d", "#e63946")) # P2 Crimson/Red
-    save_svg("buildings/castle_neutral.svg", make_castle_svg("#6c757d", "#adb5bd", "#6c757d"))
-    save_svg("buildings/tower_stone.svg", make_watchtower_svg("#e63946"))
-    save_svg("buildings/barracks.svg", make_barracks_svg("#3a86ff"))
+    # Buildings - Castles (Full Team Tinting)
+    save_svg("buildings/castle_p1.svg", make_castle_svg("#1e3a8a", "#2563eb", "#1d4ed8", "#38bdf8", "#00f0ff", "#00f0ff"))
+    save_svg("buildings/castle_p2.svg", make_castle_svg("#991b1b", "#dc2626", "#b91c1c", "#f87171", "#ff0055", "#ff0055"))
+    save_svg("buildings/castle_neutral.svg", make_castle_svg("#475569", "#64748b", "#334155", "#94a3b8", "#cbd5e1", "#cbd5e1"))
+
+    # Buildings - Watchtowers (Full Team Tinting)
+    save_svg("buildings/tower_p1.svg", make_watchtower_svg("#1e3a8a", "#2563eb", "#1d4ed8", "#00f0ff", "#00f0ff"))
+    save_svg("buildings/tower_p2.svg", make_watchtower_svg("#991b1b", "#dc2626", "#b91c1c", "#ff0055", "#ff0055"))
+    save_svg("buildings/tower_neutral.svg", make_watchtower_svg("#475569", "#64748b", "#334155", "#cbd5e1", "#cbd5e1"))
+    save_svg("buildings/tower_stone.svg", make_watchtower_svg("#475569", "#64748b", "#334155", "#cbd5e1", "#cbd5e1"))
+
+    # Buildings - Barracks / Refineries (Full Team Tinting)
+    save_svg("buildings/barracks_p1.svg", make_barracks_svg("#1e3a8a", "#2563eb", "#1d4ed8", "#00f0ff"))
+    save_svg("buildings/barracks_p2.svg", make_barracks_svg("#991b1b", "#dc2626", "#b91c1c", "#ff0055"))
+    save_svg("buildings/barracks_neutral.svg", make_barracks_svg("#475569", "#64748b", "#334155", "#cbd5e1"))
+    save_svg("buildings/barracks.svg", make_barracks_svg("#475569", "#64748b", "#334155", "#cbd5e1"))
+
+    # Relic Shrine
     save_svg("buildings/relic_shrine.svg", make_relic_shrine_svg())
 
     # Units

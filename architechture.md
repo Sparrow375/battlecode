@@ -66,20 +66,21 @@ flowchart TD
 ## Core Modules & Structure
 
 1. **`engine/`**:
-   - `models.py`: Data classes for Nodes, Lanes, Fleets, Combat, Upkeep, Relic, and Orders. Tracks `resident_player` to distinguish stationed garrison troops from original node ownership during multi-turn captures.
-   - `map.py`: Symmetrical mirrored graph generator (15 nodes, balanced paths, central relic node at Node 7).
-   - `combat.py`: Deterministic RPS combat resolution with defender advantage (+25%) and Lanchester-style simultaneous damage.
-   - `game.py`: Main state machine executing turn phases:
-     1. Resource Production (disabled for contested nodes under active capture)
-     2. Upkeep Deduction (1 credit/unit over free cap of 30)
-     3. Order Validation & Fleet Launch (recruitment suspended at contested nodes)
-     4. Fleet Movement & Lane Transit
-     5. Scouting & Vision Resolution
-     6. Combat Resolution at Nodes
-     7. Two-Turn Node Capture Progress (uncontested turns required to flip ownership)
-     8. Relic Spawning (Turns $\ge 95$) & Point Accumulation (+15 pts/turn + 2x multiplier)
-     9. Victory / Tiebreak Check (unambiguous composite score)
-   - `fog.py`: Strips hidden fleet compositions from opponent observation while preserving omniscient state for spectator replays.
+   - `models.py`: Data classes for Nodes, Lanes, Fleets, Combat, Upkeep, Relic, and Orders. Supports `relic_charging`, dynamic supply parameters, and typed observations.
+   - `map.py`: Symmetrical mirrored graph generator (15 nodes) with tiered yields (+4 outer, +7 mid chokes, +10 Relic, +15 Home), neutral garrisons on unclaimed nodes (1 Raider outer, 2 Guards chokes, 2 Guards + 1 Siege Relic), and fortified Home citadels (+50% defense bonus).
+   - `combat.py`: Deterministic RPS combat resolution with Scout combat targeting bonus (+15% with scout, -15% blind penalty), neutral meeting engagement resolution (0% defender bonus), and outpost/citadel defense bonuses.
+   - `game.py`: Main state machine executing 100% simultaneous turn phases:
+     1. Tiered Resource Production (+4/+7/+10/+15 credits)
+     2. Dynamic Empire Supply Lines Upkeep (`10 + 4*Owned Nodes`; 1 cr/unit home, 2 cr/unit foreign/unowned)
+     3. Simultaneous Train Orders Resolution (for both players)
+     4. Simultaneous Move Orders Resolution & Fleet Launch (for both players)
+     5. Fleet Movement & Lane Transit
+     6. Vision Resolution & Scout Combat Modifier
+     7. Combat Resolution (Neutral meeting engagements, neutral garrison clashes, and siege defenses)
+     8. Two-Turn Node Capture Progress (freezes if actively contested by enemy Scout)
+     9. Dynamic Relic Awakening (randomized between Turns 80–100 with 5-turn charging alert; +10 pts/turn + 2x multiplier)
+     10. Victory / Deterministic Tiebreak Check
+   - `fog.py`: Strips hidden fleet compositions from opponent observation while preserving omniscient state for spectator replays; exposes `relic_charging` flag.
 
 2. **`bots/`**:
    - `base.py`: Competitor bot interface (`act(obs) -> list[Order]`), serialization, helper navigation utilities.
@@ -87,10 +88,11 @@ flowchart TD
    - `turtle.py`: Heavy Guard defense, chokepoint consolidation, tech/economy buildup.
    - `balanced.py`: Recon-first strategy deploying scouts, reading enemy fleets, and recruiting counter-units (Siege against Guards, Guards against Raiders, Raiders against Siege).
    - Custom scripts (e.g. `bot1.py`, student submissions): Dynamically discovered and loaded by filename.
+   - `validate_bot.py`: Standalone dry-run validator tool with typed dataclass stubs for student competitors.
 
 3. **`runner/`**:
-   - `match.py`: Head-to-head match executor, per-turn time limits, exception isolation. Features `load_bot_from_file`, `discover_custom_bots`, and `resolve_bot` for loading custom scripts in `bots/`.
-   - `tournament.py`: Automated round-robin matrix testing win-rates to verify RPS balance cycle.
+   - `match.py`: Head-to-head match executor and **Best-of-3 Series Runner (`run_best_of_3_series`)** with alternating sides (P1/P2) to eliminate first-player bias.
+   - `tournament.py`: Automated round-robin matrix testing win-rates and Best-of-3 tournament evaluation.
    - `replay.py`: Compact, structured JSON replay serialization.
 
 4. **`web/`**:

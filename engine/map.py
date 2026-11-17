@@ -8,36 +8,45 @@ def create_default_map() -> Tuple[Dict[int, Node], List[Lane]]:
     Mirrored horizontally across X=50.
     """
     nodes_data = [
-        # (id, name, x, y, owner, production)
-        (0, "P1 Core", 10.0, 50.0, PlayerId.PLAYER_1, 15),
-        (1, "Alpha Bastion", 25.0, 25.0, PlayerId.NONE, 6),
-        (2, "Gamma Bastion", 25.0, 75.0, PlayerId.NONE, 6),
-        (3, "Vanguard Gate", 32.0, 50.0, PlayerId.NONE, 8),
-        (4, "North Rig", 40.0, 15.0, PlayerId.NONE, 5),
-        (5, "North Outpost", 45.0, 35.0, PlayerId.NONE, 7),
-        (6, "South Outpost", 45.0, 65.0, PlayerId.NONE, 7),
+        # (id, name, x, y, owner, production, defense_bonus)
+        (0, "P1 Core", 10.0, 50.0, PlayerId.PLAYER_1, 15, 0.50),
+        (1, "Alpha Bastion", 25.0, 25.0, PlayerId.NONE, 4, 0.25),
+        (2, "Gamma Bastion", 25.0, 75.0, PlayerId.NONE, 4, 0.25),
+        (3, "Vanguard Gate", 32.0, 50.0, PlayerId.NONE, 7, 0.25),
+        (4, "North Rig", 40.0, 15.0, PlayerId.NONE, 4, 0.25),
+        (5, "North Outpost", 45.0, 35.0, PlayerId.NONE, 7, 0.25),
+        (6, "South Outpost", 45.0, 65.0, PlayerId.NONE, 7, 0.25),
         
         # Center Relic Sanctuary
-        (7, "Relic Sanctuary", 50.0, 50.0, PlayerId.NONE, 4),
+        (7, "Relic Sanctuary", 50.0, 50.0, PlayerId.NONE, 10, 0.25),
         
         # P2 Mirrored Nodes (100 - x)
-        (8, "Titan Outpost", 55.0, 65.0, PlayerId.NONE, 7),
-        (9, "Zenith Outpost", 55.0, 35.0, PlayerId.NONE, 7),
-        (10, "Apex Rig", 60.0, 15.0, PlayerId.NONE, 5),
-        (11, "Sentinel Gate", 68.0, 50.0, PlayerId.NONE, 8),
-        (12, "Omega Bastion", 75.0, 75.0, PlayerId.NONE, 6),
-        (13, "Epsilon Bastion", 75.0, 25.0, PlayerId.NONE, 6),
-        (14, "P2 Core", 90.0, 50.0, PlayerId.PLAYER_2, 15),
+        (8, "Titan Outpost", 55.0, 65.0, PlayerId.NONE, 7, 0.25),
+        (9, "Zenith Outpost", 55.0, 35.0, PlayerId.NONE, 7, 0.25),
+        (10, "Apex Rig", 60.0, 15.0, PlayerId.NONE, 4, 0.25),
+        (11, "Sentinel Gate", 68.0, 50.0, PlayerId.NONE, 7, 0.25),
+        (12, "Omega Bastion", 75.0, 75.0, PlayerId.NONE, 4, 0.25),
+        (13, "Epsilon Bastion", 75.0, 25.0, PlayerId.NONE, 4, 0.25),
+        (14, "P2 Core", 90.0, 50.0, PlayerId.PLAYER_2, 15, 0.50),
     ]
 
     nodes: Dict[int, Node] = {}
-    for nid, name, x, y, owner, prod in nodes_data:
-        # Give home bases some starting garrison
+    for nid, name, x, y, owner, prod, def_bonus in nodes_data:
         garrison = {UnitType.RAIDER: 0, UnitType.SIEGE: 0, UnitType.GUARD: 0, UnitType.SCOUT: 0}
         if owner == PlayerId.PLAYER_1 or owner == PlayerId.PLAYER_2:
             garrison[UnitType.GUARD] = 1
             garrison[UnitType.RAIDER] = 1
             garrison[UnitType.SCOUT] = 1
+        elif nid in [1, 2, 4, 10, 12, 13]:
+            # Outer low-yield nodes: 1 Raider neutral defender
+            garrison[UnitType.RAIDER] = 1
+        elif nid in [3, 5, 6, 8, 9, 11]:
+            # Mid choke nodes: 2 Guards neutral defenders
+            garrison[UnitType.GUARD] = 2
+        elif nid == 7:
+            # Central Relic Sanctuary: 2 Guards + 1 Siege neutral defenders
+            garrison[UnitType.GUARD] = 2
+            garrison[UnitType.SIEGE] = 1
 
         nodes[nid] = Node(
             id=nid,
@@ -47,7 +56,7 @@ def create_default_map() -> Tuple[Dict[int, Node], List[Lane]]:
             owner=owner,
             production=prod,
             units=garrison,
-            defense_bonus=0.25,
+            defense_bonus=def_bonus,
             capture_progress=0,
             capturing_player=PlayerId.NONE,
             resident_player=owner

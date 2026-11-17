@@ -121,8 +121,8 @@ class NodeWarRequestHandler(http.server.SimpleHTTPRequestHandler):
             p2_key = params.get("p2", "turtle")
             max_turns = int(params.get("turns", 120))
             initial_credits = int(params.get("initial_credits", 30))
-            relic_spawn_turn = int(params.get("relic_spawn_turn", 95))
-            relic_points = int(params.get("relic_points", 15))
+            relic_spawn_turn = int(params.get("relic_spawn_turn")) if params.get("relic_spawn_turn") else None
+            relic_points = int(params.get("relic_points", 10))
             custom_code = params.get("custom_code", "")
 
             # Resolve bot classes
