@@ -20,22 +20,25 @@ A tournament-ready competitive strategy game engine and esports spectator visual
 | **Raider** | 10 | 20 | 12 | **2.0x vs Siege**, 0.5x vs Guards | Fast blitz, cheap swarm, flanker |
 | **Siege** | 18 | 35 | 22 | **2.0x vs Guards**, 0.5x vs Raiders | Heavy artillery, fortified base breaker |
 | **Guard** | 12 | 30 | 14 | **2.0x vs Raiders**, 0.5x vs Siege | Armored infantry, choke anchor |
-| **Scout** | 6 | 10 | 0 | Non-combatant | Pierces fog of war on adjacent lanes |
+| **Scout** | 6 | 10 | 0 | Non-combatant | Pierces fog of war on adjacent lanes, grants +15% combat targeting bonus (-15% blind penalty), and freezes enemy node capture |
 
 ### 3. Tactical Defense & Capture Progress (2-Turn Flip)
-- **Defender Bonus**: Units stationed at an owned node receive a **+25% defense bonus** (damage reduction).
+- **Defender Bonus**: Units stationed at an owned node receive a defense bonus (+50% at Home Core citadels, +25% at outposts & bastions).
 - **Two-Turn Flip**: When enemy defenders are wiped out, the node enters a **Contested (1/2)** state. It requires 2 consecutive turns of uncontested occupation to flip ownership. A defender's relief fleet can counter-attack on turn 1 to break the capture!
 - **Recruitment Suspension**: Units cannot be trained at a contested node while enemy forces occupy it.
 
 ### 4. Economy & Empire Upkeep
-- **Resource Income**: Owned nodes generate credits every turn.
-- **Upkeep Cap**: Free empire unit cap = 30 units. Any active units above 30 cost **1 credit/unit/turn** in upkeep, preventing runaway snowballing.
+- **Resource Income**: Owned nodes generate Gold every turn (+4 outer bastions, +7 chokepoints, +10 Relic, +15 Home Core).
+- **Dynamic Supply Lines (Upkeep)**: Armies are supported by dynamic supply capacity scaled to territorial control:
+  $$\text{Free Supply Cap} = 10 + (4 \times \text{Owned Nodes})$$
+  Active units exceeding this cap incur per-turn maintenance: **1 Gold/turn** domestically, or **2 Gold/turn** for expeditionary units (stationed on foreign/unowned nodes or in transit).
 
 ### 5. Central Relic & Endgame Points
-- **Standard Turns (1–94)**: Owned nodes award **1 point/turn**.
-- **Relic Phase (Turns 95–120)**:
+- **Standard Turns**: Owned nodes award **1 point/turn**.
+- **Dynamic Relic Awakening (Turns 80–100)**:
+  - 5-turn advance warning broadcast (`obs.relic_charging = True`).
   - Central **Relic Sanctuary (Node 7)** activates!
-  - Controlling Node 7 awards **+15 bonus points per turn**!
+  - Controlling Node 7 awards **+10 bonus points per turn**!
   - All standard node point values **double (2 points/turn)**.
 - **Strict Tiebreak Formula**:
   $$\text{Score} = \text{Points} \times 10^5 + \text{Relic Turns} \times 10^3 + \text{Army Value} \times 10 + \text{Credits}$$

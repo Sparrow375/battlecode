@@ -252,10 +252,11 @@ The `BotObservation` dataclass passed to `act(obs)` contains the following field
 - `obs.current_turn`: Current integer turn ($1 \dots 120$).
 - `obs.max_turns`: Maximum match turns (default: 120).
 - `obs.my_player_id`: Integer ID of your player (`1` or `2`).
-- `obs.my_credits`: Your current spendable credit balance.
+- `obs.my_credits`: Your current spendable Gold/credits reserve.
 - `obs.my_score`: Your current accumulated victory points.
 - `obs.opponent_score`: Opponent's current accumulated victory points.
-- `obs.relic_active`: Boolean flag indicating if the central Relic is currently active ($T \ge 95$).
+- `obs.relic_charging`: Boolean flag (5-turn advance warning alert before the Relic awakens).
+- `obs.relic_active`: Boolean flag indicating if the central Relic is currently active (awakens dynamically between Turns 80–100).
 - `obs.relic_node_id`: Node ID of the Relic Sanctuary (always `7`).
 
 ### Nodes (`obs.nodes: dict[int, VisibleNode]`)
@@ -341,18 +342,18 @@ flowchart TD
     P8 --> P9[9. Win & Tiebreak Check]
 ```
 
-1. **Resource Production**: Owned nodes add their `production` values to player credit reserves.
-2. **Empire Upkeep**: Units exceeding the 30-unit cap incur 1 credit/unit/turn upkeep deduction.
+1. **Resource Production**: Owned nodes add their `production` values to player credit reserves (+4 outer, +7 chokes, +10 relic, +15 home).
+2. **Empire Upkeep**: Units exceeding the dynamic supply cap ($10 + 4 \times \text{Owned Nodes}$) incur upkeep deductions (1 Gold/unit domestic, 2 Gold/unit foreign/in transit).
 3. **Bot Decision & Order Validation**:
    - `p1_bot.act(obs_p1)` and `p2_bot.act(obs_p2)` are invoked.
    - Orders are validated, credits deducted, and fleets launched.
 4. **Fleet Movement**: All fleets in transit decrement `turns_remaining -= 1`.
 5. **Fleet Arrival**: Fleets reaching destination (`turns_remaining == 0`) merge into destination node staging pools.
-6. **Node Combat**: Opposing forces stationed or arriving at the same node resolve combat simultaneously. Stationary defenders receive the +25% defense bonus.
-7. **Two-Turn Capture Progress**: If an invading player holds a node uncontested, capture progress increments (flips ownership upon 2 consecutive uncontested turns).
+6. **Node Combat**: Opposing forces stationed or arriving at the same node resolve combat simultaneously. Stationary defenders receive defense bonuses (+50% at home core, +25% at outposts). Scouts provide +15% friendly targeting bonus or -15% enemy blind penalty.
+7. **Two-Turn Capture Progress**: If an invading player holds a node uncontested, capture progress increments (flips ownership upon 2 consecutive uncontested turns; freezes if enemy scout is present).
 8. **Scoring & Relic Harvest**:
-   - Turns 1–94: +1 pt per owned node.
-   - Turns 95–120: +2 pts per owned node, and +15 pts for controlling Relic Node 7.
+   - Standard turns: +1 pt per owned node.
+   - Relic phase (awakens dynamically between Turns 80–100 with 5-turn warning `obs.relic_charging`): all owned nodes produce +2 pts per turn, and controlling Relic Node 7 awards +10 bonus points per turn!
 9. **Victory / Tiebreak Check**: Check for elimination or max turn limit. Snapshot recorded for spectator replay.
 
 ---

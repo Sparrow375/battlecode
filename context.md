@@ -125,3 +125,9 @@ f:\Avaneesh\projects\battlecode\
   - Server actively running and verified live on `http://localhost:8000`.
 - All 22 unit tests, bot integration tests, and HTTP endpoints passing.
 - Balance Matrix tournament evaluation verified: Rusher (0%) vs Turtle (100%), Turtle (0%) vs Balanced (100%), Balanced (0%) vs Rusher (100%) [100% Cycle Valid].
+- **Pre-Tournament Final Check & Starter Bot Audit**:
+  - **Starter Bot Verification (`bots/starter_bot.py`)**: Full security and exploit audit completed. The starter template contains zero cheats, exploits, or private state bypasses. It uses solely the public `BotBase` and `BotObservation` interface.
+  - **Documentation & Specification Synchronization**: Resolved legacy rules in `GAME_SPECIFICATION.md` and `README.md`. Synchronized dynamic empire supply upkeep (`10 + 4*Owned Nodes`), dynamic variable Relic awakening window (Turns 80–100 with 5-turn `relic_charging` alert), Home Core +50% defense bonus, and Scout targeting modifiers across all competitor-facing documentation.
+  - **Currency & API Alignment**: Documented Gold (🪙) lore currency while preserving backward-compatible `obs.my_credits` attribute mapping in `bots/starter_bot.py`.
+  - **Dry-Run Validation Pass**: `python validate_bot.py bots/starter_bot.py` passed with full compliance on Player 1, Player 2, and late-game charging observation schemas.
+  - **Full Engine Regression Suite**: All 22 engine unit tests, bot integration tests, and 8-round balance matrix cycle tests passing cleanly with 100% determinism.

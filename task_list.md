@@ -49,3 +49,7 @@
 - [x] Task 47: Add interactive Pan & Zoom controls (mouse wheel zoom, drag-to-pan, on-screen `+` / `-` / `⟲` buttons) to the 2D Tower Defense visualizer.
 - [x] Task 48: Verification, test suite pass, update `context.md`, `architechture.md`, and commit/push to git.
 - [x] Task 49: Fix soldier travelling sprite invisibility: resolve NaN in walk cycle animation caused by undefined fleet_id reference, ensuring marching soldiers are fully visible alongside their shadows.
+- [x] Task 50: Verify `bots/starter_bot.py` against all exploits, cheat vectors, private state access, and ensure clean educational reference code with unified Gold / Credits nomenclature.
+- [x] Task 51: Update `GAME_SPECIFICATION.md` and `README.md` to resolve legacy rule references (relic timing, upkeep formula, home base defense, scout combat bonus) ensuring 100% specification consistency before tomorrow's tournament.
+- [x] Task 52: Execute full regression test suite (`tests/test_engine.py`, `tests/test_bots.py`, `tests/test_web_server.py`, `validate_bot.py`, balance matrix evaluation) to guarantee zero exploits, crashes, or timeouts.
+- [x] Task 53: Update `context.md`, `architechture.md`, and commit/push to git.

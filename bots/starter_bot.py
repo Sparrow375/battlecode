@@ -7,16 +7,20 @@ your custom competitive AI agent.
 Core Concepts:
 --------------
 - 15 Mirrored Nodes. P1 starts at Node 0, P2 starts at Node 14.
-- Nodes produce Credits every turn (+4 for outer nodes, +7 for mid-lane chokes, +15 for core citadels).
+- Nodes produce Gold (🪙) every turn (accessible via `obs.my_credits`):
+    * +4 Gold/turn for outer bastions (Nodes 1, 2, 4, 10, 12, 13)
+    * +7 Gold/turn for mid-lane chokepoints & outposts (Nodes 3, 5, 6, 8, 9, 11)
+    * +10 Gold/turn for Relic Sanctuary (Node 7)
+    * +15 Gold/turn for core citadels (Nodes 0, 14)
 - Rock-Paper-Scissors Combat:
-    * Raiders (10 credits) counter Siege (2.0x damage)
-    * Siege (18 credits) counter Guards (2.0x damage)
-    * Guards (12 credits) counter Raiders (2.0x damage)
-    * Scouts (6 credits) grant lane vision, +15% combat targeting bonus, and contest enemy node captures.
+    * Raiders (10 Gold) counter Siege (2.0x damage)
+    * Siege (18 Gold) counter Guards (2.0x damage)
+    * Guards (12 Gold) counter Raiders (2.0x damage)
+    * Scouts (6 Gold) grant lane vision, +15% combat targeting bonus, and contest enemy node captures.
 - Defenders stationed at an owned node receive a defense bonus (+50% at home base, +25% at outposts).
 - Captured nodes take 2 consecutive turns of occupation to flip ownership.
-- Empire supply lines: armies exceeding free supply capacity incur per-turn upkeep costs.
-- Endgame: Relic Sanctuary (Node 7) activates in the late game, granting +10 points/turn and doubling node scores!
+- Empire supply lines: armies exceeding free supply capacity (10 + 4 * Owned Nodes) incur per-turn upkeep costs.
+- Endgame: Relic Sanctuary (Node 7) activates dynamically between Turns 80–100, granting +10 points/turn and doubling node scores!
   Watch for `obs.relic_charging` (5-turn warning) and `obs.relic_active`.
 """
 
