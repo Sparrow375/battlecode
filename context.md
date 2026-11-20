@@ -151,3 +151,8 @@ f:\Avaneesh\projects\battlecode\
   - **Regression Test Suite**: Added 3 new unit tests in `tests/test_engine.py` verifying all 3 patched mechanics. All 25 engine unit tests, bot integration tests, and 8-round balance matrix tests pass with 100% determinism.
   - **Documentation & Guidebook Alignment**: Updated `GAME_SPECIFICATION.md` and participant guidebook `docs/NODE_WAR_OFFICIAL_GAME_GUIDEBOOK.md` with human-friendly strategic rules explaining mobilization, bankruptcy desertion, and net worth parity, with clean unit summary tables and zero unrendered LaTeX.
   - Recompiled Word (.docx), HTML (.html), and PDF (.pdf) via `scripts/build_docs.py`. Both documents verified clean and ready for immediate distribution.
+- **Participant Guidebook Coaching & Strategy Elimination**:
+  - Removed all spoon-fed strategic takeaways, "the catch" callouts, coaching advice ("When to Use"), and the four archetypes playbook from `docs/NODE_WAR_OFFICIAL_GAME_GUIDEBOOK.md`.
+  - Re-anchored the document strictly to objective mechanics: clear turn phases, unit properties and counter multipliers, castle defense bonuses, dynamic supply limits, mobilization delays, fog-of-war rules, tiebreak net worth parity, and API references.
+  - Empowered student participants to analyze the rules and discover strategies, meta archetypes, and tactical counters independently.
+  - Recompiled both Word (.docx), HTML (.html), and high-resolution PDF (.pdf) files in `docs/`.

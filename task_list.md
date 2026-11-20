@@ -70,3 +70,4 @@
 - [x] Task 68: Update `GAME_SPECIFICATION.md` with complete technical specifications of the 3 patched mechanics.
 - [x] Task 69: Update participant guidebook `docs/NODE_WAR_OFFICIAL_GAME_GUIDEBOOK.md` with human-friendly strategic rules explaining mobilization, bankruptcy desertion, and net worth parity, with clean unit summary tables and zero unrendered LaTeX.
 - [x] Task 70: Recompile `.docx`, `.html`, and `.pdf` participant documents via `scripts/build_docs.py`, update `context.md` & `architechture.md`, and commit/push to git.
+- [x] Task 71: Eliminate all strategic takeaways, "the catch", coaching tips ("When to Use"), and spoon-fed archetype playbooks from `docs/NODE_WAR_OFFICIAL_GAME_GUIDEBOOK.md`; recompile Word and PDF documents so participants discover strategies and meta independently.

@@ -218,44 +218,40 @@
 
 <h1>NODE WAR // Official Competitor Guidebook</h1>
 <p><strong>Autonomous AI Tournament &amp; Hackathon Manual</strong><br />
-<em>Document Version: 3.5 — Official Participant Release</em></p>
+<em>Document Version: 3.6 — Official Participant Release</em></p>
 <hr />
 <h2>1. Executive Summary: What is Node War?</h2>
-<p>Imagine a game of <strong>Risk meets StarCraft on a mirrored Chess board</strong>:</p>
+<p><strong>Node War</strong> is a deterministic, turn-based strategy simulation fought on a symmetric 15-node network map:</p>
 <ul>
-<li>Two rival commanders start at opposite ends of a 15-node network map (Player 1 at Node 0 on the left, Player 2 at Node 14 on the right).</li>
-<li>In the center sits the <strong>Relic Sanctuary (Node 7)</strong>, an ancient mystical shrine that awakens in the late game.</li>
-<li>Each turn, both players submit orders simultaneously: collecting Gold, managing empire supply lines, recruiting troops, marching armies down winding roads, ambushing enemies through the fog of war, and conquering territory.</li>
-<li>Matches last up to <strong>120 turns</strong>. There are strictly <strong>no draws</strong>; an exact mathematical tiebreaker guarantees a winner if both players survive to the end.</li>
+<li>Two rival commanders start at opposite ends of the arena (Player 1 at Node 0 on the left, Player 2 at Node 14 on the right).</li>
+<li>At the center sits the <strong>Relic Sanctuary (Node 7)</strong>, an ancient objective that awakens dynamically in the late game.</li>
+<li>Each turn, both players submit orders simultaneously: managing Gold income, balancing empire supply lines, recruiting troops, dispatching fleets along travel lanes, observing movements through the fog of war, and conquering territory.</li>
+<li>Matches run for up to <strong>120 turns</strong>. There are strictly <strong>no draws</strong>; an exact mathematical tiebreaker guarantees a deterministic winner if both players survive to the end.</li>
 </ul>
-<p>Your goal as a human competitor is to design the strategy, decision-making, and game-theoretic logic for your automated Python bot (<code>class MyBot(BotBase)</code>).</p>
+<p>Competitors write an automated Python agent (<code>class CompetitorBot(BotBase)</code>) that inspects the game state each turn and returns valid orders.</p>
 <hr />
-<h2>2. How the Game Works: Plain English Strategic Guide</h2>
-<p>Before looking at any code or APIs, here is exactly how a match plays out from a strategic human perspective:</p>
-<h3>The Three Paths to Victory</h3>
+<h2>2. Game Overview &amp; Turn Execution Lifecycle</h2>
+<h3>Victory Conditions</h3>
 <ol>
-<li><strong>Total Annihilation (Early / Mid-Game Knockout)</strong>:
-Break through the enemy's defensive perimeter, assault their Home Base Citadel, and eliminate all enemy castles and active troops.</li>
-<li><strong>Relic Domination (Late-Game Surge)</strong>:
-Secure and hold the central Relic Sanctuary (Node 7) when it awakens dynamically between Turn 80 and Turn 100. Holding the Relic awards +10 bonus points per turn AND doubles all territory scoring across your entire empire.</li>
-<li><strong>The Tiebreaker Precision (Turn 120 Limit)</strong>:
-If neither player is eliminated by Turn 120, the winner is determined by a composite score of accumulated Victory Points, duration of Relic control, and your total Net Worth (Army Value + Treasury Gold).</li>
+<li><strong>Total Elimination</strong>: A player loses all owned nodes and has zero active or traveling units.</li>
+<li><strong>Relic &amp; Territory Point Accumulation</strong>: Controlling territory scores Victory Points each turn. Controlling the central Relic once awakened provides significant point acceleration.</li>
+<li><strong>Turn 120 Limit</strong>: If neither player is eliminated by Turn 120, a deterministic composite tiebreak score evaluates Victory Points, Relic control duration, and Total Net Worth.</li>
 </ol>
-<h3>The 8 Steps of Every Turn (Like Clockwork)</h3>
-<p>Every single turn proceeds through eight strict phases executed simultaneously:</p>
+<h3>The 8 Turn Phases (Executed in Exact Sequence)</h3>
+<p>Every turn proceeds through eight deterministic phases:</p>
 <ol>
 <li><strong>Income Collection</strong>: Every node you currently own deposits Gold into your treasury (+15 for Home Core, +10 for Relic, +7 for Chokepoint Outposts, +4 for Outer Bastions).</li>
-<li><strong>Empire Upkeep &amp; Bankruptcy Check</strong>: Your empire supports a free troop capacity based on your territory: <code>10 + (4 × Owned Nodes)</code>. Units exceeding this capacity cost maintenance (1 Gold/turn for domestic garrison defenders, 2 Gold/turn for expeditionary forces abroad or in transit). If your treasury runs out of Gold, your soldiers will starve and desert! Foreign forces desert first (saving 2 Gold each), then domestic forces (saving 1 Gold each), in disband order: Raiders -&gt; Scouts -&gt; Guards -&gt; Siege.</li>
-<li><strong>Recruitment &amp; The Mobilization Rule</strong>: Both players submit training orders simultaneously. Newly trained soldiers immediately join your garrison to defend that castle against any enemy attacks arriving this turn. However, newly trained units cannot march out along roads on the same turn they are trained—they require 1 turn of mobilization before they can move.</li>
+<li><strong>Empire Upkeep &amp; Bankruptcy Check</strong>: Free troop capacity is determined by territory: <code>10 + (4 × Owned Nodes)</code>. Units exceeding this cap incur maintenance (1 Gold/turn for domestic garrison defenders, 2 Gold/turn for foreign units abroad or in transit). If treasury Gold is insufficient to cover upkeep, Gold is set to 0, and unpaid units immediately suffer <strong>desertion attrition</strong> until the deficit is cleared (foreign forces first, then domestic; in order: Raiders -&gt; Scouts -&gt; Guards -&gt; Siege).</li>
+<li><strong>Recruitment &amp; Mobilization</strong>: Both players submit training orders simultaneously. Newly trained units immediately join the garrison to defend that castle against attacks arriving this turn. However, newly trained units cannot march out along roads on the same turn they are trained; they become available for movement orders on subsequent turns.</li>
 <li><strong>Troop Movements</strong>: Both players dispatch mobilized garrison forces along travel lanes simultaneously.</li>
-<li><strong>Lane Travel</strong>: Soldiers march along roads. Standard roads take <strong>2 turns</strong> to traverse; long chokepoint bridges take <strong>3 turns</strong>.</li>
-<li><strong>Simultaneous Battles</strong>: Wherever opposing soldiers meet at a node (or clash with neutral defenders), battle resolves instantly and deterministically.</li>
-<li><strong>Two-Turn Capture Clock</strong>: If you wipe out all defenders at a node, your troops occupy it. If you hold it uncontested for <strong>2 consecutive turns</strong>, the flag flips and it becomes 100% yours.</li>
-<li><strong>Victory Point Scoring</strong>: You score 1 Victory Point for every node you own (+2 points per node and +10 bonus points for Node 7 once the Relic awakens).</li>
+<li><strong>Lane Travel</strong>: Fleets decrement transit timers along travel lanes. Standard lanes take <strong>2 turns</strong>; long bridge lanes take <strong>3 turns</strong>.</li>
+<li><strong>Simultaneous Combat</strong>: Wherever opposing forces meet at a node (or encounter neutral defenders), combat resolves deterministically.</li>
+<li><strong>Two-Turn Capture Clock</strong>: If all defenders at a node are eliminated, the occupying force begins capture progress. If held uncontested for <strong>2 consecutive turns</strong>, ownership transfers.</li>
+<li><strong>Victory Point Scoring</strong>: Each owned node awards 1 Victory Point (+2 points per node and +10 bonus points for Node 7 once the Relic is active).</li>
 </ol>
 <hr />
-<h2>3. The 4 Units: Roles &amp; The Combat Triangle</h2>
-<p>Node War combat is governed by a rock-paper-scissors counter system where units deal <strong>double damage (2.0x)</strong> against their counter targets:</p>
+<h2>3. Units &amp; Combat Model</h2>
+<p>Combat operates under a deterministic rock-paper-scissors counter system where units deal <strong>double damage (2.0x)</strong> against their counter targets:</p>
 <pre><code>                  RAIDER (10 Gold)
                  /                \
         2.0x vs /                  \ 0.5x vs
@@ -263,7 +259,7 @@ If neither player is eliminated by Turn 120, the winner is determined by a compo
        SIEGE (18 Gold) &lt;------- GUARD (12 Gold)
                        2.0x vs
 </code></pre>
-<h3>Complete Unit Roster &amp; Tactical Profiles</h3>
+<h3>Complete Unit Specifications</h3>
 <table>
 <thead>
 <tr>
@@ -271,9 +267,9 @@ If neither player is eliminated by Turn 120, the winner is determined by a compo
 <th style="text-align:center">Cost</th>
 <th style="text-align:center">HP</th>
 <th style="text-align:center">Attack</th>
-<th style="text-align:left">Counter Bonus (2.0x vs)</th>
-<th style="text-align:left">Vulnerable To (0.5x vs)</th>
-<th style="text-align:left">Strategic Role &amp; Battlefield Utility</th>
+<th style="text-align:left">Counter Target (2.0x Damage)</th>
+<th style="text-align:left">Vulnerable To (0.5x Damage)</th>
+<th style="text-align:left">Tactical Capabilities</th>
 </tr>
 </thead>
 <tbody>
@@ -284,7 +280,7 @@ If neither player is eliminated by Turn 120, the winner is determined by a compo
 <td style="text-align:center">12</td>
 <td style="text-align:left"><strong>Siege</strong></td>
 <td style="text-align:left"><strong>Guard</strong></td>
-<td style="text-align:left">High-speed shock cavalry; swarms and assassinates heavy artillery; cheap map expansion</td>
+<td style="text-align:left">High-speed shock unit; counters artillery; low recruitment cost</td>
 </tr>
 <tr>
 <td style="text-align:left"><strong>Guard</strong></td>
@@ -293,7 +289,7 @@ If neither player is eliminated by Turn 120, the winner is determined by a compo
 <td style="text-align:center">14</td>
 <td style="text-align:left"><strong>Raider</strong></td>
 <td style="text-align:left"><strong>Siege</strong></td>
-<td style="text-align:left">Armored shield-wall; holds chokepoints and fortresses against fast swarms</td>
+<td style="text-align:left">Armored frontline unit; high health pool; counters raiders</td>
 </tr>
 <tr>
 <td style="text-align:left"><strong>Siege</strong></td>
@@ -302,7 +298,7 @@ If neither player is eliminated by Turn 120, the winner is determined by a compo
 <td style="text-align:center">22</td>
 <td style="text-align:left"><strong>Guard</strong></td>
 <td style="text-align:left"><strong>Raider</strong></td>
-<td style="text-align:left">Heavy long-range artillery; pulverizes fortified walls and guard shields from afar</td>
+<td style="text-align:left">Heavy artillery; high damage output; counters fortified guards</td>
 </tr>
 <tr>
 <td style="text-align:left"><strong>Scout</strong></td>
@@ -311,98 +307,117 @@ If neither player is eliminated by Turn 120, the winner is determined by a compo
 <td style="text-align:center">0</td>
 <td style="text-align:left">None (Non-combat)</td>
 <td style="text-align:left">None</td>
-<td style="text-align:left">Pierces Fog of War; grants +15% targeting bonus to allies; freezes enemy capture clock</td>
+<td style="text-align:left">Unmasks enemy fleets; +15% ally combat bonus; freezes enemy capture clock</td>
 </tr>
 </tbody>
 </table>
-<h3>1. The Raider (10 Gold // 20 HP // 12 ATK)</h3>
+<h3>Unit Properties &amp; Capabilities</h3>
+<h4>1. Raider (10 Gold // 20 HP // 12 ATK)</h4>
 <ul>
-<li><strong>Role</strong>: Fast shock cavalry, harasser, and artillery hunter.</li>
-<li><strong>Combat Dynamic</strong>: <strong>Shreds Siege (2.0x damage)</strong>, but <strong>gets slaughtered by Guards (0.5x damage)</strong>.</li>
-<li><strong>When to Use</strong>: Early-game territorial expansion, rushing unprotected economy nodes, or flanking behind enemy lines to assassinate slow Siege cannons.</li>
+<li><strong>Combat Multipliers</strong>: 2.0x vs Siege, 1.0x vs Raider, 0.5x vs Guard.</li>
+<li><strong>Base Cost</strong>: 10 Gold.</li>
 </ul>
-<h3>2. The Guard (12 Gold // 30 HP // 14 ATK)</h3>
+<h4>2. Guard (12 Gold // 30 HP // 14 ATK)</h4>
 <ul>
-<li><strong>Role</strong>: Armored shield-wall infantry, perimeter anchor, and gatekeeper.</li>
-<li><strong>Combat Dynamic</strong>: <strong>Shreds Raiders (2.0x damage)</strong>, but <strong>gets pulverized by Siege (0.5x damage)</strong>.</li>
-<li><strong>When to Use</strong>: Stationing at chokepoint gates to absorb and repel enemy Raider blitzes, fortifying the Relic Sanctuary, and protecting expanding borders.</li>
+<li><strong>Combat Multipliers</strong>: 2.0x vs Raider, 1.0x vs Guard, 0.5x vs Siege.</li>
+<li><strong>Base Cost</strong>: 12 Gold.</li>
 </ul>
-<h3>3. The Siege (18 Gold // 35 HP // 22 ATK)</h3>
+<h4>3. Siege (18 Gold // 35 HP // 22 ATK)</h4>
 <ul>
-<li><strong>Role</strong>: Heavy long-range artillery, fortress breaker, and high-health juggernaut.</li>
-<li><strong>Combat Dynamic</strong>: <strong>Pulverizes fortified Guards (2.0x damage)</strong>, but <strong>gets swarmed and dismantled by cheap Raiders (0.5x damage)</strong>.</li>
-<li><strong>When to Use</strong>: Dismantling heavily fortified enemy chokepoints, cracking the enemy's +50% Home Base defense, and breaking defensive stalemates.</li>
+<li><strong>Combat Multipliers</strong>: 2.0x vs Guard, 1.0x vs Siege, 0.5x vs Raider.</li>
+<li><strong>Base Cost</strong>: 18 Gold.</li>
 </ul>
-<h3>4. The Scout (6 Gold // 10 HP // 0 ATK)</h3>
+<h4>4. Scout (6 Gold // 10 HP // 0 ATK)</h4>
 <ul>
-<li><strong>Role</strong>: Non-combatant aerial reconnaissance eagle and tactical spotter.</li>
-<li><strong>Special Capabilities</strong>:
+<li>Non-combatant reconnaissance unit with three mechanical functions:
 <ol>
-<li><em>Pierces Fog of War</em>: Unmasks the hidden unit compositions of enemy squads marching along connected roads.</li>
-<li><em>Combat Spotter (+15% Damage)</em>: If your army fights with a friendly Scout present or stationed adjacent, your troops gain a +15% targeting damage bonus. (Fighting blindly against an enemy with a Scout inflicts a -15% penalty!).</li>
-<li><em>Capture Freezer</em>: If an enemy is trying to capture your node, a Scout flying into that node freezes the capture clock, buying time for your relief army to arrive!</li>
+<li><em>Fog-of-War Penetration</em>: Stationed at a node or traveling along connected lanes, unmasks the unit composition of passing enemy fleets.</li>
+<li><em>Combat Spotter (+15% Damage)</em>: Armies fighting with a friendly Scout present or stationed at an adjacent connected node receive a <strong>+15% damage bonus</strong>. Armies fighting without a scout against an opponent who has scout coverage suffer a <strong>-15% damage penalty</strong>.</li>
+<li><em>Capture Freeze</em>: If an enemy is actively occupying your node (Turn 1 of capture), a friendly Scout contesting the node freezes capture progress for that turn.</li>
 </ol>
 </li>
 </ul>
 <hr />
-<h2>4. Key Strategic Mechanics: How to Think Like a Grandmaster</h2>
-<h3>1. Defending Your Castles: The Fortress Advantage</h3>
+<h2>4. Core Game Mechanics &amp; Resolution Rules</h2>
+<h3>1. Castle Defense Bonuses &amp; Neutral Garrisons</h3>
 <ul>
-<li><strong>Home Core Citadels (Nodes 0 &amp; 14)</strong>: Possess massive fortified stone walls granting stationed defenders a <strong>+50% Defense Bonus</strong> (incoming damage is halved!). Launching an early blind rush directly at the opponent's home base is suicidal unless their garrison is completely empty.</li>
-<li><strong>Outposts &amp; Bastions (Nodes 1–13)</strong>: Stationed defenders receive a <strong>+25% Defense Bonus</strong>. A small squad of Guards stationed at a castle can comfortably defeat a larger invading force.</li>
-<li><strong>Neutral Garrisons</strong>: Unclaimed neutral nodes are defended by neutral garrisons (1 Raider on outer bastions, 2 Guards on chokepoint gates, 2 Guards + 1 Siege on the Relic). You cannot capture neutral territory with a lone Scout; you must send sufficient combat power to defeat the neutral garrison!</li>
-</ul>
-<h3>2. The Mobilization Rule: Defensive Response vs Offensive Planning</h3>
+<li><strong>Home Core Citadels (Nodes 0 &amp; 14)</strong>: Stationed defenders receive a <strong>+50% Defense Bonus</strong> (incoming damage is reduced by 50%).</li>
+<li><strong>Outposts &amp; Bastions (Nodes 1–13)</strong>: Stationed defenders receive a <strong>+25% Defense Bonus</strong> (incoming damage is reduced by 25%).</li>
+<li><strong>Neutral Meeting Engagements</strong>: If Player 1 and Player 2 enter an unclaimed neutral node on the same turn, they clash with <strong>0% defense bonus</strong> (neither side receives defender advantage). Surviving units then engage any neutral garrison defenders.</li>
+<li><strong>Neutral Garrisons on Unclaimed Nodes</strong>:
 <ul>
-<li><strong>Defensive Utility</strong>: When you recruit units at a castle on Turn T, they appear immediately in that castle's garrison. If an enemy invasion fleet lands at your gate on Turn T, your newly recruited troops <strong>will fight</strong> alongside your garrison to repel the attack!</li>
-<li><strong>Offensive Delay</strong>: Recruits cannot immediately march out onto the roads in the same turn they are trained. They require 1 turn of mobilization at the fortress. An army trained on Turn T can begin marching on Turn T+1. Plan offensive campaigns at least 1 turn in advance!</li>
-</ul>
-<h3>3. Supply Lines &amp; Bankruptcy Desertion</h3>
-<p>In Node War, you cannot build an infinite &quot;doom stack&quot; without expanding your economy:</p>
-<ul>
-<li><strong>Free Supply Cap = 10 + (4 × Owned Nodes)</strong></li>
-<li>If you own 1 node (your starting base), your free capacity is 10 + 4 = 14 troops.</li>
-<li>If you own 5 nodes, your free capacity expands to 10 + 20 = 30 troops.</li>
-<li>If your army exceeds your free capacity, your treasury incurs maintenance upkeep:
-<ul>
-<li><strong>1 Gold/turn</strong> per excess unit stationed defensively at your own castles.</li>
-<li><strong>2 Gold/turn</strong> per excess unit marching on roads or stationed in foreign territory (overextension supply tax!).</li>
+<li>Outer bastions (Nodes 1, 2, 4, 10, 12, 13): 1 Raider.</li>
+<li>Chokepoints and outposts (Nodes 3, 5, 6, 8, 9, 11): 2 Guards.</li>
+<li>Relic Sanctuary (Node 7): 2 Guards + 1 Siege.</li>
 </ul>
 </li>
-<li><strong>Bankruptcy Desertion</strong>: If your upkeep exceeds your available Gold, your treasury is drained to 0 Gold, and <strong>unpaid units immediately desert from starvation</strong> until the deficit is eliminated:
+</ul>
+<h3>2. The Mobilization Rule</h3>
 <ul>
-<li>Foreign units stationed abroad and marching squads abandon their posts first (relieving 2 Gold of deficit per unit).</li>
-<li>Domestic garrison defenders desert second (relieving 1 Gold of deficit per unit).</li>
-<li>Priority: Raiders desert first, followed by Scouts, Guards, and finally Siege.</li>
+<li>Units recruited on Turn T immediately join the garrison at their recruitment node and participate in defending that node against any attacks arriving on Turn T.</li>
+<li>Units recruited on Turn T cannot be included in a <code>MoveOrder</code> on Turn T. They must spend that turn mobilizing at the node and become available for dispatch into travel lanes on Turn T+1 or later.</li>
+</ul>
+<h3>3. Dynamic Supply Lines &amp; Bankruptcy Desertion</h3>
+<ul>
+<li><strong>Free Supply Capacity</strong>:
+<code>Free Capacity = 10 + (4 × Owned Nodes)</code></li>
+<li><strong>Maintenance Upkeep Costs</strong> (charged per unit exceeding free capacity):
+<ul>
+<li><strong>1 Gold/turn</strong> per excess unit stationed at friendly owned nodes.</li>
+<li><strong>2 Gold/turn</strong> per excess unit stationed at foreign/unowned nodes or traveling in transit fleets.</li>
+<li>Free supply capacity shields domestic garrison units first before covering foreign forces.</li>
 </ul>
 </li>
-<li><em>Strategic Takeaway</em>: Keep your treasury solvent! An overextended doom stack will rapidly dissolve if your income drops or you overspend your reserves.</li>
-</ul>
-<h3>4. The 2-Turn Capture Rule &amp; Relief Counter-Attacks</h3>
-<p>Capturing a castle is not instant:</p>
+<li><strong>Bankruptcy Desertion Attrition</strong>:
 <ul>
-<li><strong>Turn 1 of Occupation</strong>: You wipe out the garrison. The node enters <strong>Contested (1/2)</strong> status. It does NOT generate Gold for you yet, and recruitment is frozen.</li>
-<li><strong>The Relief Counter-Attack</strong>: Because travel takes 2 turns, an astute defender who notices their node falling can immediately dispatch a relief squad. When the relief squad arrives on the next turn, combat begins and the capture clock is halted!</li>
-<li><strong>Turn 2 of Occupation</strong>: If your occupation remains uncontested for a second consecutive turn, ownership formally flips and the castle begins producing Gold and Victory Points under your banner.</li>
+<li>If total upkeep exceeds available treasury Gold, the player's Gold is set to <strong>0</strong>, and unpaid units immediately suffer desertion attrition until the deficit is eliminated.</li>
+<li>Foreign units stationed at unowned/enemy nodes desert first (saving 2 Gold each).</li>
+<li>Foreign units in transit fleets desert second (saving 2 Gold each).</li>
+<li>Domestic garrison units on friendly nodes desert third (saving 1 Gold each).</li>
+<li>Disband priority within each category: <strong>Raiders -&gt; Scouts -&gt; Guards -&gt; Siege</strong>.</li>
 </ul>
-<h3>5. The Fog of War &amp; The Information Game</h3>
+</li>
+</ul>
+<h3>4. Two-Turn Node Capture Progress</h3>
 <ul>
-<li>You can always see your own castles and stationed troops.</li>
-<li>You can always see into adjacent nodes directly connected to territory you own.</li>
-<li>When an enemy marches a squad along a road, you see their <strong>radar silhouette</strong> (starting point, destination, arrival time, and total unit count).</li>
-<li><strong>The Catch</strong>: You DO NOT know what unit types are in the squad! Is that approaching 6-unit squad made of 6 cheap Raiders, or 6 armored Guards, or 6 heavy Siege artillery? Unless you have a Scout observing the road, you are flying blind. Good players deploy Scouts early to scout enemy recruitment and build direct counter-units before the enemy arrives!</li>
+<li><strong>Turn 1 (Hostile Occupation)</strong>: If an attacking fleet eliminates all defenders at an enemy or neutral node, the node enters <code>capturing_player = invader</code> and <code>capture_progress = 1</code>. The original owner cannot train units at this node while it is contested, and the capturer does not collect income from it yet.</li>
+<li><strong>Turn 2 (Uncontested Confirmation)</strong>: If the invading force remains uncontested at the node on the subsequent turn, <code>capture_progress = 2</code>. Ownership officially flips, and capture progress resets to 0.</li>
+<li><strong>Relief Interventions</strong>: If the defender sends a relief force that arrives on the next turn, battle begins immediately. If the invading force is destroyed, the capture attempt is broken and progress resets to 0.</li>
+<li><strong>Scout Contest</strong>: A contesting friendly Scout prevents capture progress from advancing for that turn.</li>
 </ul>
-<h3>6. The Late-Game Relic Awakening (Turns 80 to 100)</h3>
+<h3>5. Fog of War &amp; Information Visibility</h3>
+<ul>
+<li><strong>Always Visible</strong>:
+<ul>
+<li>All nodes currently owned by your player.</li>
+<li>Stationed unit counts at friendly nodes.</li>
+<li>Nodes directly connected by a lane to territory you own.</li>
+<li>Opponent fleets in transit: origin node, destination node, turns remaining, and total unit count (radar silhouette).</li>
+</ul>
+</li>
+<li><strong>Hidden by Default</strong>:
+<ul>
+<li>Opponent fleet unit compositions (<code>units = None</code>, <code>is_revealed = False</code>).</li>
+</ul>
+</li>
+<li><strong>Unmasking Fleets (<code>is_revealed = True</code>)</strong>:
+<ul>
+<li>A friendly Scout is stationed at the origin node.</li>
+<li>A friendly Scout is stationed at the destination node.</li>
+<li>A friendly fleet containing at least one Scout travels along the same lane or an intersecting lane.</li>
+</ul>
+</li>
+</ul>
+<h3>6. The Late-Game Relic Awakening</h3>
 <ul>
 <li>The central <strong>Relic Sanctuary (Node 7)</strong> awakens dynamically between <strong>Turn 80 and Turn 100</strong>.</li>
-<li>Exactly 5 turns before it awakens, a warning alert sounds: <code>obs.relic_charging = True</code>.</li>
-<li>When it awakens:
+<li>Exactly 5 turns before activation, the engine broadcasts an alert: <code>obs.relic_charging = True</code>.</li>
+<li>Upon activation (<code>obs.relic_active = True</code>):
 <ul>
-<li>Controlling Node 7 awards an astounding <strong>+10 Bonus Victory Points per turn</strong>!</li>
-<li>Every node you own across the entire map produces <strong>2 Victory Points per turn</strong> (doubled from 1).</li>
+<li>Controlling Node 7 awards <strong>+10 Bonus Victory Points per turn</strong>.</li>
+<li>All owned nodes across the map award <strong>2 Victory Points per turn</strong> (doubled from 1).</li>
 </ul>
 </li>
-<li>Matches that seem close in the mid-game can be won in 5 turns if one player captures the Relic while the other sits passively in their home base.</li>
 </ul>
 <hr />
 <h2>5. Battlefield Geography &amp; Mirrored Topology</h2>
@@ -571,32 +586,12 @@ If neither player is eliminated by Turn 120, the winner is determined by a compo
 </table>
 <h3>Lanes &amp; Travel Delays</h3>
 <ul>
-<li><strong>Standard Lanes</strong>: Moving between adjacent bastions and outposts takes <strong>2 turns</strong>.</li>
-<li><strong>Chokepoint Bridges &amp; High Flanks</strong>: Long lanes (0 &lt;-&gt; 3, 3 &lt;-&gt; 7, 11 &lt;-&gt; 7, 14 &lt;-&gt; 11, and 4 &lt;-&gt; 10) take <strong>3 turns</strong>.</li>
+<li><strong>Standard Lanes</strong>: Adjacent bastions and outposts require <strong>2 turns</strong> of lane travel.</li>
+<li><strong>Chokepoint Bridges &amp; High Flanks</strong>: Long lanes (0 &lt;-&gt; 3, 3 &lt;-&gt; 7, 11 &lt;-&gt; 7, 14 &lt;-&gt; 11, and 4 &lt;-&gt; 10) require <strong>3 turns</strong> of lane travel.</li>
 <li>Both players have equal 6-turn travel routes from Home Core to the central Relic (e.g. 0 -&gt; 3 -&gt; 7 vs 14 -&gt; 11 -&gt; 7).</li>
 </ul>
 <hr />
-<h2>6. Strategic Playbook: Four Classic Archetypes</h2>
-<p>When designing your bot, you can explore several core strategic philosophies:</p>
-<pre><code>[BLITZKRIEG RUSHER]   --- Beats ---&gt;   [RECON ARTILLERY]
-        ^                                      |
-        |                                      |
-      Beats                                  Beats
-        |                                      v
-[IRON FORTRESS TURTLE] &lt;--- Beats --- [DYNAMIC ECONOMIST]
-</code></pre>
-<ol>
-<li><strong>The Blitzkrieg Rusher</strong>:
-Trains pure Raiders from Turn 1, bypasses slow outer nodes, and rushes directly down the attack corridor to overwhelm the opponent before they can establish defenses.</li>
-<li><strong>The Iron Fortress (Turtle)</strong>:
-Anchors early chokepoints (Node 1, 2, 3) with heavy Guards, leverages the +25% defense bonus to shatter enemy Raider swarms, starves the attacker of momentum, and expands methodically toward the center.</li>
-<li><strong>The Recon Artillery (Balanced / Tech)</strong>:
-Deploys an early Scout to inspect enemy armies through the fog of war, identifies fortified Guard walls, and tech-transitions into heavy Siege artillery to dismantle enemy fortresses from afar.</li>
-<li><strong>The Dynamic Economist</strong>:
-Focuses on rapid multi-pronged expansion to claim outer rigs and outposts early, rapidly expanding free supply capacity and Gold income to overpower the opponent with an overwhelming late-game force.</li>
-</ol>
-<hr />
-<h2>7. Match Scoring &amp; Strict Deterministic Tiebreaker</h2>
+<h2>6. Match Scoring &amp; Strict Deterministic Tiebreaker</h2>
 <p>Matches terminate when:</p>
 <ol>
 <li><strong>Total Elimination</strong>: A player loses all nodes and has zero active or traveling units.</li>
@@ -608,12 +603,12 @@ Focuses on rapid multi-pronged expansion to claim outer rigs and outposts early,
 <h3>The 1:1 Net Worth Parity Rule</h3>
 <ul>
 <li>Every <strong>1 Gold</strong> in your treasury reserves provides exactly <strong>1 tiebreak point</strong>.</li>
-<li>Every <strong>1 Gold</strong> invested in surviving active military units provides exactly <strong>1 tiebreak point</strong> (based on unit base recruitment cost: Raider = 10, Guard = 12, Siege = 18, Scout = 6).</li>
-<li><strong>No Gold Dump Exploit</strong>: Spending your Gold treasury on units on Turn 119 or Turn 120 yields zero tiebreak advantage. An empire with 100 Gold banked and 0 soldiers has the exact same Net Worth (100) as an empire with 0 Gold banked and 10 Raiders (100). Build what you need for tactical combat, not for artificial score inflation!</li>
+<li>Every <strong>1 Gold</strong> invested in surviving active military units provides exactly <strong>1 tiebreak point</strong> (evaluated using base recruitment costs: Raider = 10, Guard = 12, Siege = 18, Scout = 6).</li>
+<li>An empire with 100 Gold banked and 0 units has the identical Net Worth (100 points) as an empire with 0 Gold banked and 10 Raiders (100 points).</li>
 </ul>
 <p>Because this formula incorporates cumulative points, relic control duration, and total net worth in Gold, it is mathematically unique. <strong>There are strictly no draws.</strong></p>
 <hr />
-<h2>8. Competitor Bot API &amp; Order Protocol</h2>
+<h2>7. Competitor Bot API &amp; Order Protocol</h2>
 <p>Every competitor bot inherits from <code>BotBase</code> and implements the <code>act(obs)</code> method:</p>
 <pre><code class="language-python">from __future__ import annotations
 from typing import List
@@ -680,7 +675,7 @@ class CompetitorBot(BotBase):
 <li><code>self.move(origin, dest, units) -&gt; MoveOrder</code>: Creates a validated fleet move command.</li>
 </ul>
 <hr />
-<h2>9. Quick-Start &amp; Testing Workflow</h2>
+<h2>8. Quick-Start &amp; Testing Workflow</h2>
 <ol>
 <li><strong>Copy the Starter Template</strong>:<pre><code class="language-bash">cp bots/starter_bot.py bots/my_bot.py
 </code></pre>
@@ -693,23 +688,22 @@ Run the official dry-run validator to test your bot across Player 1, Player 2, a
 Submit your single standalone <code>.py</code> file according to tournament organizer instructions.</li>
 </ol>
 <hr />
-<h2>10. Rules of Engagement &amp; Execution Constraints</h2>
+<h2>9. Rules of Engagement &amp; Technical Constraints</h2>
 <ol>
 <li><strong>50 Millisecond Time Limit</strong>: Your bot must return orders within <strong>50 milliseconds</strong> per turn. Compute timeouts will forfeit orders for that turn.</li>
 <li><strong>Pure Standard Library</strong>: Submissions must use standard Python 3. Subprocesses, network sockets, thread pools, or disk modifications are strictly forbidden.</li>
-<li><strong>Persistent Memory</strong>: You may store cross-turn strategic state on <code>self</code> (e.g. enemy sightings, build queues). Memory persists throughout an individual match.</li>
-<li><strong>Order Validity</strong>: Orders attempting to move units that do not exist at a node or training units without sufficient Gold will be safely ignored by the engine.</li>
+<li><strong>Persistent Memory</strong>: You may store cross-turn state on <code>self</code> (e.g. enemy sightings, internal counters). Memory persists throughout an individual match.</li>
+<li><strong>Order Validity</strong>: Orders attempting to move units that do not exist at a node or training units without sufficient Gold are ignored by the engine.</li>
 <li><strong>No Draws</strong>: Every match terminates with an unambiguous winner.</li>
 </ol>
 <hr />
-<h2>11. Debugging &amp; Common Pitfalls</h2>
+<h2>10. Technical Notes &amp; API Edge Cases</h2>
 <ul>
-<li><strong>The Mobilization Delay</strong>: You cannot train units and move them in the same turn. Units trained on Turn T defend the garrison this turn, but cannot march out until Turn T+1.</li>
-<li><strong>Budget &amp; Upkeep Solvency</strong>: Always ensure your Gold income covers maintenance. If you run out of Gold while exceeding your supply cap, unpaid units will suffer desertion attrition and disappear!</li>
-<li><strong>Path Index Bounds</strong>: <code>self.get_path(obs, u, v)</code> returns <code>[u, next_node, ..., v]</code>. Always check <code>if len(path) &gt;= 2:</code> before accessing <code>path[1]</code>.</li>
-<li><strong>Recruitment Lockout</strong>: You cannot train units at a node while it is actively being contested (<code>node.capturing_player != 0</code>).</li>
-<li><strong>Moving from Unowned Nodes</strong>: Units can only launch fleets from nodes you currently own. Wait for the 2-turn capture progress to flip before moving out!</li>
-<li><strong>Local Budget Tracking</strong>: Always deduct Gold locally as you generate <code>TrainOrder</code>s within <code>act(obs)</code> to ensure you don't over-commit your reserves.</li>
+<li><strong>Mobilization Timing</strong>: Units trained on Turn T join the local garrison immediately for defense, but cannot be moved on Turn T. They become eligible for <code>MoveOrder</code> dispatch on Turn T+1.</li>
+<li><strong>Budget Tracking</strong>: Deduct Gold locally when creating multiple <code>TrainOrder</code>s in <code>act(obs)</code> to ensure commands do not exceed available funds.</li>
+<li><strong>Path Index Bounds</strong>: <code>self.get_path(obs, u, v)</code> returns <code>[u, next_node, ..., v]</code>. Verify <code>len(path) &gt;= 2</code> before indexing <code>path[1]</code>.</li>
+<li><strong>Contested Recruitment</strong>: Training orders are not processed at a node while it is actively being contested (<code>node.capturing_player != 0</code>).</li>
+<li><strong>Fleet Origin Ownership</strong>: Fleets can only be launched from nodes currently owned by your player.</li>
 </ul>
 
 
