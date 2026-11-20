@@ -13,6 +13,7 @@ import socketserver
 import json
 import glob
 import urllib.parse
+import time
 from typing import Dict, Any, Type
 
 from runner.match import run_match, BOT_REGISTRY, discover_custom_bots, resolve_bot, load_bot_from_file
@@ -257,19 +258,38 @@ class ThreadedHTTPServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
     daemon_threads = True
     allow_reuse_address = True
 
+    def handle_error(self, request, client_address):
+        err = sys.exc_info()[1]
+        if isinstance(err, (ConnectionResetError, ConnectionAbortedError, BrokenPipeError)):
+            return
+        super().handle_error(request, client_address)
+
 def run_server(port: int = PORT):
     os.chdir(WEB_DIR)
-    with ThreadedHTTPServer(("", port), NodeWarRequestHandler) as httpd:
-        print(f"\n" + "=" * 60)
-        print(f"  NODE WAR - ESPORTS SPECTATOR ARENA")
-        print(f"=" * 60)
-        print(f"  Server running live at: http://localhost:{port}")
-        print(f"  Press Ctrl+C to stop.")
-        print(f"=" * 60 + "\n")
-        try:
-            httpd.serve_forever()
-        except KeyboardInterrupt:
-            print("\nShutting down server.")
+    try:
+        with ThreadedHTTPServer(("", port), NodeWarRequestHandler) as httpd:
+            print(f"\n" + "=" * 60)
+            print(f"  NODE WAR - ESPORTS SPECTATOR ARENA")
+            print(f"=" * 60)
+            print(f"  Audience Stream:  http://localhost:{port}")
+            print(f"  Operator Setup:   http://localhost:{port}/setup.html")
+            print(f"  Press Ctrl+C to stop.")
+            print(f"=" * 60 + "\n", flush=True)
+            while True:
+                try:
+                    httpd.serve_forever()
+                except KeyboardInterrupt:
+                    print("\nShutting down server.", flush=True)
+                    break
+                except Exception as e:
+                    print(f"[Server Notice] Recovered from exception: {e}", flush=True)
+                    time.sleep(0.1)
+    except OSError as e:
+        if "10048" in str(e) or "Address already in use" in str(e):
+            print(f"\n[ERROR] Port {port} is already in use by another process.", flush=True)
+            print(f"Please close the existing server window or terminate python processes on port {port}.\n", flush=True)
+            sys.exit(1)
+        raise
 
 if __name__ == "__main__":
     run_server()
