@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Node War // Tournament Control Deck</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    /* Dedicated Operator Deck Layout Styles */
+    body.setup-deck-body {
+      background: #080b14;
+      color: #e2e8f0;
+      font-family: 'Rajdhani', sans-serif;
+      height: 100vh;
+      overflow-y: auto;
+      margin: 0;
+      padding: 0;
+    }
+    .deck-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .deck-topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(180deg, #121829 0%, #0c101d 100%);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 14px 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+    .deck-brand h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.35rem;
+      letter-spacing: 1.5px;
+      color: #fff;
+      margin: 0;
+    }
+    .deck-brand p {
+      margin: 2px 0 0 0;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .deck-top-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .stream-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(6, 214, 160, 0.12);
+      border: 1px solid rgba(6, 214, 160, 0.35);
+      color: #06d6a0;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-family: 'Orbitron', monospace;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .stream-status-pill::before {
+      content: '';
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #06d6a0;
+      box-shadow: 0 0 8px #06d6a0;
+    }
+    .launch-stream-btn {
+      background: linear-gradient(135deg, #00f3ff, #0077b6);
+      color: #050811;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 6px;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 800;
+      font-size: 0.82rem;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .launch-stream-btn:hover {
+      box-shadow: 0 0 16px rgba(0, 243, 255, 0.5);
+      transform: translateY(-1px);
+    }
+    .deck-nav-tabs {
+      display: flex;
+      gap: 8px;
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 2px;
+    }
+    .deck-tab-btn {
+      background: #101626;
+      border: 1px solid var(--border-color);
+      border-bottom: none;
+      color: var(--text-muted);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 10px 18px;
+      border-radius: 6px 6px 0 0;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .deck-tab-btn.active {
+      background: #1c253d;
+      color: #00f3ff;
+      border-color: #00f3ff;
+    }
+    .deck-tab-pane {
+      display: none;
+    }
+    .deck-tab-pane.active {
+      display: grid;
+      gap: 20px;
+    }
+    .deck-grid-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .deck-card {
+      background: #101524;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .deck-card h2 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1rem;
+      letter-spacing: 1px;
+      color: #8c9bbd;
+      margin: 0;
+      text-transform: uppercase;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .deck-form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .deck-form-group label {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      font-weight: 600;
+    }
+    .deck-form-group select,
+    .deck-form-group input {
+      background: #090c15;
+      border: 1px solid var(--border-color);
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.95rem;
+      outline: none;
+    }
+    .deck-form-group select:focus,
+    .deck-form-group input:focus {
+      border-color: #00f3ff;
+      box-shadow: 0 0 8px rgba(0, 243, 255, 0.25);
+    }
+    .deck-btn-primary {
+      background: linear-gradient(135deg, #ff0055, #ff5400);
+      color: #fff;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 6px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 800;
+      cursor: pointer;
+      letter-spacing: 1px;
+      transition: all 0.2s;
+    }
+    .deck-btn-primary:hover {
+      box-shadow: 0 0 18px rgba(255, 0, 85, 0.5);
+      transform: translateY(-1px);
+    }
+    .deck-btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    /* Remote Deck Controls */
+    .remote-deck-box {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      background: #0a0d18;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 16px;
+    }
+    .remote-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .remote-ctrl-btn {
+      background: #141b2d;
+      border: 1px solid var(--border-color);
+      color: #cbd5e1;
+      padding: 8px 14px;
+      border-radius: 4px;
+      font-family: 'Orbitron', monospace;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .remote-ctrl-btn:hover {
+      background: #232c45;
+      color: #fff;
+      border-color: #00f3ff;
+    }
+    .remote-ctrl-btn.active {
+      background: #192542;
+      border-color: #00f3ff;
+      color: #00f3ff;
+    }
+  </style>
+</head>
+<body class="setup-deck-body">
+  <div class="deck-container">
+    <!-- Top Control Bar -->
+    <header class="deck-topbar">
+      <div class="deck-brand">
+        <h1>NODE WAR // TOURNAMENT CONTROL DECK</h1>
+        <p>Match Orchestrator, Live Caster Deck &amp; Broadcast Synchronization</p>
+      </div>
+      <div class="deck-top-actions">
+        <span class="stream-status-pill">BROADCAST READY</span>
+        <a href="index.html" target="_blank" class="launch-stream-btn" title="Open the clean Audience / Projector Stream in a new window">&#x29c9; OPEN PROJECTOR STREAM</a>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="deck-nav-tabs">
+      <button class="deck-tab-btn active" data-tab="tab-match-setup">&#9876; Match Setup &amp; Remote Deck</button>
+      <button class="deck-tab-btn" data-tab="tab-matrix">&#9638; Balance Matrix</button>
+      <button class="deck-tab-btn" data-tab="tab-bot-lab">&#128187; Bot Lab Playground</button>
+      <button class="deck-tab-btn" data-tab="tab-vault">&#128451; Replay Vault</button>
+    </nav>
+
+    <!-- TAB 1: MATCH SETUP & REMOTE DECK -->
+    <div id="tab-match-setup" class="deck-tab-pane active">
+      <div class="deck-grid-2col">
+        <!-- Match Setup Form Card -->
+        <section class="deck-card">
+          <h2>
+            <span>1v1 Match Configuration</span>
+            <button id="btn-refresh-bots" class="secondary-btn" style="width:auto; margin:0; padding:3px 10px; font-size:0.75rem;">&#8635; Refresh Bots</button>
+          </h2>
+
+          <div class="deck-form-group">
+            <label>Player 1 (Cyan Faction):</label>
+            <select id="select-p1">
+              <optgroup label="Custom Scripts (bots/)">
+                <option value="bot1.py">bot1.py (NemesisNodeBot)</option>
+              </optgroup>
+              <optgroup label="Built-in Baseline Bots">
+                <option value="rusher" selected>Rusher Bot</option>
+                <option value="turtle">Turtle Bot</option>
+                <option value="balanced">Balanced (Scout) Bot</option>
+                <option value="starter">Starter Bot</option>
+              </optgroup>
+              <optgroup label="Browser Lab">
+                <option value="custom">Custom Lab Bot</option>
+              </optgroup>
+            </select>
+          </div>
+
+          <div class="deck-form-group">
+            <label>Player 2 (Crimson Faction):</label>
+            <select id="select-p2">
+              <optgroup label="Custom Scripts (bots/)">
+                <option value="bot1.py">bot1.py (NemesisNodeBot)</option>
+              </optgroup>
+              <optgroup label="Built-in Baseline Bots">
+                <option value="rusher">Rusher Bot</option>
+                <option value="turtle" selected>Turtle Bot</option>
+                <option value="balanced">Balanced (Scout) Bot</option>
+                <option value="starter">Starter Bot</option>
+              </optgroup>
+              <optgroup label="Browser Lab">
+                <option value="custom">Custom Lab Bot</option>
+              </optgroup>
+            </select>
+          </div>
+
+          <div class="deck-form-group">
+            <label>Preset Mode:</label>
+            <select id="select-preset">
+              <option value="standard" selected>Tournament Standard (120T, 30 Gold, Dynamic Relic T80-100)</option>
+              <option value="blitz">Blitz Match (60T, 40 Gold, Relic T40)</option>
+              <option value="marathon">Marathon Siege (160T, 20 Gold, Relic T130)</option>
+              <option value="custom">Custom Configuration</option>
+            </select>
+          </div>
+
+          <div id="custom-config-fields" class="custom-config-fields hidden">
+            <div class="form-row">
+              <div>
+                <label>Max Turns:</label>
+                <input type="number" id="input-turns" value="120" min="20" max="250" step="10">
+              </div>
+              <div>
+                <label>Initial Gold:</label>
+                <input type="number" id="input-credits" value="30" min="10" max="150" step="5">
+              </div>
+            </div>
+            <div class="form-row">
+              <div>
+                <label>Relic Turn (empty = dynamic):</label>
+                <input type="number" id="input-relic-turn" placeholder="Dynamic (80-100)" min="10" max="200" step="5">
+              </div>
+              <div>
+                <label>Relic Pts/T:</label>
+                <input type="number" id="input-relic-pts" value="10" min="5" max="50" step="5">
+              </div>
+            </div>
+          </div>
+
+          <button id="btn-run-match" class="deck-btn-primary">&#9654; SIMULATE &amp; BROADCAST TO PROJECTOR</button>
+
+          <div id="match-status-callout" style="font-size:0.85rem; color:#8c9bbd; margin-top:4px;">
+            Ready. Click button above to simulate match and automatically beam it to the stream screen.
+          </div>
+        </section>
+
+        <!-- Live Stream Remote Deck Card -->
+        <section class="deck-card">
+          <h2>
+            <span>Live Stream Remote Deck</span>
+            <span style="font-size:0.75rem; color:#06d6a0;">● Sync Active</span>
+          </h2>
+          <p class="muted-small">Control match playback on the projector screen remotely from this laptop while audience watches the clean stream.</p>
+
+          <div class="remote-deck-box">
+            <div style="font-size:0.8rem; font-weight:700; color:#8c9bbd; text-transform:uppercase;">Playback Controls:</div>
+            <div class="remote-row">
+              <button id="remote-btn-prev" class="remote-ctrl-btn" title="Previous Turn">&#9664;&#9664; Prev</button>
+              <button id="remote-btn-play" class="remote-ctrl-btn" style="color:#00f3ff; border-color:#00f3ff;" title="Play / Pause">&#9654; Play / Pause</button>
+              <button id="remote-btn-next" class="remote-ctrl-btn" title="Next Turn">&#9654;&#9654; Next</button>
+              <button id="remote-btn-restart" class="remote-ctrl-btn" title="Restart to Turn 1">&#8634; Restart</button>
+            </div>
+
+            <div style="font-size:0.8rem; font-weight:700; color:#8c9bbd; text-transform:uppercase; margin-top:8px;">Playback Speed:</div>
+            <div class="remote-row">
+              <button class="remote-ctrl-btn remote-speed-btn" data-speed="1500">0.5x</button>
+              <button class="remote-ctrl-btn remote-speed-btn active" data-speed="1000">1x</button>
+              <button class="remote-ctrl-btn remote-speed-btn" data-speed="500">2x</button>
+              <button class="remote-ctrl-btn remote-speed-btn" data-speed="250">4x</button>
+              <button class="remote-ctrl-btn remote-speed-btn" data-speed="50">Max</button>
+            </div>
+
+            <div style="font-size:0.8rem; font-weight:700; color:#8c9bbd; text-transform:uppercase; margin-top:8px;">Projector View Mode:</div>
+            <div class="remote-row">
+              <button class="remote-ctrl-btn remote-mode-btn active" data-mode="td">&#9876; Tower Defense</button>
+              <button class="remote-ctrl-btn remote-mode-btn" data-mode="3d">&#9650; 3D Arena</button>
+              <button class="remote-ctrl-btn remote-mode-btn" data-mode="2d">&#9632; 2D Tactical</button>
+            </div>
+
+            <div style="font-size:0.8rem; font-weight:700; color:#8c9bbd; text-transform:uppercase; margin-top:8px;">Quick Navigation Jumps:</div>
+            <div class="remote-row">
+              <button class="remote-ctrl-btn" id="remote-jump-relic">&#9889; Jump Relic</button>
+              <button class="remote-ctrl-btn" id="remote-jump-clash">&#9876; Next Battle</button>
+              <button class="remote-ctrl-btn" id="remote-jump-finish">&#9209; Jump Finish</button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- TAB 2: BALANCE TOURNAMENT MATRIX -->
+    <div id="tab-matrix" class="deck-tab-pane">
+      <section class="deck-card">
+        <h2>Tournament Balance Matrix Evaluator</h2>
+        <p class="muted-small">Runs a round-robin tournament between Rusher, Turtle, and Balanced bots across alternating sides to test the Rock-Paper-Scissors balance cycle.</p>
+        <div class="deck-form-group" style="max-width:300px; margin-top:10px;">
+          <label>Rounds Per Pair (Total Matches = Rounds &times; 2):</label>
+          <select id="select-tournament-rounds">
+            <option value="5">5 Rounds (10 Matches)</option>
+            <option value="10" selected>10 Rounds (20 Matches)</option>
+            <option value="25">25 Rounds (50 Matches)</option>
+          </select>
+        </div>
+        <button id="btn-run-tournament" class="deck-btn-primary" style="max-width:300px;">RUN BALANCE MATRIX</button>
+
+        <div id="tournament-results-card" class="panel-section hidden" style="margin-top:16px;">
+          <h3>Matrix Results</h3>
+          <div id="tournament-matrix-view" class="matrix-view"></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- TAB 3: CUSTOM BOT LAB -->
+    <div id="tab-bot-lab" class="deck-tab-pane">
+      <section class="deck-card">
+        <h2>Custom Bot Lab &amp; Editor</h2>
+        <p class="muted-small">Edit code below or load any script from <code>bots/</code> to inspect, tweak, and test!</p>
+        <div style="display:flex; gap:8px; margin-top:8px;">
+          <select id="select-load-script" style="flex:1; background:#090c15; border:1px solid var(--border-color); color:#fff; padding:6px 10px; border-radius:4px;">
+            <option value="">Load from bots/ ...</option>
+          </select>
+          <button id="btn-load-script-into-editor" class="secondary-btn" style="width:auto; margin:0; padding:6px 14px; font-size:0.85rem;">Load Script</button>
+        </div>
+        <textarea id="custom-bot-editor" class="code-editor" style="height:350px; margin-top:12px;" spellcheck="false">from engine.models import UnitType
+from engine.fog import BotObservation
+from bots.base import BotBase
+
+class MyCustomBot(BotBase):
+    def act(self, obs: BotObservation):
+        orders = []
+        my_nodes = self.get_my_nodes(obs)
+        if not my_nodes:
+            return orders
+
+        home_id = 0 if self.player_id == 1 else 14
+        home = next((n for n in my_nodes if n.id == home_id), my_nodes[0])
+        if obs.my_credits >= 12:
+            orders.append(self.train(home.id, UnitType.GUARD, 1))
+
+        neutrals = self.get_neutral_nodes(obs)
+        if neutrals and home.units.get("guard", 0) >= 3:
+            path = self.get_path(obs, home.id, neutrals[0].id)
+            if len(path) >= 2:
+                orders.append(self.move(home.id, path[1], {UnitType.GUARD: 2}))
+
+        return orders
+</textarea>
+        <div class="bot-lab-buttons" style="display:flex; gap:10px; margin-top:10px;">
+          <button class="lab-btn deck-btn-primary" data-opponent="rusher" style="flex:1;">Battle Rusher</button>
+          <button class="lab-btn deck-btn-primary" data-opponent="turtle" style="flex:1;">Battle Turtle</button>
+          <button class="lab-btn deck-btn-primary" data-opponent="balanced" style="flex:1;">Battle Balanced</button>
+        </div>
+      </section>
+    </div>
+
+    <!-- TAB 4: REPLAY VAULT -->
+    <div id="tab-vault" class="deck-tab-pane">
+      <section class="deck-card">
+        <h2>
+          <span>Saved Match Replay Library</span>
+          <button id="btn-refresh-replays" class="secondary-btn" style="width:auto; margin:0; padding:4px 12px; font-size:0.8rem;">Refresh List</button>
+        </h2>
+        <div id="replay-vault-list" class="replay-vault-list" style="max-height:500px; overflow-y:auto;">
+          <div class="muted">Loading saved replays...</div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script src="setup.js"></script>
+</body>
+</html>

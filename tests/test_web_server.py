@@ -73,6 +73,30 @@ class TestWebServer(unittest.TestCase):
             self.assertEqual(data["filename"], "bot1.py")
             self.assertIn("ApexNodeBot", data["source"])
 
+    def test_get_setup_html(self):
+        url = f"http://127.0.0.1:{self.test_port}/setup.html"
+        with urllib.request.urlopen(url) as response:
+            self.assertEqual(response.status, 200)
+            content = response.read().decode("utf-8")
+            self.assertIn("Tournament Control Deck", content)
+
+    def test_active_match_lifecycle(self):
+        # 1. Post a match to active-match
+        url = f"http://127.0.0.1:{self.test_port}/api/active-match"
+        mock_match = {"metadata": {"p1_name": "TestBotA", "p2_name": "TestBotB"}, "frames": [{"turn": 1}]}
+        payload = json.dumps({"match_data": mock_match}).encode("utf-8")
+        req = urllib.request.Request(url, data=payload, headers={"Content-Type": "application/json"})
+        with urllib.request.urlopen(req) as response:
+            self.assertEqual(response.status, 200)
+            data = json.loads(response.read().decode("utf-8"))
+            self.assertEqual(data["status"], "ok")
+
+        # 2. GET active-match and verify it matches
+        with urllib.request.urlopen(url) as response:
+            self.assertEqual(response.status, 200)
+            data = json.loads(response.read().decode("utf-8"))
+            self.assertEqual(data["metadata"]["p1_name"], "TestBotA")
+
     def test_post_run_match_with_custom_file(self):
         url = f"http://127.0.0.1:{self.test_port}/api/run-match"
         payload = json.dumps({"p1": "bot1.py", "p2": "turtle", "turns": 20}).encode("utf-8")

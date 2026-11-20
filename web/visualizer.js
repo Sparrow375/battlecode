@@ -50,12 +50,88 @@ class NodeWarVisualizer {
     this.bindEvents();
     this.bindEngineModeEvents();
     this.bindControlCenterEvents();
+    this.initBroadcastChannel();
     this.loadBotList();
     this.loadReplayList();
     this.startAnimationLoop();
 
     // Set initial mode state (Cartoon Tower Defense)
     this.setEngineMode(this.engineMode);
+
+    // Auto-load latest broadcast match if available
+    this.loadActiveMatch();
+  }
+
+  initBroadcastChannel() {
+    try {
+      this.streamChannel = new BroadcastChannel('node_war_stream');
+      this.streamChannel.onmessage = (event) => {
+        const msg = event.data;
+        if (!msg) return;
+        if (msg.type === 'LOAD_MATCH' && msg.data) {
+          this.loadReplayData(msg.data);
+          this.setFrame(0);
+          this.play();
+        } else if (msg.type === 'PLAY') {
+          this.play();
+        } else if (msg.type === 'PAUSE') {
+          this.pause();
+        } else if (msg.type === 'STEP') {
+          this.stepFrame(msg.delta || 1);
+        } else if (msg.type === 'SET_FRAME') {
+          this.setFrame(msg.frameIdx || 0);
+        } else if (msg.type === 'SET_SPEED') {
+          this.setSpeed(msg.speedMs || 1000);
+        } else if (msg.type === 'SET_MODE') {
+          this.setEngineMode(msg.mode || 'td');
+        } else if (msg.type === 'JUMP') {
+          if (msg.target === 'relic') this.jumpToRelic();
+          else if (msg.target === 'clash') this.jumpToNextClash();
+          else if (msg.target === 'end') this.jumpToEnd();
+        }
+      };
+    } catch (e) {
+      console.warn("BroadcastChannel not supported in this browser:", e);
+    }
+  }
+
+  async loadActiveMatch() {
+    try {
+      const res = await fetch(getApiUrl('/api/active-match'));
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.frames && data.frames.length > 0) {
+          this.loadReplayData(data);
+          this.setFrame(0);
+          this.play();
+        }
+      }
+    } catch (e) {
+      console.warn("Could not fetch active match:", e);
+    }
+  }
+
+  toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(err => {
+        console.warn("Error entering fullscreen:", err);
+      });
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+  }
+
+  setSpeed(ms) {
+    this.speedMs = ms;
+    document.querySelectorAll('.speed-btn').forEach(b => {
+      b.classList.toggle('active', parseInt(b.dataset.speed) === ms);
+    });
+    if (this.isPlaying) {
+      this.pause();
+      this.play();
+    }
   }
 
   initCanvasResize() {
@@ -79,28 +155,30 @@ class NodeWarVisualizer {
 
   bindEvents() {
     // Playback buttons
-    document.getElementById('btn-play').addEventListener('click', () => this.togglePlay());
-    document.getElementById('btn-prev').addEventListener('click', () => this.stepFrame(-1));
-    document.getElementById('btn-next').addEventListener('click', () => this.stepFrame(1));
-    document.getElementById('btn-restart').addEventListener('click', () => this.setFrame(0));
+    const btnPlay = document.getElementById('btn-play');
+    if (btnPlay) btnPlay.addEventListener('click', () => this.togglePlay());
+    const btnPrev = document.getElementById('btn-prev');
+    if (btnPrev) btnPrev.addEventListener('click', () => this.stepFrame(-1));
+    const btnNext = document.getElementById('btn-next');
+    if (btnNext) btnNext.addEventListener('click', () => this.stepFrame(1));
+    const btnRestart = document.getElementById('btn-restart');
+    if (btnRestart) btnRestart.addEventListener('click', () => this.setFrame(0));
+    const btnFs = document.getElementById('btn-fullscreen');
+    if (btnFs) btnFs.addEventListener('click', () => this.toggleFullscreen());
 
     // Scrubber
     const scrubber = document.getElementById('timeline-scrubber');
-    scrubber.addEventListener('input', (e) => {
-      this.pause();
-      this.setFrame(parseInt(e.target.value) - 1);
-    });
+    if (scrubber) {
+      scrubber.addEventListener('input', (e) => {
+        this.pause();
+        this.setFrame(parseInt(e.target.value) - 1);
+      });
+    }
 
     // Speed buttons
     document.querySelectorAll('.speed-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
-        document.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active'));
-        e.target.classList.add('active');
-        this.speedMs = parseInt(e.target.dataset.speed);
-        if (this.isPlaying) {
-          this.pause();
-          this.play();
-        }
+        this.setSpeed(parseInt(e.currentTarget.dataset.speed));
       });
     });
 
@@ -108,8 +186,8 @@ class NodeWarVisualizer {
     document.querySelectorAll('.view-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
-        e.target.classList.add('active');
-        this.viewMode = e.target.dataset.mode;
+        e.currentTarget.classList.add('active');
+        this.viewMode = e.currentTarget.dataset.mode;
         this.updateHUD();
         if (this.tdViz) {
           this.tdViz.setViewMode(this.viewMode);
@@ -121,11 +199,14 @@ class NodeWarVisualizer {
     });
 
     // Quick Navigation buttons on Canvas
-    document.getElementById('btn-jump-relic').addEventListener('click', () => this.jumpToRelic());
-    document.getElementById('btn-jump-clash').addEventListener('click', () => this.jumpToNextClash());
-    document.getElementById('btn-jump-end').addEventListener('click', () => this.jumpToEnd());
+    const btnRelic = document.getElementById('btn-jump-relic');
+    if (btnRelic) btnRelic.addEventListener('click', () => this.jumpToRelic());
+    const btnClash = document.getElementById('btn-jump-clash');
+    if (btnClash) btnClash.addEventListener('click', () => this.jumpToNextClash());
+    const btnEnd = document.getElementById('btn-jump-end');
+    if (btnEnd) btnEnd.addEventListener('click', () => this.jumpToEnd());
 
-    // Keyboard shortcuts
+    // Keyboard shortcuts for live esports casting
     window.addEventListener('keydown', (e) => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
       if (e.code === 'Space') {
@@ -135,12 +216,24 @@ class NodeWarVisualizer {
         this.stepFrame(1);
       } else if (e.code === 'ArrowLeft') {
         this.stepFrame(-1);
+      } else if (e.code === 'KeyF') {
+        this.toggleFullscreen();
+      } else if (e.code === 'KeyR') {
+        this.setFrame(0);
+      } else if (e.code === 'Digit1') {
+        this.setSpeed(1000);
+      } else if (e.code === 'Digit2') {
+        this.setSpeed(500);
+      } else if (e.code === 'Digit4') {
+        this.setSpeed(250);
       }
     });
 
     // Canvas click & hover
-    this.canvas.addEventListener('click', (e) => this.handleCanvasClick(e));
-    this.canvas.addEventListener('mousemove', (e) => this.handleCanvasHover(e));
+    if (this.canvas) {
+      this.canvas.addEventListener('click', (e) => this.handleCanvasClick(e));
+      this.canvas.addEventListener('mousemove', (e) => this.handleCanvasHover(e));
+    }
   }
 
   bindEngineModeEvents() {
@@ -178,6 +271,13 @@ class NodeWarVisualizer {
     if (zoomBar) {
       if (mode === '3d') zoomBar.classList.add('hidden');
       else zoomBar.classList.remove('hidden');
+    }
+
+    if (this.tdViz && typeof this.tdViz.setActive === 'function') {
+      this.tdViz.setActive(mode === 'td');
+    }
+    if (this.threeViz && typeof this.threeViz.setActive === 'function') {
+      this.threeViz.setActive(mode === '3d');
     }
 
     if (mode === 'td') {
@@ -239,40 +339,48 @@ class NodeWarVisualizer {
     // Preset selector
     const presetSelect = document.getElementById('select-preset');
     const customFields = document.getElementById('custom-config-fields');
-    presetSelect.addEventListener('change', (e) => {
-      const mode = e.target.value;
-      if (mode === 'custom') {
-        customFields.classList.remove('hidden');
-      } else {
-        customFields.classList.add('hidden');
-        if (mode === 'standard') {
-          document.getElementById('input-turns').value = 120;
-          document.getElementById('input-credits').value = 30;
-          document.getElementById('input-relic-turn').value = "";
-          document.getElementById('input-relic-pts').value = 10;
-        } else if (mode === 'blitz') {
-          document.getElementById('input-turns').value = 60;
-          document.getElementById('input-credits').value = 40;
-          document.getElementById('input-relic-turn').value = 40;
-          document.getElementById('input-relic-pts').value = 10;
-        } else if (mode === 'marathon') {
-          document.getElementById('input-turns').value = 160;
-          document.getElementById('input-credits').value = 20;
-          document.getElementById('input-relic-turn').value = 120;
-          document.getElementById('input-relic-pts').value = 10;
+    if (presetSelect && customFields) {
+      presetSelect.addEventListener('change', (e) => {
+        const mode = e.target.value;
+        if (mode === 'custom') {
+          customFields.classList.remove('hidden');
+        } else {
+          customFields.classList.add('hidden');
+          if (mode === 'standard') {
+            document.getElementById('input-turns').value = 120;
+            document.getElementById('input-credits').value = 30;
+            document.getElementById('input-relic-turn').value = "";
+            document.getElementById('input-relic-pts').value = 10;
+          } else if (mode === 'blitz') {
+            document.getElementById('input-turns').value = 60;
+            document.getElementById('input-credits').value = 40;
+            document.getElementById('input-relic-turn').value = 40;
+            document.getElementById('input-relic-pts').value = 10;
+          } else if (mode === 'marathon') {
+            document.getElementById('input-turns').value = 160;
+            document.getElementById('input-credits').value = 20;
+            document.getElementById('input-relic-turn').value = 120;
+            document.getElementById('input-relic-pts').value = 10;
+          }
         }
-      }
-    });
+      });
+    }
 
     // Run 1v1 match button
-    document.getElementById('btn-run-match').addEventListener('click', () => {
-      const p1 = document.getElementById('select-p1').value;
-      const p2 = document.getElementById('select-p2').value;
-      this.runMatch(p1, p2);
-    });
+    const btnRunMatch = document.getElementById('btn-run-match');
+    if (btnRunMatch) {
+      btnRunMatch.addEventListener('click', () => {
+        const p1 = document.getElementById('select-p1').value;
+        const p2 = document.getElementById('select-p2').value;
+        this.runMatch(p1, p2);
+      });
+    }
 
     // Run Tournament Matrix button
-    document.getElementById('btn-run-tournament').addEventListener('click', () => this.runTournamentMatrix());
+    const btnTournament = document.getElementById('btn-run-tournament');
+    if (btnTournament) {
+      btnTournament.addEventListener('click', () => this.runTournamentMatrix());
+    }
 
     // Bot lab quick test buttons
     document.querySelectorAll('.lab-btn').forEach(btn => {
@@ -283,7 +391,10 @@ class NodeWarVisualizer {
     });
 
     // Replay vault refresh button
-    document.getElementById('btn-refresh-replays').addEventListener('click', () => this.loadReplayList());
+    const btnRefreshReplays = document.getElementById('btn-refresh-replays');
+    if (btnRefreshReplays) {
+      btnRefreshReplays.addEventListener('click', () => this.loadReplayList());
+    }
 
     // Bot list refresh button
     const refreshBotsBtn = document.getElementById('btn-refresh-bots');
@@ -552,30 +663,31 @@ class NodeWarVisualizer {
       const res = await fetch(getApiUrl('/api/replays'));
       const data = await res.json();
       const vault = document.getElementById('replay-vault-list');
-      vault.innerHTML = '';
-
-      if (data.replays && data.replays.length > 0) {
-        data.replays.forEach(r => {
-          const item = document.createElement('div');
-          item.className = 'replay-item';
-          const winnerColor = r.winner === 1 ? '#00f3ff' : (r.winner === 2 ? '#ff0055' : '#888');
-          item.innerHTML = `
-            <div>
-              <div class="replay-item-title">${r.p1_name} vs ${r.p2_name}</div>
-              <div class="replay-item-meta">${r.total_turns} Turns // Winner: <span style="color:${winnerColor}; font-weight:700;">P${r.winner}</span></div>
-            </div>
-            <button class="secondary-btn" style="width:auto; margin:0; padding:3px 8px; font-size:0.75rem;">Load</button>
-          `;
-          item.addEventListener('click', () => this.fetchReplay(r.filename));
-          vault.appendChild(item);
-        });
-
-        // Load first replay if nothing loaded yet
-        if (!this.replayData) {
-          this.fetchReplay(data.replays[0].filename);
+      if (vault) {
+        vault.innerHTML = '';
+        if (data.replays && data.replays.length > 0) {
+          data.replays.forEach(r => {
+            const item = document.createElement('div');
+            item.className = 'replay-item';
+            const winnerColor = r.winner === 1 ? '#00f3ff' : (r.winner === 2 ? '#ff0055' : '#888');
+            item.innerHTML = `
+              <div>
+                <div class="replay-item-title">${r.p1_name} vs ${r.p2_name}</div>
+                <div class="replay-item-meta">${r.total_turns} Turns // Winner: <span style="color:${winnerColor}; font-weight:700;">P${r.winner}</span></div>
+              </div>
+              <button class="secondary-btn" style="width:auto; margin:0; padding:3px 8px; font-size:0.75rem;">Load</button>
+            `;
+            item.addEventListener('click', () => this.fetchReplay(r.filename));
+            vault.appendChild(item);
+          });
+        } else {
+          vault.innerHTML = '<div class="muted">No replays found. Simulate a match!</div>';
         }
-      } else {
-        vault.innerHTML = '<div class="muted">No replays found. Simulate a match!</div>';
+      }
+
+      // If no replay loaded yet, fetch the latest replay from list
+      if (!this.replayData && data.replays && data.replays.length > 0) {
+        this.fetchReplay(data.replays[0].filename);
       }
     } catch (err) {
       console.warn("Could not fetch replay list:", err);
@@ -598,15 +710,22 @@ class NodeWarVisualizer {
     this.pause();
 
     const scrubber = document.getElementById('timeline-scrubber');
-    const totalFrames = data.frames.length;
-    scrubber.max = totalFrames;
-    scrubber.value = 1;
-    document.getElementById('max-turn').textContent = totalFrames;
-    document.getElementById('scrubber-end-marker').textContent = `Turn ${totalFrames}`;
+    const totalFrames = data.frames ? data.frames.length : 120;
+    if (scrubber) {
+      scrubber.max = totalFrames;
+      scrubber.value = 1;
+    }
+    const maxTurnEl = document.getElementById('max-turn');
+    if (maxTurnEl) maxTurnEl.textContent = totalFrames;
+    const endMarkerEl = document.getElementById('scrubber-end-marker');
+    if (endMarkerEl) endMarkerEl.textContent = `T${totalFrames}`;
 
     // Header metadata
-    document.getElementById('p1-name').textContent = data.metadata.p1_name;
-    document.getElementById('p2-name').textContent = data.metadata.p2_name;
+    const meta = data.metadata || {};
+    const p1El = document.getElementById('p1-name');
+    if (p1El) p1El.textContent = meta.p1_name || 'Player 1';
+    const p2El = document.getElementById('p2-name');
+    if (p2El) p2El.textContent = meta.p2_name || 'Player 2';
 
     // Dynamic Relic Activation Turn
     let relicTurn = (data.metadata && data.metadata.relic_spawn_turn) ? data.metadata.relic_spawn_turn : null;
@@ -666,7 +785,8 @@ class NodeWarVisualizer {
   play() {
     if (!this.replayData) return;
     this.isPlaying = true;
-    document.getElementById('btn-play').innerHTML = '&#10074;&#10074;';
+    const btn = document.getElementById('btn-play');
+    if (btn) btn.innerHTML = '&#10074;&#10074;';
     clearInterval(this.playbackInterval);
     this.playbackInterval = setInterval(() => {
       if (this.currentFrameIdx < this.replayData.frames.length - 1) {
@@ -679,7 +799,8 @@ class NodeWarVisualizer {
 
   pause() {
     this.isPlaying = false;
-    document.getElementById('btn-play').innerHTML = '&#9654;';
+    const btn = document.getElementById('btn-play');
+    if (btn) btn.innerHTML = '&#9654;';
     clearInterval(this.playbackInterval);
   }
 
@@ -692,7 +813,8 @@ class NodeWarVisualizer {
   setFrame(idx) {
     const prevIdx = this.currentFrameIdx;
     this.currentFrameIdx = idx;
-    document.getElementById('timeline-scrubber').value = idx + 1;
+    const scrubber = document.getElementById('timeline-scrubber');
+    if (scrubber) scrubber.value = idx + 1;
     this.updateHUD();
     this.checkFrameEvents();
 
@@ -784,6 +906,7 @@ class NodeWarVisualizer {
 
   logEvent(msg, type = 'system') {
     const feed = document.getElementById('event-feed');
+    if (!feed) return;
     const item = document.createElement('div');
     item.className = `feed-item ${type}`;
     item.textContent = msg;
@@ -794,32 +917,52 @@ class NodeWarVisualizer {
   updateHUD() {
     if (!this.replayData) return;
     const frame = this.replayData.frames[this.currentFrameIdx];
-    document.getElementById('current-turn').textContent = frame.turn;
-    document.getElementById('p1-score').textContent = frame.scores.p1;
-    document.getElementById('p2-score').textContent = frame.scores.p2;
+    if (!frame) return;
 
-    document.getElementById('p1-credits').textContent = frame.credits.p1;
-    document.getElementById('p2-credits').textContent = frame.credits.p2;
+    const setTxt = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = val;
+    };
 
-    document.getElementById('p1-income').textContent = `+${frame.income.p1}`;
-    document.getElementById('p2-income').textContent = `+${frame.income.p2}`;
+    setTxt('current-turn', frame.turn);
+    setTxt('p1-score', frame.scores ? frame.scores.p1 : 0);
+    setTxt('p2-score', frame.scores ? frame.scores.p2 : 0);
 
-    document.getElementById('p1-upkeep').textContent = frame.upkeep.p1;
-    document.getElementById('p2-upkeep').textContent = frame.upkeep.p2;
+    setTxt('p1-credits', frame.credits ? frame.credits.p1 : 0);
+    setTxt('p2-credits', frame.credits ? frame.credits.p2 : 0);
+
+    setTxt('p1-income', frame.income ? `+${frame.income.p1}` : '+0');
+    setTxt('p2-income', frame.income ? `+${frame.income.p2}` : '+0');
+
+    setTxt('p1-upkeep', frame.upkeep ? frame.upkeep.p1 : 0);
+    setTxt('p2-upkeep', frame.upkeep ? frame.upkeep.p2 : 0);
+
+    let p1Nodes = 0;
+    let p2Nodes = 0;
+    if (frame.nodes) {
+      Object.values(frame.nodes).forEach(n => {
+        if (n.owner === 1) p1Nodes++;
+        else if (n.owner === 2) p2Nodes++;
+      });
+    }
+    setTxt('p1-nodes', p1Nodes);
+    setTxt('p2-nodes', p2Nodes);
 
     const relicBadge = document.getElementById('relic-status');
-    if (frame.relic_active) {
-      relicBadge.className = 'relic-badge active';
-      relicBadge.textContent = 'RELIC ACTIVE // 2X POINTS & +10/TURN';
-    } else if (frame.relic_charging) {
-      relicBadge.className = 'relic-badge charging';
-      relicBadge.textContent = '⚡ RELIC CHARGING // AWAKENING IMMINENT';
-    } else {
-      relicBadge.className = 'relic-badge';
-      if (this.relicSpawnTurn) {
-        relicBadge.textContent = `RELIC DORMANT (ACTIVATES TURN ${this.relicSpawnTurn})`;
+    if (relicBadge) {
+      if (frame.relic_active) {
+        relicBadge.className = 'relic-badge active';
+        relicBadge.textContent = 'RELIC ACTIVE // 2X POINTS & +10/TURN';
+      } else if (frame.relic_charging) {
+        relicBadge.className = 'relic-badge charging';
+        relicBadge.textContent = '⚡ RELIC CHARGING // AWAKENING IMMINENT';
       } else {
-        relicBadge.textContent = `RELIC DORMANT (ACTIVATES TURN 80-100)`;
+        relicBadge.className = 'relic-badge';
+        if (this.relicSpawnTurn) {
+          relicBadge.textContent = `RELIC DORMANT (ACTIVATES TURN ${this.relicSpawnTurn})`;
+        } else {
+          relicBadge.textContent = `RELIC DORMANT (ACTIVATES TURN 80-100)`;
+        }
       }
     }
 
@@ -847,7 +990,9 @@ class NodeWarVisualizer {
   // =========================================
   startAnimationLoop() {
     const loop = () => {
-      this.render();
+      if (this.engineMode === '2d') {
+        this.render();
+      }
       requestAnimationFrame(loop);
     };
     requestAnimationFrame(loop);
@@ -1085,7 +1230,8 @@ class NodeWarVisualizer {
       }
     }
     this.selectedNodeId = null;
-    document.getElementById('inspector-content').innerHTML = '<p class="muted">Hover or click any node to inspect telemetry.</p>';
+    const insp = document.getElementById('inspector-content');
+    if (insp) insp.innerHTML = '<p class="muted">Hover or click any node to inspect telemetry.</p>';
   }
 
   handleCanvasHover(e) {
@@ -1134,7 +1280,8 @@ class NodeWarVisualizer {
         <div>Scouts: <strong style="color:#ba68c8">${units.scout || 0}</strong></div>
       </div>
     `;
-    document.getElementById('inspector-content').innerHTML = content;
+    const insp = document.getElementById('inspector-content');
+    if (insp) insp.innerHTML = content;
   }
 }
 

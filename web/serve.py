@@ -20,6 +20,7 @@ from engine.models import GameConfig
 from bots.base import BotBase
 
 PORT = 8000
+ACTIVE_MATCH_DATA: Dict[str, Any] | None = None
 
 class CustomDynamicBot(BotBase):
     """Placeholder for dynamic user-uploaded bots."""
@@ -49,6 +50,7 @@ class NodeWarRequestHandler(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
+        global ACTIVE_MATCH_DATA
         if self.path == "/api/replays":
             replays_dir = os.path.join(PROJECT_ROOT, "replays")
             files = sorted(glob.glob(os.path.join(replays_dir, "*.json")), key=os.path.getmtime, reverse=True)
@@ -118,10 +120,31 @@ class NodeWarRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_error(404, "Bot file not found")
             return
 
+        elif self.path == "/api/active-match":
+            if ACTIVE_MATCH_DATA:
+                self._send_json(ACTIVE_MATCH_DATA)
+                return
+            # Fallback: load the most recent replay file from replays/
+            replays_dir = os.path.join(PROJECT_ROOT, "replays")
+            files = sorted(glob.glob(os.path.join(replays_dir, "*.json")), key=os.path.getmtime, reverse=True)
+            if files:
+                try:
+                    with open(files[0], "r", encoding="utf-8") as rf:
+                        ACTIVE_MATCH_DATA = json.load(rf)
+                    ACTIVE_MATCH_DATA["filename"] = os.path.basename(files[0])
+                    self._send_json(ACTIVE_MATCH_DATA)
+                    return
+                except Exception as e:
+                    self._send_json({"error": f"Failed reading latest replay: {e}"}, status=500)
+                    return
+            self._send_json({"error": "No active match found"}, status=404)
+            return
+
         # Serve static web files
         return super().do_GET()
 
     def do_POST(self):
+        global ACTIVE_MATCH_DATA
         if self.path == "/api/run-match":
             content_length = int(self.headers.get("Content-Length", 0))
             body = self.rfile.read(content_length)
@@ -177,9 +200,33 @@ class NodeWarRequestHandler(http.server.SimpleHTTPRequestHandler):
                 with open(res.replay_path, "r", encoding="utf-8") as f:
                     replay_data = json.load(f)
                 replay_data["filename"] = os.path.basename(res.replay_path)
+                ACTIVE_MATCH_DATA = replay_data
                 self._send_json(replay_data)
             else:
                 self._send_json({"error": "Failed to generate replay"}, status=500)
+            return
+
+        elif self.path == "/api/active-match":
+            content_length = int(self.headers.get("Content-Length", 0))
+            body = self.rfile.read(content_length)
+            params = json.loads(body.decode("utf-8")) if body else {}
+            filename = params.get("filename")
+            if filename:
+                replay_file = os.path.join(PROJECT_ROOT, "replays", os.path.basename(filename))
+                if os.path.exists(replay_file):
+                    with open(replay_file, "r", encoding="utf-8") as f:
+                        ACTIVE_MATCH_DATA = json.load(f)
+                    ACTIVE_MATCH_DATA["filename"] = os.path.basename(filename)
+                    self._send_json({"status": "ok", "active_match": ACTIVE_MATCH_DATA})
+                    return
+                else:
+                    self._send_json({"error": "Replay file not found"}, status=404)
+                    return
+            elif "match_data" in params:
+                ACTIVE_MATCH_DATA = params["match_data"]
+                self._send_json({"status": "ok"})
+                return
+            self._send_json({"error": "Missing filename or match_data"}, status=400)
             return
 
         elif self.path == "/api/run-tournament":

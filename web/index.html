@@ -3,328 +3,149 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Node War // Esports Spectator & Match Arena</title>
+  <title>Node War // Esports Arena Broadcast</title>
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 </head>
-<body>
-  <div class="app-container">
-    <!-- Top Esports Header -->
-    <header class="scoreboard-header">
-      <div class="player-hud p1">
-        <div class="player-avatar">P1</div>
-        <div class="player-info">
-          <div class="player-name" id="p1-name">Rusher</div>
-          <div class="player-meta">
-            <span>Gold: <strong id="p1-credits">30</strong> 🪙</span>
-            <span>Income: <strong id="p1-income">+15</strong></span>
-            <span>Upkeep: <strong id="p1-upkeep">0</strong></span>
+<body class="broadcast-body">
+  <div class="stream-container">
+    <!-- Top Esports Broadcast Scoreboard Header -->
+    <header class="broadcast-header">
+      <!-- Player 1 (Cyan Faction) -->
+      <div class="team-card p1">
+        <div class="team-badge">P1</div>
+        <div class="team-details">
+          <div class="team-name" id="p1-name">Rusher</div>
+          <div class="team-stat-pills">
+            <span class="pill gold" title="Gold Treasury">🪙 <strong id="p1-credits">30</strong></span>
+            <span class="pill income" title="Gold Production / Turn">📈 <strong id="p1-income">+15</strong></span>
+            <span class="pill upkeep" title="Empire Supply Tax">🛡️ <strong id="p1-upkeep">0</strong></span>
+            <span class="pill nodes" title="Territories Owned">🏰 <strong id="p1-nodes">1</strong></span>
           </div>
         </div>
-        <div class="score-display" id="p1-score">0</div>
+        <div class="team-score" id="p1-score">0</div>
       </div>
 
-      <div class="match-center-hud">
-        <div class="game-title">NODE WAR // ESPORTS ARENA</div>
-        <div class="turn-counter">TURN <span id="current-turn">1</span> / <span id="max-turn">120</span></div>
+      <!-- Center Match Telemetry HUD -->
+      <div class="center-hud">
+        <div class="tournament-title">
+          <span class="title-glow">NODE WAR</span> // ESPORTS ARENA
+        </div>
+        <div class="turn-display">TURN <span id="current-turn">1</span> / <span id="max-turn">120</span></div>
         <div class="relic-badge" id="relic-status">RELIC DORMANT (ACTIVATES TURN 80-100)</div>
-        <div class="view-mode-toggle">
-          <button class="view-btn active" data-mode="spectator" title="Audience Omniscient View">Spectator (All)</button>
-          <button class="view-btn" data-mode="p1" title="Player 1 Fog-of-War">P1 View</button>
-          <button class="view-btn" data-mode="p2" title="Player 2 Fog-of-War">P2 View</button>
+        
+        <div class="header-sub-controls">
+          <div class="view-mode-toggle">
+            <button class="view-btn active" data-mode="spectator" title="Audience Omniscient Perspective">Spectator</button>
+            <button class="view-btn" data-mode="p1" title="Player 1 Fog-of-War">P1 Vision</button>
+            <button class="view-btn" data-mode="p2" title="Player 2 Fog-of-War">P2 Vision</button>
+          </div>
+          <a href="setup.html" target="_blank" class="deck-link-btn" title="Open Organizer Match Setup & Controller Deck">⚙️ Setup Deck</a>
         </div>
       </div>
 
-      <div class="player-hud p2">
-        <div class="score-display" id="p2-score">0</div>
-        <div class="player-info text-right">
-          <div class="player-name" id="p2-name">Turtle</div>
-          <div class="player-meta">
-            <span>Gold: <strong id="p2-credits">30</strong> 🪙</span>
-            <span>Income: <strong id="p2-income">+15</strong></span>
-            <span>Upkeep: <strong id="p2-upkeep">0</strong></span>
+      <!-- Player 2 (Crimson Faction) -->
+      <div class="team-card p2">
+        <div class="team-score" id="p2-score">0</div>
+        <div class="team-details text-right">
+          <div class="team-name" id="p2-name">Turtle</div>
+          <div class="team-stat-pills justify-right">
+            <span class="pill nodes" title="Territories Owned">🏰 <strong id="p2-nodes">1</strong></span>
+            <span class="pill upkeep" title="Empire Supply Tax">🛡️ <strong id="p2-upkeep">0</strong></span>
+            <span class="pill income" title="Gold Production / Turn">📈 <strong id="p2-income">+15</strong></span>
+            <span class="pill gold" title="Gold Treasury">🪙 <strong id="p2-credits">30</strong></span>
           </div>
         </div>
-        <div class="player-avatar">P2</div>
+        <div class="team-badge">P2</div>
       </div>
     </header>
 
-    <!-- Main Content Grid -->
-    <div class="arena-grid">
-      <!-- Left Panel: Navigation Tabs & Control Center -->
-      <aside class="panel left-panel">
-        <div class="tabs-nav">
-          <button class="tab-btn active" data-tab="tab-match">1v1 Arena</button>
-          <button class="tab-btn" data-tab="tab-tournament">Matrix</button>
-          <button class="tab-btn" data-tab="tab-playground">Bot Lab</button>
-          <button class="tab-btn" data-tab="tab-replays">Replays</button>
+    <!-- Full-Bleed Battlefield Viewport -->
+    <main class="stream-viewport-container" id="viewport-container">
+      <!-- 1. Cartoon Tower Defense Canvas (Default) -->
+      <canvas id="td-canvas" class="td-viewport"></canvas>
+
+      <!-- 2. 3D Three.js WebGL Container -->
+      <div id="three-container" class="three-viewport hidden"></div>
+
+      <!-- 3. 2D Tactical Canvas -->
+      <canvas id="game-canvas" class="hidden"></canvas>
+
+      <!-- Dynamic Combat Flash Banner -->
+      <div id="combat-banner" class="combat-banner hidden"></div>
+
+      <!-- Top Overlay Controls (Engine Selector & Quick Navigation) -->
+      <div class="viewport-overlay-top">
+        <div class="engine-mode-pills">
+          <button id="btn-mode-td" class="engine-btn active" title="Cartoon Tower Defense Game View">&#9876; Tower Defense</button>
+          <button id="btn-mode-3d" class="engine-btn" title="3D Isometric Battlefield">&#9650; 3D Arena</button>
+          <button id="btn-mode-2d" class="engine-btn" title="2D Tactical Schematic">&#9632; 2D Tactical</button>
         </div>
-
-        <!-- TAB 1: 1v1 MATCH RUNNER -->
-        <div id="tab-match" class="tab-content active">
-          <div class="panel-section">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-              <h3 style="margin:0;">Match Setup</h3>
-              <button id="btn-refresh-bots" class="secondary-btn" style="width:auto; margin:0; padding:2px 8px; font-size:0.75rem;" title="Scan bots/ folder for new scripts">&#8635; Refresh Bots</button>
-            </div>
-            <div class="form-group">
-              <label>Player 1 (Cyan):</label>
-              <select id="select-p1">
-                <optgroup label="Custom Scripts (bots/)">
-                  <option value="bot1.py">bot1.py (NemesisNodeBot)</option>
-                </optgroup>
-                <optgroup label="Built-in Baseline Bots">
-                  <option value="rusher" selected>Rusher Bot</option>
-                  <option value="turtle">Turtle Bot</option>
-                  <option value="balanced">Balanced (Scout) Bot</option>
-                  <option value="starter">Starter Bot</option>
-                </optgroup>
-                <optgroup label="Browser Lab">
-                  <option value="custom">Custom Lab Bot</option>
-                </optgroup>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Player 2 (Crimson):</label>
-              <select id="select-p2">
-                <optgroup label="Custom Scripts (bots/)">
-                  <option value="bot1.py">bot1.py (NemesisNodeBot)</option>
-                </optgroup>
-                <optgroup label="Built-in Baseline Bots">
-                  <option value="rusher">Rusher Bot</option>
-                  <option value="turtle" selected>Turtle Bot</option>
-                  <option value="balanced">Balanced (Scout) Bot</option>
-                  <option value="starter">Starter Bot</option>
-                </optgroup>
-                <optgroup label="Browser Lab">
-                  <option value="custom">Custom Lab Bot</option>
-                </optgroup>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label>Preset Mode:</label>
-              <select id="select-preset">
-                <option value="standard" selected>Tournament Standard (120T, 30 Gold, Dynamic Relic T80-100)</option>
-                <option value="blitz">Blitz Match (60T, 40 Gold, Relic T40)</option>
-                <option value="marathon">Marathon Siege (160T, 20 Gold, Relic T130)</option>
-                <option value="custom">Custom Configuration</option>
-              </select>
-            </div>
-
-            <div id="custom-config-fields" class="custom-config-fields hidden">
-              <div class="form-row">
-                <div>
-                  <label>Max Turns:</label>
-                  <input type="number" id="input-turns" value="120" min="20" max="250" step="10">
-                </div>
-                <div>
-                  <label>Initial Gold:</label>
-                  <input type="number" id="input-credits" value="30" min="10" max="150" step="5">
-                </div>
-              </div>
-              <div class="form-row">
-                <div>
-                  <label>Relic Turn (empty = dynamic):</label>
-                  <input type="number" id="input-relic-turn" placeholder="Dynamic (80-100)" min="10" max="200" step="5">
-                </div>
-                <div>
-                  <label>Relic Pts/T:</label>
-                  <input type="number" id="input-relic-pts" value="10" min="5" max="50" step="5">
-                </div>
-              </div>
-            </div>
-
-            <button id="btn-run-match" class="action-btn glow-btn">SIMULATE &amp; PLAY</button>
-          </div>
-
-          <div class="panel-section rps-guide">
-            <h3>Combat Triangle</h3>
-            <div class="triangle-row"><span class="badge raider">RAIDER (10)</span> &gt; <span class="badge siege">SIEGE</span> (2x)</div>
-            <div class="triangle-row"><span class="badge siege">SIEGE (18)</span> &gt; <span class="badge guard">GUARD</span> (2x)</div>
-            <div class="triangle-row"><span class="badge guard">GUARD (12)</span> &gt; <span class="badge raider">RAIDER</span> (2x)</div>
-            <div class="triangle-row"><span class="badge scout">SCOUT (6)</span> Vision &amp; Intel</div>
-          </div>
-        </div>
-
-        <!-- TAB 2: BALANCE TOURNAMENT MATRIX -->
-        <div id="tab-tournament" class="tab-content">
-          <div class="panel-section">
-            <h3>Matrix Evaluator</h3>
-            <p class="muted-small">Runs a round-robin tournament between Rusher, Turtle, and Balanced across alternating sides to test the RPS strategy cycle.</p>
-            <div class="form-group" style="margin-top:10px;">
-              <label>Rounds Per Pair (Total = Rounds &times; 2):</label>
-              <select id="select-tournament-rounds">
-                <option value="5">5 Rounds (10 Matches)</option>
-                <option value="10" selected>10 Rounds (20 Matches)</option>
-                <option value="25">25 Rounds (50 Matches)</option>
-              </select>
-            </div>
-            <button id="btn-run-tournament" class="action-btn">RUN BALANCE MATRIX</button>
-          </div>
-
-          <div id="tournament-results-card" class="panel-section hidden">
-            <h3>Matrix Results</h3>
-            <div id="tournament-matrix-view" class="matrix-view"></div>
-          </div>
-        </div>
-
-        <!-- TAB 3: CUSTOM BOT LAB -->
-        <div id="tab-playground" class="tab-content">
-          <div class="panel-section">
-            <h3>Custom Bot Playground</h3>
-            <p class="muted-small">Edit code below or load any script from <code>bots/</code> to inspect, tweak, and test!</p>
-            <div style="display:flex; gap:6px; margin-top:8px;">
-              <select id="select-load-script">
-                <option value="">Load from bots/ ...</option>
-              </select>
-              <button id="btn-load-script-into-editor" class="secondary-btn" style="width:auto; margin:0; padding:4px 10px; font-size:0.8rem; white-space:nowrap;">Load</button>
-            </div>
-            <textarea id="custom-bot-editor" class="code-editor" spellcheck="false">from engine.models import UnitType
-from engine.fog import BotObservation
-from bots.base import BotBase
-
-class MyCustomBot(BotBase):
-    def act(self, obs: BotObservation):
-        orders = []
-        my_nodes = self.get_my_nodes(obs)
-        if not my_nodes:
-            return orders
-
-        # Train raiders or guards
-        home_id = 0 if self.player_id == 1 else 14
-        home = next((n for n in my_nodes if n.id == home_id), my_nodes[0])
-        if obs.my_credits >= 12:
-            orders.append(self.train(home.id, UnitType.GUARD, 1))
-
-        # Push neutral nodes
-        neutrals = self.get_neutral_nodes(obs)
-        if neutrals and home.units.get("guard", 0) >= 3:
-            path = self.get_path(obs, home.id, neutrals[0].id)
-            if len(path) >= 2:
-                orders.append(self.move(home.id, path[1], {UnitType.GUARD: 2}))
-
-        return orders
-</textarea>
-            <div class="bot-lab-buttons">
-              <button class="lab-btn" data-opponent="rusher">Battle Rusher</button>
-              <button class="lab-btn" data-opponent="turtle">Battle Turtle</button>
-              <button class="lab-btn" data-opponent="balanced">Battle Balanced</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- TAB 4: REPLAY VAULT -->
-        <div id="tab-replays" class="tab-content">
-          <div class="panel-section">
-            <h3>Saved Replay Library</h3>
-            <div id="replay-vault-list" class="replay-vault-list">
-              <div class="muted">Loading saved replays...</div>
-            </div>
-            <button id="btn-refresh-replays" class="secondary-btn">Refresh Replays</button>
-          </div>
-        </div>
-      </aside>
-
-      <!-- Center: Multi-Engine Battlefield Viewport -->
-      <main class="canvas-viewport" id="viewport-container">
-        <!-- 1. Cartoon Tower Defense Canvas (Default) -->
-        <canvas id="td-canvas" class="td-viewport"></canvas>
-
-        <!-- 2. 3D Three.js WebGL Container -->
-        <div id="three-container" class="three-viewport hidden"></div>
-
-        <!-- 3. 2D Tactical Canvas -->
-        <canvas id="game-canvas" class="hidden"></canvas>
-
-        <div id="combat-banner" class="combat-banner hidden"></div>
-
-        <!-- Viewport Top Controls (Engine Mode Toggle & Quick Nav) -->
-        <div class="viewport-top-bar">
-          <div class="engine-mode-toggle">
-            <button id="btn-mode-td" class="engine-btn active" title="Cartoon Tower Defense Game View">&#9876; Tower Defense</button>
-            <button id="btn-mode-3d" class="engine-btn" title="3D Isometric Battlefield">&#9650; 3D Arena</button>
-            <button id="btn-mode-2d" class="engine-btn" title="2D Tactical Schematic">&#9632; 2D Tactical</button>
-          </div>
-          <div class="quick-nav-overlay">
-            <button id="btn-jump-relic" class="quick-nav-btn" title="Jump to Relic Phase">&#9889; Relic</button>
-            <button id="btn-jump-clash" class="quick-nav-btn" title="Jump to Next Battle">&#9876; Next Battle</button>
-            <button id="btn-jump-end" class="quick-nav-btn" title="Jump to Match Finish">&#9209; Finish</button>
-          </div>
-        </div>
-
-        <!-- 3D Camera Presets Bar (Bottom-Left) -->
-        <div class="camera-presets-overlay" id="camera-presets-bar">
-          <span class="cam-label">CAM:</span>
-          <button class="cam-btn active" data-cam="iso" title="Isometric Overhead Angle">Isometric</button>
-          <button class="cam-btn" data-cam="p1" title="Focus Player 1 Citadel">P1 Core</button>
-          <button class="cam-btn" data-cam="relic" title="Focus Relic Sanctuary">Relic</button>
-          <button class="cam-btn" data-cam="p2" title="Focus Player 2 Citadel">P2 Core</button>
-          <button class="cam-btn" data-cam="cinematic" title="Spectator Orbit Flyby">&#9733; Orbit</button>
-          <button class="cam-btn" data-cam="reset" title="Reset Camera View">&#8635;</button>
-        </div>
-
-        <!-- 2D Viewport Zoom & Pan Controls Overlay -->
-        <div class="zoom-controls-overlay" id="zoom-controls-bar">
-          <button id="btn-zoom-in" class="zoom-btn" title="Zoom In (+)">+</button>
-          <span id="zoom-level-badge" class="zoom-badge">100%</span>
-          <button id="btn-zoom-out" class="zoom-btn" title="Zoom Out (−)">−</button>
-          <button id="btn-zoom-reset" class="zoom-btn" title="Reset View (100%)">&#8635;</button>
-        </div>
-
-        <!-- 3D Hover Tooltip -->
-        <div id="three-tooltip" class="three-tooltip hidden"></div>
-      </main>
-
-      <!-- Right Panel: Node Inspector & Battle Feed -->
-      <aside class="panel right-panel">
-        <div class="panel-section">
-          <h3>Node Inspector</h3>
-          <div id="inspector-content" class="inspector-details">
-            <p class="muted">Hover or click any node to inspect telemetry.</p>
-          </div>
-        </div>
-
-        <div class="panel-section flex-grow">
-          <h3>Live Battle Feed</h3>
-          <div id="event-feed" class="event-feed">
-            <div class="feed-item system">Esports Arena ready. Select or simulate a match.</div>
-          </div>
-        </div>
-      </aside>
-    </div>
-
-    <!-- Bottom Playback Controls -->
-    <footer class="playback-bar">
-      <div class="playback-controls">
-        <button id="btn-prev" class="ctrl-btn" title="Previous Turn (Left Arrow)">&#9664;&#9664;</button>
-        <button id="btn-play" class="ctrl-btn play-btn" title="Play/Pause (Spacebar)">&#9654;</button>
-        <button id="btn-next" class="ctrl-btn" title="Next Turn (Right Arrow)">&#9654;&#9654;</button>
-        <button id="btn-restart" class="ctrl-btn" title="Restart">&#8634;</button>
-      </div>
-
-      <div class="scrubber-container">
-        <input type="range" id="timeline-scrubber" min="1" max="120" value="1" class="scrubber">
-        <div class="scrubber-markers">
-          <span class="marker" style="left: 0%;">Turn 1</span>
-          <span class="marker relic-marker" id="scrubber-relic-marker" style="left: 75%;">Relic Phase</span>
-          <span class="marker" id="scrubber-end-marker" style="left: 100%;">Turn 120</span>
+        <div class="quick-nav-pills">
+          <button id="btn-jump-relic" class="quick-nav-btn" title="Jump to Relic Phase">&#9889; Relic</button>
+          <button id="btn-jump-clash" class="quick-nav-btn" title="Jump to Next Battle">&#9876; Next Battle</button>
+          <button id="btn-jump-end" class="quick-nav-btn" title="Jump to Match Finish">&#9209; Finish</button>
         </div>
       </div>
 
-      <div class="speed-controls">
+      <!-- 3D Camera Presets Overlay (Bottom-Left) -->
+      <div class="camera-presets-overlay hidden" id="camera-presets-bar">
+        <span class="cam-label">CAM:</span>
+        <button class="cam-btn active" data-cam="iso" title="Isometric Overhead Angle">Isometric</button>
+        <button class="cam-btn" data-cam="p1" title="Focus Player 1 Citadel">P1 Core</button>
+        <button class="cam-btn" data-cam="relic" title="Focus Relic Sanctuary">Relic</button>
+        <button class="cam-btn" data-cam="p2" title="Focus Player 2 Citadel">P2 Core</button>
+        <button class="cam-btn" data-cam="cinematic" title="Spectator Orbit Flyby">&#9733; Orbit</button>
+        <button class="cam-btn" data-cam="reset" title="Reset Camera View">&#8635;</button>
+      </div>
+
+      <!-- 2D Viewport Zoom & Pan Controls Overlay -->
+      <div class="zoom-controls-overlay" id="zoom-controls-bar">
+        <button id="btn-zoom-in" class="zoom-btn" title="Zoom In (+)">+</button>
+        <span id="zoom-level-badge" class="zoom-badge">100%</span>
+        <button id="btn-zoom-out" class="zoom-btn" title="Zoom Out (−)">−</button>
+        <button id="btn-zoom-reset" class="zoom-btn" title="Reset View (100%)">&#8635;</button>
+      </div>
+
+      <!-- 3D Hover Tooltip -->
+      <div id="three-tooltip" class="three-tooltip hidden"></div>
+    </main>
+
+    <!-- Redesigned Low-Profile Broadcast Bottom Ticker -->
+    <footer class="broadcast-bottom-strip">
+      <div class="strip-controls">
+        <button id="btn-prev" class="stream-btn" title="Previous Turn (Left Arrow)">&#9664;&#9664;</button>
+        <button id="btn-play" class="stream-btn stream-play-btn" title="Play / Pause (Spacebar)">&#9654;</button>
+        <button id="btn-next" class="stream-btn" title="Next Turn (Right Arrow)">&#9654;&#9654;</button>
+        <button id="btn-restart" class="stream-btn" title="Restart Match (R)">&#8634;</button>
+      </div>
+
+      <div class="stream-scrubber-box">
+        <input type="range" id="timeline-scrubber" min="1" max="120" value="1" class="stream-scrubber">
+        <div class="stream-scrubber-labels">
+          <span class="scrub-label left">T1</span>
+          <span class="scrub-label relic" id="scrubber-relic-marker">⚡ Relic Awakening</span>
+          <span class="scrub-label right" id="scrubber-end-marker">T120</span>
+        </div>
+      </div>
+
+      <div class="stream-speed-box">
         <button class="speed-btn" data-speed="1500">0.5x</button>
         <button class="speed-btn active" data-speed="1000">1x</button>
         <button class="speed-btn" data-speed="500">2x</button>
         <button class="speed-btn" data-speed="250">4x</button>
         <button class="speed-btn" data-speed="50">Max</button>
       </div>
+
+      <div class="stream-action-box">
+        <button id="btn-fullscreen" class="stream-btn fullscreen-btn" title="Toggle Fullscreen Projector Mode (F)">⛶ Fullscreen</button>
+      </div>
     </footer>
   </div>
 
-  <!-- Three.js 3D Engine & Controls (Vendor + CDN fallback) -->
+  <!-- Three.js 3D Engine & Controls (Vendor) -->
   <script src="vendor/three.min.js"></script>
   <script src="vendor/OrbitControls.js"></script>
   <script src="three_visualizer.js"></script>

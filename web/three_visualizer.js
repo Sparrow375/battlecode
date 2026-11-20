@@ -48,6 +48,7 @@ class NodeWarThreeVisualizer {
 
     this.tooltipEl = document.getElementById('three-tooltip');
     this.hoveredEntity = null;
+    this.isActive = false;
 
     this.initScene();
     this.bindEvents();
@@ -1131,12 +1132,26 @@ class NodeWarThreeVisualizer {
     });
   }
 
+  setActive(active) {
+    this.isActive = !!active;
+    if (this.isActive && this.renderer && this.container && this.camera) {
+      const width = this.container.clientWidth || window.innerWidth;
+      const height = this.container.clientHeight || window.innerHeight;
+      if (width && height) {
+        this.camera.aspect = width / height;
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize(width, height);
+      }
+    }
+  }
+
   // ---------------------------------------------------------------------------
   // 8. Animation & Render Loop
   // ---------------------------------------------------------------------------
   startRenderLoop() {
     const animate = () => {
       requestAnimationFrame(animate);
+      if (this.isActive === false) return;
 
       // Update Controls
       if (this.controls) this.controls.update();

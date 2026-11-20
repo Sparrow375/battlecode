@@ -42,6 +42,9 @@ class NodeWarTDVisualizer {
     this.hasDragged = false;
     this.canvas.style.cursor = 'grab';
 
+    this.isActive = true;
+    this.grassPattern = null;
+
     this.initCanvasResize();
     this.loadAssets();
     this.bindEvents();
@@ -117,6 +120,7 @@ class NodeWarTDVisualizer {
       this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       this.displayWidth = rect.width;
       this.displayHeight = rect.height;
+      this.grassPattern = null; // Recreate pattern for new dimensions if needed
     };
     if (!this._resizeBound) {
       window.addEventListener('resize', resize);
@@ -125,16 +129,55 @@ class NodeWarTDVisualizer {
     resize();
   }
 
+  getScaleFactor() {
+    // Standard reference esports broadcast viewport: 1400 x 850
+    const sx = this.displayWidth / 1400;
+    const sy = this.displayHeight / 850;
+    const raw = Math.min(sx, sy);
+    return Math.max(0.55, Math.min(1.35, raw));
+  }
+
+  setActive(active) {
+    this.isActive = !!active;
+    if (this.isActive) {
+      this.initCanvasResize();
+    }
+  }
+
+  createGrassPattern() {
+    try {
+      const tile = document.createElement('canvas');
+      tile.width = 120;
+      tile.height = 120;
+      const tctx = tile.getContext('2d');
+      tctx.fillStyle = '#6ca320';
+      const clumps = [
+        { x: 25, y: 30 },
+        { x: 85, y: 40 },
+        { x: 55, y: 90 }
+      ];
+      clumps.forEach(c => {
+        tctx.fillRect(c.x, c.y, 3, 4);
+        tctx.fillRect(c.x + 3, c.y - 2, 3, 6);
+        tctx.fillRect(c.x - 2, c.y + 1, 2, 3);
+      });
+      this.grassPattern = this.ctx.createPattern(tile, 'repeat');
+    } catch (e) {
+      this.grassPattern = null;
+    }
+  }
+
   // ---------------------------------------------------------------------------
   // 2. Map Screen Coordinate Transform & Road Geometry
   // ---------------------------------------------------------------------------
   getNodeScreenPos(nodeId) {
-    if (!this.replayData) return null;
+    if (!this.replayData || !this.replayData.map) return null;
     const node = this.replayData.map.nodes.find(n => n.id === nodeId);
     if (!node) return null;
 
-    const padX = 100;
-    const padY = 70;
+    const scale = this.getScaleFactor();
+    const padX = Math.max(50, Math.min(130, this.displayWidth * 0.08));
+    const padY = Math.max(45, Math.min(95, this.displayHeight * 0.10));
     const w = this.displayWidth - padX * 2;
     const h = this.displayHeight - padY * 2;
 
@@ -166,7 +209,9 @@ class NodeWarTDVisualizer {
   // ---------------------------------------------------------------------------
   startAnimationLoop() {
     const loop = () => {
-      this.render();
+      if (this.isActive !== false) {
+        this.render();
+      }
       requestAnimationFrame(loop);
     };
     requestAnimationFrame(loop);
@@ -237,21 +282,19 @@ class NodeWarTDVisualizer {
     this.ctx.fillStyle = grad;
     this.ctx.fillRect(-span, -span, this.displayWidth + span * 2, this.displayHeight + span * 2);
 
-    // Subtle cartoon grass blade clumps
-    this.ctx.fillStyle = '#6ca320';
-    const step = 65;
-    for (let x = -800; x < this.displayWidth + 800; x += step) {
-      for (let y = -800; y < this.displayHeight + 800; y += step) {
-        const ox = ((Math.abs(x * 13)) % 24) - 12;
-        const oy = ((Math.abs(y * 17)) % 24) - 12;
-        this.ctx.fillRect(x + ox, y + oy, 3, 4);
-        this.ctx.fillRect(x + ox + 3, y + oy - 2, 3, 6);
-      }
+    // Fast hardware-accelerated repeating grass blade clumps pattern (eliminates 2,300+ fillRect calls/frame!)
+    if (!this.grassPattern) {
+      this.createGrassPattern();
+    }
+    if (this.grassPattern) {
+      this.ctx.fillStyle = this.grassPattern;
+      this.ctx.fillRect(-span, -span, this.displayWidth + span * 2, this.displayHeight + span * 2);
     }
   }
 
   drawWindingRoads() {
     const lanes = this.replayData.map.lanes;
+    const scale = this.getScaleFactor();
 
     // Draw road underbed shadow
     lanes.forEach(lane => {
@@ -263,7 +306,7 @@ class NodeWarTDVisualizer {
       this.ctx.moveTo(pA.x, pA.y);
       this.ctx.lineTo(pB.x, pB.y);
       this.ctx.strokeStyle = '#997b53'; // Dark earth border
-      this.ctx.lineWidth = 42;
+      this.ctx.lineWidth = Math.round(38 * scale);
       this.ctx.lineCap = 'round';
       this.ctx.lineJoin = 'round';
       this.ctx.stroke();
@@ -279,7 +322,7 @@ class NodeWarTDVisualizer {
       this.ctx.moveTo(pA.x, pA.y);
       this.ctx.lineTo(pB.x, pB.y);
       this.ctx.strokeStyle = '#e9d8a6'; // Warm sandy dirt road
-      this.ctx.lineWidth = 32;
+      this.ctx.lineWidth = Math.round(28 * scale);
       this.ctx.lineCap = 'round';
       this.ctx.lineJoin = 'round';
       this.ctx.stroke();
@@ -288,6 +331,7 @@ class NodeWarTDVisualizer {
 
   drawEnvironmentDecor() {
     if (!this.assetsLoaded) return;
+    const scale = this.getScaleFactor();
 
     this.decorations.forEach(dec => {
       const img = this.assets[dec.type];
@@ -301,7 +345,7 @@ class NodeWarTDVisualizer {
       if (this.replayData) {
         for (const n of this.replayData.map.nodes) {
           const np = this.getNodeScreenPos(n.id);
-          if (np && Math.hypot(np.x - x, np.y - y) < 65) {
+          if (np && Math.hypot(np.x - x, np.y - y) < 65 * scale) {
             tooClose = true;
             break;
           }
@@ -309,8 +353,8 @@ class NodeWarTDVisualizer {
       }
       if (tooClose) return;
 
-      const w = (img.width || 60) * dec.scale * 0.7;
-      const h = (img.height || 60) * dec.scale * 0.7;
+      const w = (img.width || 60) * dec.scale * 0.7 * scale;
+      const h = (img.height || 60) * dec.scale * 0.7 * scale;
 
       this.ctx.drawImage(img, x - w / 2, y - h / 2, w, h);
     });
@@ -336,12 +380,13 @@ class NodeWarTDVisualizer {
       const activeBattle = frame.combat_events && frame.combat_events.find(cb => cb.node_id === staticNode.id);
 
       // Node Selection Highlight Ring
+      const scale = this.getScaleFactor();
       if (this.selectedNodeId === staticNode.id) {
         this.ctx.save();
         this.ctx.beginPath();
-        this.ctx.arc(p.x, p.y + 4, 52, 0, Math.PI * 2);
+        this.ctx.arc(p.x, p.y + 4, 48 * scale, 0, Math.PI * 2);
         this.ctx.strokeStyle = '#ffd166';
-        this.ctx.lineWidth = 4;
+        this.ctx.lineWidth = Math.max(2, 3.5 * scale);
         this.ctx.setLineDash([8, 6]);
         this.ctx.stroke();
         this.ctx.restore();
@@ -349,32 +394,28 @@ class NodeWarTDVisualizer {
 
       // 1. Pick Castle / Tower / Barracks Asset with full team coloration
       let img = null;
-      let drawW = 80;
-      let drawH = 80;
+      let drawW = Math.round(76 * scale);
+      let drawH = Math.round(76 * scale);
       const ownerSuffix = (owner === 1) ? '_p1' : (owner === 2 ? '_p2' : '_neutral');
 
-      if (isHomeP1) {
-        img = this.assets.castle_p1;
-        drawW = 120;
-        drawH = 120;
-      } else if (isHomeP2) {
-        img = this.assets.castle_p2;
-        drawW = 120;
-        drawH = 120;
+      if (isHomeP1 || isHomeP2) {
+        img = isHomeP1 ? this.assets.castle_p1 : this.assets.castle_p2;
+        drawW = Math.round(112 * scale);
+        drawH = Math.round(112 * scale);
       } else if (isRelic) {
         img = this.assets.relic_shrine;
-        drawW = 110;
-        drawH = 115;
+        drawW = Math.round(98 * scale);
+        drawH = Math.round(102 * scale);
       } else if (staticNode.id === 5 || staticNode.id === 6 || staticNode.id === 8 || staticNode.id === 9 || staticNode.id === 3 || staticNode.id === 11) {
         // Chokepoint Watchtowers (Full Team Tinting)
         img = this.assets['tower' + ownerSuffix] || this.assets.tower_stone;
-        drawW = 85;
-        drawH = 105;
+        drawW = Math.round(76 * scale);
+        drawH = Math.round(94 * scale);
       } else {
         // Economy Bastions / Refineries (Full Team Tinting)
         img = this.assets['barracks' + ownerSuffix] || this.assets.barracks;
-        drawW = 95;
-        drawH = 82;
+        drawW = Math.round(82 * scale);
+        drawH = Math.round(72 * scale);
       }
 
       // Ground Faction Base Ring
@@ -384,15 +425,15 @@ class NodeWarTDVisualizer {
       if (owner === 1) {
         this.ctx.fillStyle = 'rgba(0, 210, 255, 0.25)';
         this.ctx.strokeStyle = '#00f0ff';
-        this.ctx.lineWidth = 2.5;
+        this.ctx.lineWidth = Math.max(1.5, 2.5 * scale);
       } else if (owner === 2) {
         this.ctx.fillStyle = 'rgba(255, 0, 85, 0.25)';
         this.ctx.strokeStyle = '#ff0055';
-        this.ctx.lineWidth = 2.5;
+        this.ctx.lineWidth = Math.max(1.5, 2.5 * scale);
       } else {
         this.ctx.fillStyle = 'rgba(100, 116, 139, 0.18)';
         this.ctx.strokeStyle = '#64748b';
-        this.ctx.lineWidth = 1.8;
+        this.ctx.lineWidth = Math.max(1.2, 1.8 * scale);
       }
       this.ctx.fill();
       this.ctx.stroke();
@@ -403,19 +444,19 @@ class NodeWarTDVisualizer {
         const ringTime = (Date.now() * 0.04) % 45;
         this.ctx.save();
         this.ctx.beginPath();
-        this.ctx.arc(p.x, p.y, drawW * 0.42 + ringTime, 0, Math.PI * 2);
+        this.ctx.arc(p.x, p.y, drawW * 0.42 + ringTime * scale, 0, Math.PI * 2);
         this.ctx.strokeStyle = `rgba(255, 0, 85, ${1.0 - ringTime / 45})`;
-        this.ctx.lineWidth = 3.5;
+        this.ctx.lineWidth = Math.max(2, 3.5 * scale);
         this.ctx.stroke();
         this.ctx.restore();
       }
 
-      // Relic Turn 95 Golden Awakening Pulse
+      // Relic Turn Golden Awakening Pulse
       if (isRelic && frame.relic_active) {
         const pulse = 1.0 + Math.sin(Date.now() * 0.006) * 0.08;
         this.ctx.save();
         this.ctx.beginPath();
-        this.ctx.arc(p.x, p.y, 60 * pulse, 0, Math.PI * 2);
+        this.ctx.arc(p.x, p.y, 55 * scale * pulse, 0, Math.PI * 2);
         this.ctx.fillStyle = 'rgba(255, 215, 0, 0.25)';
         this.ctx.fill();
         this.ctx.restore();
@@ -433,28 +474,29 @@ class NodeWarTDVisualizer {
         const rogueSprite = isP1 ? this.assets.rogue_p1 : this.assets.rogue_p2;
         const cannonSprite = isP1 ? this.assets.cannon_p1 : this.assets.cannon_p2;
         const eagleSprite = isP1 ? this.assets.eagle_p1 : this.assets.eagle_p2;
+        const uSz = Math.round(28 * scale);
 
         const breathe = Math.sin(Date.now() * 0.004 + staticNode.id) * 1.5;
 
         // Draw Knight Guard stationed at left gate
         if ((units.guard || 0) > 0 && knightSprite) {
-          this.ctx.drawImage(knightSprite, p.x - drawW * 0.38, p.y + drawH * 0.08 + breathe, 34, 34);
+          this.ctx.drawImage(knightSprite, p.x - drawW * 0.38, p.y + drawH * 0.08 + breathe, uSz, uSz);
         }
 
         // Draw Rogue Raider stationed at right gate
         if ((units.raider || 0) > 0 && rogueSprite) {
-          this.ctx.drawImage(rogueSprite, p.x + drawW * 0.12, p.y + drawH * 0.08 + breathe, 34, 34);
+          this.ctx.drawImage(rogueSprite, p.x + drawW * 0.12, p.y + drawH * 0.08 + breathe, uSz, uSz);
         }
 
         // Draw Cannon Siege parked beside wall
         if ((units.siege || 0) > 0 && cannonSprite) {
-          this.ctx.drawImage(cannonSprite, p.x - drawW * 0.48, p.y - drawH * 0.12, 36, 32);
+          this.ctx.drawImage(cannonSprite, p.x - drawW * 0.48, p.y - drawH * 0.12, Math.round(30 * scale), Math.round(26 * scale));
         }
 
         // Draw Eagle Scout perched on tower spire
         if ((units.scout || 0) > 0 && eagleSprite) {
           const wingBob = Math.sin(Date.now() * 0.006) * 3;
-          this.ctx.drawImage(eagleSprite, p.x + drawW * 0.22, p.y - drawH * 0.44 + wingBob, 32, 32);
+          this.ctx.drawImage(eagleSprite, p.x + drawW * 0.22, p.y - drawH * 0.44 + wingBob, Math.round(26 * scale), Math.round(26 * scale));
         }
       }
 
@@ -465,7 +507,7 @@ class NodeWarTDVisualizer {
         const capAngle = (dynamicNode.capture_progress / 2) * Math.PI * 2;
         this.ctx.arc(p.x, p.y, drawW * 0.48, -Math.PI / 2, -Math.PI / 2 + capAngle);
         this.ctx.strokeStyle = dynamicNode.capturing_player === 1 ? '#00f3ff' : '#ff0055';
-        this.ctx.lineWidth = 5;
+        this.ctx.lineWidth = Math.max(3, 4.5 * scale);
         this.ctx.stroke();
         this.ctx.restore();
       }
@@ -474,7 +516,7 @@ class NodeWarTDVisualizer {
       this.drawStreamlinedBadge(p.x, p.y + drawH / 2 - 2, staticNode, dynamicNode);
 
       // 6. Clean Troop Breakdown Pill (only active unit types)
-      this.drawTroopInventoryPill(p.x, p.y + drawH / 2 + 19, units, residentPlayer, totalUnits);
+      this.drawTroopInventoryPill(p.x, p.y + drawH / 2 + Math.round(17 * scale), units, residentPlayer, totalUnits);
 
       // 7. Active Battle Alert Badge: Crossed Swords (⚔️ BATTLE! ⚔️)
       if (activeBattle) {
@@ -486,21 +528,20 @@ class NodeWarTDVisualizer {
         // Glowing Red/Gold Battle Pill
         this.ctx.fillStyle = '#ff0055';
         this.ctx.strokeStyle = '#ffd166';
-        this.ctx.lineWidth = 3;
-        this.ctx.shadowColor = '#ff0055';
-        this.ctx.shadowBlur = 14;
+        this.ctx.lineWidth = Math.max(2, 2.5 * scale);
         this.ctx.beginPath();
+        const bPillW = Math.round(104 * scale);
+        const bPillH = Math.round(26 * scale);
         if (typeof this.ctx.roundRect === 'function') {
-          this.ctx.roundRect(-58, -15, 116, 30, 8);
+          this.ctx.roundRect(-bPillW / 2, -bPillH / 2, bPillW, bPillH, 7 * scale);
         } else {
-          this.ctx.rect(-58, -15, 116, 30);
+          this.ctx.rect(-bPillW / 2, -bPillH / 2, bPillW, bPillH);
         }
         this.ctx.fill();
         this.ctx.stroke();
-        this.ctx.shadowBlur = 0;
 
         this.ctx.fillStyle = '#ffffff';
-        this.ctx.font = 'bold 11px "Orbitron", monospace';
+        this.ctx.font = `bold ${Math.max(8, Math.round(10 * scale))}px "Orbitron", monospace`;
         this.ctx.textAlign = 'center';
         this.ctx.textBaseline = 'middle';
         this.ctx.fillText('⚔️ BATTLE! ⚔️', 0, 0);
@@ -526,6 +567,7 @@ class NodeWarTDVisualizer {
 
   drawSoldierDuel(cx, cy, cb) {
     if (!this.assetsLoaded) return;
+    const scale = this.getScaleFactor();
 
     const attP = cb.attackers_player || 1;
     const defP = cb.defenders_player || 2;
@@ -537,34 +579,36 @@ class NodeWarTDVisualizer {
     const clashPhase = Math.sin(t);
 
     // Attacker (Left) lunges towards right
-    const lungeLeft = Math.max(0, clashPhase) * 16;
-    const jumpLeft = -Math.abs(Math.sin(t * 2)) * 6;
+    const lungeLeft = Math.max(0, clashPhase) * 14 * scale;
+    const jumpLeft = -Math.abs(Math.sin(t * 2)) * 5 * scale;
     const tiltLeft = clashPhase * 0.16;
-    const lx = cx - 26 + lungeLeft;
+    const lx = cx - 22 * scale + lungeLeft;
     const ly = cy + jumpLeft;
 
     // Defender (Right) lunges/counters towards left
-    const lungeRight = Math.max(0, -clashPhase) * 16;
-    const jumpRight = -Math.abs(Math.cos(t * 2)) * 6;
+    const lungeRight = Math.max(0, -clashPhase) * 14 * scale;
+    const jumpRight = -Math.abs(Math.cos(t * 2)) * 5 * scale;
     const tiltRight = -clashPhase * 0.16;
-    const rx = cx + 26 - lungeRight;
+    const rx = cx + 22 * scale - lungeRight;
     const ry = cy + jumpRight;
 
     // Dynamic ground shadows under duelists
     this.ctx.save();
     this.ctx.fillStyle = 'rgba(0, 0, 0, 0.32)';
     this.ctx.beginPath();
-    this.ctx.ellipse(lx, cy + 18, 14, 5, 0, 0, Math.PI * 2);
-    this.ctx.ellipse(rx, cy + 18, 14, 5, 0, 0, Math.PI * 2);
+    this.ctx.ellipse(lx, cy + 16 * scale, 12 * scale, 4.5 * scale, 0, 0, Math.PI * 2);
+    this.ctx.ellipse(rx, cy + 16 * scale, 12 * scale, 4.5 * scale, 0, 0, Math.PI * 2);
     this.ctx.fill();
     this.ctx.restore();
+
+    const dSz = Math.round(36 * scale);
 
     // Draw Left Attacker (Facing Right)
     if (attImg) {
       this.ctx.save();
       this.ctx.translate(lx, ly);
       this.ctx.rotate(tiltLeft);
-      this.ctx.drawImage(attImg, -20, -20, 40, 40);
+      this.ctx.drawImage(attImg, -dSz / 2, -dSz / 2, dSz, dSz);
       this.ctx.restore();
     }
 
@@ -574,7 +618,7 @@ class NodeWarTDVisualizer {
       this.ctx.translate(rx, ry);
       this.ctx.scale(-1, 1);
       this.ctx.rotate(-tiltRight);
-      this.ctx.drawImage(defImg, -20, -20, 40, 40);
+      this.ctx.drawImage(defImg, -dSz / 2, -dSz / 2, dSz, dSz);
       this.ctx.restore();
     }
 
@@ -586,7 +630,7 @@ class NodeWarTDVisualizer {
     if (isClashing) {
       this.ctx.save();
       // Glowing Impact Flash Star
-      const sparkRadius = 14 + Math.random() * 8;
+      const sparkRadius = (12 + Math.random() * 6) * scale;
       const grad = this.ctx.createRadialGradient(midX, midY, 2, midX, midY, sparkRadius);
       grad.addColorStop(0, '#ffffff');
       grad.addColorStop(0.35, '#ffd166');
@@ -599,23 +643,23 @@ class NodeWarTDVisualizer {
 
       // Slashing energy lines
       this.ctx.strokeStyle = '#ffffff';
-      this.ctx.lineWidth = 3;
+      this.ctx.lineWidth = Math.max(1.8, 2.5 * scale);
       this.ctx.beginPath();
-      this.ctx.moveTo(midX - 11, midY - 11);
-      this.ctx.lineTo(midX + 11, midY + 11);
-      this.ctx.moveTo(midX + 11, midY - 11);
-      this.ctx.lineTo(midX - 11, midY + 11);
+      this.ctx.moveTo(midX - 10 * scale, midY - 10 * scale);
+      this.ctx.lineTo(midX + 10 * scale, midY + 10 * scale);
+      this.ctx.moveTo(midX + 10 * scale, midY - 10 * scale);
+      this.ctx.lineTo(midX - 10 * scale, midY + 10 * scale);
       this.ctx.stroke();
 
-      // Flying sparks into combat particle system
-      if (Math.random() > 0.4) {
+      // Flying sparks into combat particle system (capped)
+      if (Math.random() > 0.5 && this.combatParticles.length < 35) {
         this.combatParticles.push({
           x: midX,
           y: midY,
-          vx: (Math.random() - 0.5) * 6,
-          vy: -Math.random() * 4 - 1.5,
-          size: 3 + Math.random() * 3,
-          life: 0.8,
+          vx: (Math.random() - 0.5) * 5,
+          vy: -Math.random() * 3.5 - 1.2,
+          size: (2.5 + Math.random() * 2.5) * scale,
+          life: 0.7,
           color: Math.random() > 0.5 ? '#ffd166' : '#ff0055'
         });
       }
@@ -624,6 +668,7 @@ class NodeWarTDVisualizer {
   }
 
   drawStreamlinedBadge(x, y, staticNode, dynamicNode) {
+    const scale = this.getScaleFactor();
     const isRelic = (staticNode.id === 7);
     const owner = dynamicNode.owner;
 
@@ -639,12 +684,12 @@ class NodeWarTDVisualizer {
     this.ctx.save();
     this.ctx.fillStyle = 'rgba(10, 14, 26, 0.92)';
     this.ctx.strokeStyle = owner === 1 ? '#00f3ff' : (owner === 2 ? '#ff0055' : '#718096');
-    this.ctx.lineWidth = 2;
+    this.ctx.lineWidth = Math.max(1.5, 2 * scale);
     this.ctx.beginPath();
-    const bw = 96;
-    const bh = 18;
+    const bw = Math.round(86 * scale);
+    const bh = Math.round(16 * scale);
     if (typeof this.ctx.roundRect === 'function') {
-      this.ctx.roundRect(x - bw / 2, y, bw, bh, 5);
+      this.ctx.roundRect(x - bw / 2, y, bw, bh, 4 * scale);
     } else {
       this.ctx.rect(x - bw / 2, y, bw, bh);
     }
@@ -652,7 +697,7 @@ class NodeWarTDVisualizer {
     this.ctx.stroke();
 
     this.ctx.fillStyle = owner === 1 ? '#00f3ff' : (owner === 2 ? '#ff7096' : '#ffd166');
-    this.ctx.font = 'bold 9px "Orbitron", monospace';
+    this.ctx.font = `bold ${Math.max(8, Math.round(9 * scale))}px "Orbitron", monospace`;
     this.ctx.textAlign = 'center';
     this.ctx.textBaseline = 'middle';
     this.ctx.fillText(label, x, y + bh / 2);
@@ -665,6 +710,7 @@ class NodeWarTDVisualizer {
       return;
     }
 
+    const scale = this.getScaleFactor();
     const isP1 = (residentPlayer === 1);
     const isP2 = (residentPlayer === 2);
     const borderColor = isP1 ? '#00f3ff' : (isP2 ? '#ff0055' : '#7b88a8');
@@ -678,30 +724,35 @@ class NodeWarTDVisualizer {
 
     if (activeItems.length === 0) return;
 
-    const itemWidth = 24;
-    const w = Math.max(32, activeItems.length * itemWidth + 8);
-    const h = 18;
+    const itemWidth = Math.round(21 * scale);
+    const w = Math.max(26 * scale, activeItems.length * itemWidth + 6 * scale);
+    const h = Math.round(16 * scale);
 
     this.ctx.save();
     this.ctx.fillStyle = 'rgba(10, 14, 26, 0.92)';
     this.ctx.strokeStyle = borderColor;
-    this.ctx.lineWidth = 1.8;
+    this.ctx.lineWidth = Math.max(1.2, 1.8 * scale);
     this.ctx.beginPath();
     if (typeof this.ctx.roundRect === 'function') {
-      this.ctx.roundRect(x - w / 2, y, w, h, 5);
+      this.ctx.roundRect(x - w / 2, y, w, h, 4 * scale);
     } else {
       this.ctx.rect(x - w / 2, y, w, h);
     }
     this.ctx.fill();
     this.ctx.stroke();
 
-    this.ctx.font = 'bold 9px "Orbitron", monospace';
+    this.ctx.font = `bold ${Math.max(8, Math.round(9 * scale))}px "Orbitron", monospace`;
     this.ctx.textAlign = 'center';
     this.ctx.textBaseline = 'middle';
 
     activeItems.forEach((item, idx) => {
-      const ix = (x - w / 2) + 4 + idx * itemWidth + itemWidth / 2;
+      const ix = (x - w / 2) + 3 * scale + idx * itemWidth + itemWidth / 2;
       this.ctx.fillStyle = item.color;
+      this.ctx.fillText(`${item.icon}${item.count}`, ix, y + h / 2);
+    });
+
+    this.ctx.restore();
+  }
       this.ctx.fillText(`${item.icon}${item.count}`, ix, y + h / 2);
     });
 
@@ -803,18 +854,19 @@ class NodeWarTDVisualizer {
         }
 
         // Draw each individual soldier sprite in tactical formation along the road
+        const scale = this.getScaleFactor();
         const maxDraw = Math.min(squadUnits.length, 6);
         for (let i = 0; i < maxDraw; i++) {
           const u = squadUnits[i];
           const walkCycle = Math.sin(Date.now() * 0.018 + i * 1.2 + fId);
-          const walkBob = walkCycle * 3.5;
+          const walkBob = walkCycle * 3.0 * scale;
           const walkTilt = (fwdX < 0 ? -1 : 1) * walkCycle * 0.08;
           const bob = Number.isFinite(walkBob) ? walkBob : 0;
           const tilt = Number.isFinite(walkTilt) ? walkTilt : 0;
 
           // Spread laterally across road and forward/backward
-          const colOffset = ((i % 2) - 0.5) * 16;
-          const rowOffset = - Math.floor(i / 2) * 18;
+          const colOffset = ((i % 2) - 0.5) * 14 * scale;
+          const rowOffset = - Math.floor(i / 2) * 16 * scale;
 
           const ux = fx + normX * colOffset + fwdX * rowOffset;
           const uy = fy + normY * colOffset + fwdY * rowOffset;
@@ -824,9 +876,9 @@ class NodeWarTDVisualizer {
           this.ctx.fillStyle = 'rgba(0, 0, 0, 0.28)';
           this.ctx.beginPath();
           if (u.type === 'scout') {
-            this.ctx.ellipse(ux, uy + 6, 9, 3, 0, 0, Math.PI * 2);
+            this.ctx.ellipse(ux, uy + 5 * scale, 8 * scale, 2.8 * scale, 0, 0, Math.PI * 2);
           } else {
-            this.ctx.ellipse(ux, uy + 14, 12, 4, 0, 0, Math.PI * 2);
+            this.ctx.ellipse(ux, uy + 12 * scale, 11 * scale, 3.8 * scale, 0, 0, Math.PI * 2);
           }
           this.ctx.fill();
           this.ctx.restore();
@@ -839,24 +891,25 @@ class NodeWarTDVisualizer {
           }
           this.ctx.rotate(tilt);
 
+          const sSz = Math.round(32 * scale);
           if (u.img) {
             if (u.type === 'scout') {
               // Eagle flying overhead
-              this.ctx.drawImage(u.img, -18, -36 + bob, 36, 36);
+              this.ctx.drawImage(u.img, -sSz / 2, -Math.round(32 * scale) + bob, sSz, sSz);
             } else if (u.type === 'siege') {
               // Cannon artillery rolling
-              this.ctx.drawImage(u.img, -22, -18 + bob * 0.4, 44, 36);
+              this.ctx.drawImage(u.img, -Math.round(36 * scale) / 2, -Math.round(16 * scale) + bob * 0.4, Math.round(36 * scale), Math.round(30 * scale));
             } else {
               // Ground soldier marching
-              this.ctx.drawImage(u.img, -19, -19 + bob, 38, 38);
+              this.ctx.drawImage(u.img, -sSz / 2, -sSz / 2 + bob, sSz, sSz);
             }
           } else {
             // High-visibility fallback circle + emoji if image isn't loaded
             this.ctx.fillStyle = teamColor;
             this.ctx.beginPath();
-            this.ctx.arc(0, bob, 12, 0, Math.PI * 2);
+            this.ctx.arc(0, bob, 10 * scale, 0, Math.PI * 2);
             this.ctx.fill();
-            this.ctx.font = '12px sans-serif';
+            this.ctx.font = `${Math.round(11 * scale)}px sans-serif`;
             this.ctx.textAlign = 'center';
             this.ctx.textBaseline = 'middle';
             const icon = u.type === 'guard' ? '🛡️' : (u.type === 'raider' ? '🗡️' : (u.type === 'siege' ? '💣' : '🦅'));
@@ -866,24 +919,25 @@ class NodeWarTDVisualizer {
         }
 
         // Minimal Sleek Floating Squad Tag (No bulky boxes blocking the road!)
-        this.drawCompactSquadBadge(fx, fy - 32, fleet, isP1);
+        this.drawCompactSquadBadge(fx, fy - Math.round(28 * scale), fleet, isP1);
       }
     });
   }
 
   drawCompactSquadBadge(x, y, fleet, isP1) {
+    const scale = this.getScaleFactor();
     const borderColor = isP1 ? '#00f3ff' : '#ff0055';
     const tagText = `${isP1 ? 'P1' : 'P2'} · ${fleet.total_count}⚔️`;
-    const w = 48;
-    const h = 16;
+    const w = Math.round(48 * scale);
+    const h = Math.round(15 * scale);
 
     this.ctx.save();
     this.ctx.fillStyle = 'rgba(10, 14, 26, 0.88)';
     this.ctx.strokeStyle = borderColor;
-    this.ctx.lineWidth = 1.6;
+    this.ctx.lineWidth = Math.max(1.2, 1.6 * scale);
     this.ctx.beginPath();
     if (typeof this.ctx.roundRect === 'function') {
-      this.ctx.roundRect(x - w / 2, y - h / 2, w, h, 4);
+      this.ctx.roundRect(x - w / 2, y - h / 2, w, h, 4 * scale);
     } else {
       this.ctx.rect(x - w / 2, y - h / 2, w, h);
     }
@@ -891,7 +945,7 @@ class NodeWarTDVisualizer {
     this.ctx.stroke();
 
     this.ctx.fillStyle = borderColor;
-    this.ctx.font = 'bold 9px "Orbitron", monospace';
+    this.ctx.font = `bold ${Math.max(8, Math.round(9 * scale))}px "Orbitron", monospace`;
     this.ctx.textAlign = 'center';
     this.ctx.textBaseline = 'middle';
     this.ctx.fillText(tagText, x, y);
@@ -899,24 +953,25 @@ class NodeWarTDVisualizer {
   }
 
   drawMarchDirectionChevrons(fx, fy, fwdX, fwdY, teamColor) {
+    const scale = this.getScaleFactor();
     this.ctx.save();
     this.ctx.strokeStyle = teamColor;
-    this.ctx.lineWidth = 2.5;
+    this.ctx.lineWidth = Math.max(1.8, 2.2 * scale);
     this.ctx.lineCap = 'round';
 
     const timePhase = (Date.now() * 0.005) % 1.0;
     for (let c = 0; c < 3; c++) {
-      const distFwd = 24 + ((c + timePhase) * 12);
+      const distFwd = (20 + ((c + timePhase) * 11)) * scale;
       const cx = fx + fwdX * distFwd;
       const cy = fy + fwdY * distFwd;
 
       // Draw chevron V pointing forward
-      const tipX = cx + fwdX * 6;
-      const tipY = cy + fwdY * 6;
-      const wing1X = cx - fwdX * 4 + (-fwdY) * 6;
-      const wing1Y = cy - fwdY * 4 + (fwdX) * 6;
-      const wing2X = cx - fwdX * 4 - (-fwdY) * 6;
-      const wing2Y = cy - fwdY * 4 - (fwdX) * 6;
+      const tipX = cx + fwdX * 5 * scale;
+      const tipY = cy + fwdY * 5 * scale;
+      const wing1X = cx - fwdX * 3.5 * scale + (-fwdY) * 5 * scale;
+      const wing1Y = cy - fwdY * 3.5 * scale + (fwdX) * 5 * scale;
+      const wing2X = cx - fwdX * 3.5 * scale - (-fwdY) * 5 * scale;
+      const wing2Y = cy - fwdY * 3.5 * scale - (fwdX) * 5 * scale;
 
       this.ctx.beginPath();
       this.ctx.moveTo(wing1X, wing1Y);
@@ -929,6 +984,7 @@ class NodeWarTDVisualizer {
   }
 
   drawDestinationTarget(tx, ty, fleet) {
+    const scale = this.getScaleFactor();
     const isP1 = (fleet.owner === 1);
     const color = isP1 ? '#00f3ff' : '#ff0055';
     const fId = (fleet.id !== undefined ? fleet.id : (fleet.fleet_id || 0));
@@ -936,7 +992,7 @@ class NodeWarTDVisualizer {
 
     this.ctx.save();
     this.ctx.beginPath();
-    this.ctx.arc(tx, ty, 38 * pulse, 0, Math.PI * 2);
+    this.ctx.arc(tx, ty, 32 * scale * pulse, 0, Math.PI * 2);
     this.ctx.strokeStyle = color;
     this.ctx.lineWidth = 2;
     this.ctx.setLineDash([6, 6]);

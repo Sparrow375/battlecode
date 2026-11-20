@@ -97,11 +97,26 @@ f:\Avaneesh\projects\battlecode\
   - **Animated Marching Soldier Sprites**: Replaced bulky moving text/HUD banner cards on roads with real individual animated soldier sprites (Knights, Rogues, Cannons, Eagles) marching along the path with ground shadows, horizontal facing flip towards the destination (`scale(-1, 1)` when moving left), walking stride bobs, and a sleek minimal squad tag (`P1 · 5⚔️`). Fixed an issue where referencing `fleet.fleet_id` instead of `(fleet.id || fleet.fleet_id || 0)` produced `NaN` in `walkBob`/`walkTilt`, causing HTML5 canvas `drawImage` to silently skip rendering the soldier sprites. Added strict numerical finite guards and fallbacks.
   - **Animated 2-Soldier Battle Duels**: Implemented dynamic clashing soldier animations at contested battle nodes: attacking and defending soldiers face off, lunge, jump, swing blades, strike with explosive clash starbursts (`💥`), crossed slash energy trails, and recoil.
   - **Interactive Pan & Zoom**: Added full mouse wheel zoom centered around cursor (0.75x to 3.0x), click-and-drag map panning with `grab`/`grabbing` cursor, and floating on-screen zoom control buttons (`+`, `−`, `⟲`, with dynamic zoom percentage badge).
-- **Simulation Server & Browser Communication Fix (Latest)**:
+- **Simulation Server & Browser Communication Fix**:
   - **Multi-Threaded HTTP Server**: Upgraded `web/serve.py` from synchronous single-threaded `socketserver.TCPServer` to `ThreadedHTTPServer` (`socketserver.ThreadingMixIn, http.server.HTTPServer`) with `daemon_threads = True` and `allow_reuse_address = True`, preventing Chrome persistent connections and parallel asset requests from blocking simulation API calls.
   - **CORS & HTTP OPTIONS Preflight Support**: Implemented `do_OPTIONS` and attached CORS headers (`Access-Control-Allow-Origin: *`, methods, headers) across all HTTP responses in `end_headers()`.
   - **Universal API URL Routing**: Implemented `getApiUrl()` in `web/visualizer.js`, automatically redirecting API endpoints to `http://localhost:8000` regardless of whether the UI is accessed via `http://localhost:8000`, VS Code Live Server (`localhost:5500`), or double-clicked as a local file (`file:///...`).
   - **Dynamic Bot Naming Sync**: Synced fallback labels in `web/index.html` and `web/visualizer.js` to `NemesisNodeBot` matching `bots/bot1.py`.
-  - Server actively running and tested on `http://localhost:8000`.
-- All 20 unit tests, bot integration tests, and HTTP endpoints passing.
+- **Production Esports Projector Stream Architecture (Latest)**:
+  - **Git Branching Strategy**: Preserved `master` branch as an intact development backup; created and switched to `production` branch for live event delivery.
+  - **Lag & Performance Optimization**:
+    - **Engine Render Loop Suspension**: Added `setActive(active)` state to `NodeWarTDVisualizer`, `NodeWarThreeVisualizer`, and `NodeWarVisualizer`. When Tower Defense mode is active, the heavy 3D WebGL render loop and 2D canvas loops are paused, eliminating triple concurrent rendering and restoring buttery-smooth 60+ FPS on laptops.
+    - **Hardware-Accelerated Grass Pattern**: Replaced 2,300+ raw `ctx.fillRect` calls per animation frame with a pre-rendered repeating pattern tile (`createGrassPattern()`), cutting background draw calls from thousands to just two.
+    - **Particle Array Capping**: Capped combat spark bursts and particle lifetimes to prevent unbounded garbage collection during large multi-node engagements.
+  - **Dynamic Responsive Coordinate & Asset Scaling**:
+    - **Resolution-Independent Scale Factor**: Implemented `getScaleFactor()` dynamically mapping viewport aspect ratio (`scale = clamp(min(w/1400, h/850), 0.55, 1.35)`) with proportional screen padding.
+    - **Collision-Free Proportions**: Scaled home castles (`112 * scale`), watchtowers (`76 * scale` x `94 * scale`), barracks (`82 * scale` x `72 * scale`), roads (`38 * scale` / `28 * scale`), nameplates, garrison pills, marching soldiers, and duel animations. Guaranteed zero asset overlap on smaller laptop screens (e.g. 13" 1366x768) while displaying large and crisp on 1080p projectors and 4K displays.
+  - **Audience Projector Stream View (`web/index.html`)**:
+    - Removed left setup/lab panel and right debug/inspector panel entirely, allowing the battleground arena to occupy 100% of the display.
+    - **Esports Scoreboard Header**: High-contrast faction cards with team scores, gold, income, upkeep, territory count (`🏰`), dynamic turn counter, animated Relic badge, and discrete setup link.
+    - **Redesigned Low-Profile Bottom Ticker**: Sleek broadcast strip with timeline scrubber, milestone badges (T1, Dynamic Relic Turn, End), speed toggles, fullscreen button (`⛶`), and presenter hotkeys (`Space`, arrows, `F` for fullscreen, `R` for restart).
+  - **Tournament Control & Caster Deck (`web/setup.html` & `web/setup.js`)**:
+    - Dedicated organizer workstation for bot selection, presets, custom game configs, balance matrix testing, custom bot playground, and replay library.
+    - **Live Remote Deck Sync**: Built real-time caster remote controller communicating with the projector view via `BroadcastChannel('node_war_stream')` and persistent `/api/active-match` API (play, pause, scrub, step, jump to relic/clash, switch engine modes remotely from the laptop).
+- All 22 unit tests, bot integration tests, and HTTP endpoints passing.
 - Balance Matrix tournament evaluation verified: Rusher (0%) vs Turtle (100%), Turtle (0%) vs Balanced (100%), Balanced (0%) vs Rusher (100%) [100% Cycle Valid].
