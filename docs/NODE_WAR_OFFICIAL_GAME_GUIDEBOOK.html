@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>NODE WAR // Official Game Guidebook</title>
+<title>NODE WAR // Official Competitor Guidebook</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
   @page {
     size: A4 portrait;
-    margin: 16mm 14mm 16mm 14mm;
+    margin: 14mm 12mm 14mm 12mm;
     @bottom-right {
       content: counter(page);
       font-family: 'Inter', sans-serif;
@@ -27,15 +27,15 @@
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     color: #1e293b;
     background: #ffffff;
-    line-height: 1.55;
-    font-size: 10pt;
+    line-height: 1.5;
+    font-size: 9.5pt;
     padding: 0;
   }
 
   .header-banner {
     border-bottom: 3px solid #1e3a8a;
-    padding-bottom: 12px;
-    margin-bottom: 20px;
+    padding-bottom: 10px;
+    margin-bottom: 16px;
   }
 
   .header-badge {
@@ -44,96 +44,98 @@
     color: #ffffff;
     font-size: 7.5pt;
     font-weight: 700;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    padding: 3px 8px;
-    border-radius: 4px;
-    margin-bottom: 8px;
-  }
-
-  h1 {
-    font-size: 20pt;
-    font-weight: 800;
-    color: #1e3a8a;
-    line-height: 1.2;
-    margin-bottom: 4px;
-  }
-
-  .subtitle {
-    font-size: 10.5pt;
-    font-weight: 500;
-    color: #475569;
+    padding: 2.5px 7px;
+    border-radius: 3px;
     margin-bottom: 6px;
   }
 
+  h1 {
+    font-size: 18pt;
+    font-weight: 800;
+    color: #1e3a8a;
+    line-height: 1.2;
+    margin-bottom: 3px;
+  }
+
+  .subtitle {
+    font-size: 10pt;
+    font-weight: 500;
+    color: #475569;
+    margin-bottom: 5px;
+  }
+
   .meta-bar {
-    font-size: 8.5pt;
+    font-size: 8pt;
     color: #64748b;
   }
 
   h2 {
-    font-size: 13pt;
+    font-size: 12pt;
     font-weight: 700;
     color: #1e3a8a;
-    margin-top: 22px;
-    margin-bottom: 8px;
+    margin-top: 18px;
+    margin-bottom: 6px;
     border-bottom: 1px solid #e2e8f0;
-    padding-bottom: 4px;
+    padding-bottom: 3px;
     page-break-after: avoid;
   }
 
   h3 {
-    font-size: 11pt;
+    font-size: 10.5pt;
     font-weight: 700;
     color: #2563eb;
-    margin-top: 14px;
-    margin-bottom: 6px;
-    page-break-after: avoid;
-  }
-
-  h4 {
-    font-size: 10pt;
-    font-weight: 600;
-    color: #334155;
-    margin-top: 10px;
+    margin-top: 12px;
     margin-bottom: 4px;
     page-break-after: avoid;
   }
 
+  h4 {
+    font-size: 9.5pt;
+    font-weight: 600;
+    color: #334155;
+    margin-top: 8px;
+    margin-bottom: 3px;
+    page-break-after: avoid;
+  }
+
   p {
-    margin-bottom: 8px;
+    margin-bottom: 7px;
   }
 
   ul, ol {
-    margin-left: 20px;
-    margin-bottom: 10px;
+    margin-left: 18px;
+    margin-bottom: 8px;
   }
 
   li {
-    margin-bottom: 3px;
+    margin-bottom: 2.5px;
   }
 
   table {
     width: 100%;
     border-collapse: collapse;
-    margin: 12px 0 16px 0;
-    font-size: 8.5pt;
+    margin: 10px 0 14px 0;
+    font-size: 8pt;
     page-break-inside: avoid;
   }
 
   th {
     background: #1e3a8a;
     color: #ffffff;
-    font-weight: 600;
+    font-weight: 700;
     text-align: left;
-    padding: 6px 10px;
+    padding: 5px 8px;
     border: 1px solid #1e3a8a;
+    white-space: nowrap;
   }
 
   td {
-    padding: 5px 10px;
+    padding: 4.5px 8px;
     border: 1px solid #cbd5e1;
     color: #1e293b;
+    vertical-align: top;
   }
 
   tr:nth-child(even) td {
@@ -143,24 +145,26 @@
   pre {
     background: #f8fafc;
     border: 1px solid #e2e8f0;
-    border-left: 4px solid #2563eb;
+    border-left: 3.5px solid #2563eb;
     border-radius: 4px;
-    padding: 10px 14px;
-    margin: 10px 0 14px 0;
+    padding: 7px 10px;
+    margin: 8px 0 12px 0;
     font-family: 'JetBrains Mono', 'Consolas', monospace;
-    font-size: 8.5pt;
-    line-height: 1.45;
+    font-size: 7.5pt;
+    line-height: 1.35;
     color: #0f172a;
-    overflow-x: auto;
+    overflow-x: hidden;
+    white-space: pre-wrap;
+    word-break: break-word;
     page-break-inside: avoid;
   }
 
   code {
     font-family: 'JetBrains Mono', 'Consolas', monospace;
-    font-size: 8.5pt;
+    font-size: 8pt;
     background: #f1f5f9;
     color: #b45309;
-    padding: 1px 4px;
+    padding: 1px 3.5px;
     border-radius: 3px;
   }
 
@@ -168,15 +172,16 @@
     background: transparent;
     color: inherit;
     padding: 0;
+    white-space: pre-wrap;
   }
 
   blockquote {
     background: #eff6ff;
-    border-left: 4px solid #2563eb;
-    padding: 8px 14px;
-    margin: 10px 0 12px 0;
+    border-left: 3.5px solid #2563eb;
+    padding: 6px 12px;
+    margin: 8px 0 10px 0;
     border-radius: 0 4px 4px 0;
-    font-size: 9.5pt;
+    font-size: 9pt;
     color: #1e3a8a;
     page-break-inside: avoid;
   }
@@ -184,14 +189,19 @@
   hr {
     border: none;
     border-top: 1px solid #e2e8f0;
-    margin: 16px 0;
+    margin: 14px 0;
+  }
+
+  strong {
+    font-weight: 700;
+    color: #0f172a;
   }
 
   .footer {
-    margin-top: 30px;
+    margin-top: 24px;
     border-top: 1px solid #cbd5e1;
-    padding-top: 8px;
-    font-size: 8pt;
+    padding-top: 6px;
+    font-size: 7.5pt;
     color: #94a3b8;
     text-align: center;
   }
@@ -200,178 +210,348 @@
 <body>
 
 <div class="header-banner">
-  <div class="header-badge">OFFICIAL TOURNAMENT GUIDE</div>
-  <h1>NODE WAR // Official Game Guidebook</h1>
-  <div class="subtitle">Complete Rules, Economics, Lanchester Combat, API Specification & Tactical Manual</div>
-  <div class="meta-bar">Campus Esports & AI Hackathon Series • Production Release 3.2 • Tournament Engine Standard</div>
+  <div class="header-badge">OFFICIAL PARTICIPANT MANUAL</div>
+  <h1>NODE WAR // Official Competitor Guidebook</h1>
+  <div class="subtitle">Rules, Economics, Lanchester Combat, Dynamic Supply Lines & API Reference</div>
+  <div class="meta-bar">Campus AI Hackathon Series • Official Participant Release • Confidential Competition Material</div>
 </div>
 
-<h1>NODE WAR // Official Tournament Guidebook &amp; Competitor Manual</h1>
-<p><strong>College Hackathon &amp; AI Tournament Edition</strong><br />
-<em>Document Version: 3.2 — Final Production Release</em></p>
+<h1>NODE WAR // Official Competitor Guidebook</h1>
+<p><strong>Autonomous AI Tournament &amp; Hackathon Manual</strong><br />
+<em>Document Version: 3.3 — Official Participant Release</em></p>
 <hr />
-<h2>Executive Summary &amp; Quick-Start</h2>
-<p>Welcome to <strong>Node War</strong>, a simultaneous turn-based strategy simulation game designed for autonomous AI agents competing head-to-head on a balanced, mirrored graph of 15 nodes.</p>
-<p>Your mission is to script an intelligent Python agent (<code>class CompetitorBot(BotBase)</code>) that manages an expanding empire: surveying unknown territory through fog of war, harvesting resources, managing dynamic supply lines, training specialized rock-paper-scissors armies, and executing decisive timing attacks on the late-game <strong>Relic Sanctuary</strong>.</p>
-<h3>5-Minute Setup &amp; Quick-Start Guide</h3>
-<ol>
-<li><strong>Repository Setup</strong>:
-Your workspace includes the complete tournament engine, spectator arena, dry-run validator, and starter kit.</li>
-<li><strong>Starter Template</strong>:
-Inspect <code>bots/starter_bot.py</code>. Copy it or use it as the foundation for your submission:<pre><code class="language-bash">cp bots/starter_bot.py bots/my_bot.py
-</code></pre>
-</li>
-<li><strong>Dry-Run Validation</strong>:
-Verify your bot structure, inheritance, and observation typing before running matches:<pre><code class="language-bash">python validate_bot.py bots/my_bot.py
-</code></pre>
-</li>
-<li><strong>Local 1v1 Match Testing</strong>:
-Simulate a head-to-head match against the baseline bots directly in the CLI:<pre><code class="language-bash">python -m runner.match --p1 my_bot.py --p2 rusher --turns 120
-</code></pre>
-</li>
-<li><strong>Interactive Spectator Arena</strong>:
-Launch the web spectator arena to watch match replays with animated soldier units, combat clashing FX, and live scrubbing:<pre><code class="language-bash">python serve.py
-</code></pre>
-Open <code>http://localhost:8000</code> in your browser.</li>
-</ol>
+<h2>1. Executive Summary &amp; Objective</h2>
+<p>Welcome to <strong>Node War</strong>, a simultaneous turn-based strategic simulation game fought between two autonomous AI agents on a balanced, mirrored graph of 15 nodes.</p>
+<p>As a competitor, your task is to write a single Python bot script (<code>class MyBot(BotBase)</code>) that controls an expanding empire. Every turn, your bot receives a sensory observation through the fog of war, manages an economy of Gold (🪙), maintains dynamic supply lines, trains rock-paper-scissors military forces, and commands fleets to conquer nodes and capture the mystical <strong>Relic Sanctuary</strong>.</p>
+<h3>The Core Objective</h3>
+<p>Out-maneuver and eliminate the opponent, or hold the territory and the central Relic to secure the highest score by <strong>Turn 120</strong>. There are strictly <strong>no draws</strong>; a composite tiebreaker guarantees a deterministic winner.</p>
 <hr />
-<h2>1. Battlefield Geography &amp; Mirrored Topology</h2>
-<p>The battlefield consists of <strong>15 discrete strategic nodes</strong> connected by travel lanes. The graph is mathematically symmetrical across the vertical axis $X = 50.0$, ensuring absolute parity between Player 1 and Player 2.</p>
-<pre><code>       [Node 4: North Rig] ---------------------------------- [Node 10: Apex Rig]
-             |     \                                                /     |
-             |      \                                              /      |
-       [Node 1: Alpha Bastion] --- [Node 5: North Outpost] -- [Node 9: Zenith] --- [Node 13: Epsilon]
-          /     \                      /            \                      /     \
-         /       \                    /              \                    /       \
-[P1 Core: 0] --- [Node 3: Vanguard] ----- [Node 7: Relic] ----- [Node 11: Sentinel] --- [P2 Core: 14]
-         \       /                    \              /                    \       /
-          \     /                      \            /                      \     /
-       [Node 2: Gamma Bastion] --- [Node 6: South Outpost] -- [Node 8: Titan] --- [Node 12: Omega]
+<h2>2. Quick-Start Guide for Competitors</h2>
+<h3>Step 1: Locate Your Starter Bot Template</h3>
+<p>In your participant package, inspect <strong><code>bots/starter_bot.py</code></strong>. You can copy this file to create your own bot:</p>
+<pre><code class="language-bash">cp bots/starter_bot.py bots/my_bot.py
 </code></pre>
-<h3>Complete Node Directory &amp; Yield Classification</h3>
-<p>| Node ID | Strategic Designation | Coordinates $(X, Y)$ | Default Owner | Production (Gold/Turn) | Defense Bonus | Initial Garrison |
-|:---:|:---|:---:|:---:|:---:|:---:|:---|
-| <strong>0</strong> | <strong>Player 1 Core Citadel</strong> | $(10.0, 50.0)$ | Player 1 | <strong>+15 🪙</strong> | <strong>+50%</strong> | 1 Raider, 1 Guard, 1 Scout |
-| <strong>1</strong> | Alpha Bastion | $(25.0, 25.0)$ | Neutral | <strong>+4 🪙</strong> | +25% | 1 Raider (Neutral) |
-| <strong>2</strong> | Gamma Bastion | $(25.0, 75.0)$ | Neutral | <strong>+4 🪙</strong> | +25% | 1 Raider (Neutral) |
-| <strong>3</strong> | Vanguard Chokepoint Gate | $(32.0, 50.0)$ | Neutral | <strong>+7 🪙</strong> | +25% | 2 Guards (Neutral) |
-| <strong>4</strong> | North Rig | $(40.0, 15.0)$ | Neutral | <strong>+4 🪙</strong> | +25% | 1 Raider (Neutral) |
-| <strong>5</strong> | North Outpost | $(45.0, 35.0)$ | Neutral | <strong>+7 🪙</strong> | +25% | 2 Guards (Neutral) |
-| <strong>6</strong> | South Outpost | $(45.0, 65.0)$ | Neutral | <strong>+7 🪙</strong> | +25% | 2 Guards (Neutral) |
-| <strong>7</strong> | <strong>Relic Sanctuary</strong> | $(50.0, 50.0)$ | Neutral | <strong>+10 🪙</strong> | +25% | 2 Guards, 1 Siege (Neutral) |
-| <strong>8</strong> | Titan Outpost | $(55.0, 65.0)$ | Neutral | <strong>+7 🪙</strong> | +25% | 2 Guards (Neutral) |
-| <strong>9</strong> | Zenith Outpost | $(55.0, 35.0)$ | Neutral | <strong>+7 🪙</strong> | +25% | 2 Guards (Neutral) |
-| <strong>10</strong> | Apex Rig | $(60.0, 15.0)$ | Neutral | <strong>+4 🪙</strong> | +25% | 1 Raider (Neutral) |
-| <strong>11</strong> | Sentinel Chokepoint Gate | $(68.0, 50.0)$ | Neutral | <strong>+7 🪙</strong> | +25% | 2 Guards (Neutral) |
-| <strong>12</strong> | Omega Bastion | $(75.0, 75.0)$ | Neutral | <strong>+4 🪙</strong> | +25% | 1 Raider (Neutral) |
-| <strong>13</strong> | Epsilon Bastion | $(75.0, 25.0)$ | Neutral | <strong>+4 🪙</strong> | +25% | 1 Raider (Neutral) |
-| <strong>14</strong> | <strong>Player 2 Core Citadel</strong> | $(90.0, 50.0)$ | Player 2 | <strong>+15 🪙</strong> | <strong>+50%</strong> | 1 Raider, 1 Guard, 1 Scout |</p>
-<h3>Lanes &amp; Travel Latencies</h3>
+<h3>Step 2: Test Locally with the Validator</h3>
+<p>Before submitting, always test your bot with the standalone dry-run validator:</p>
+<pre><code class="language-bash">python validate_bot.py bots/my_bot.py
+</code></pre>
+<p>This tests your class instantiation for Player 1, Player 2, and late-game Relic charging observations, ensuring your orders strictly conform to tournament specifications.</p>
+<h3>Step 3: Submission Format</h3>
+<p>Your final submission is a single, self-contained Python file (e.g. <code>team_name_bot.py</code>) that implements your bot class inheriting from <code>BotBase</code>.</p>
+<hr />
+<h2>3. Battlefield Geography &amp; Mirrored Topology</h2>
+<p>The arena consists of <strong>15 strategic nodes</strong> connected by travel lanes. The graph is bilaterally symmetrical across the vertical center line, ensuring Player 1 and Player 2 have identical path distances to all contested objectives.</p>
+<pre><code>       [Node 4: North Rig] --------------------------- [Node 10: Apex Rig]
+             |     \                                         /     |
+             |      \                                       /      |
+       [Node 1: Alpha] --- [Node 5: North] --- [Node 9: Zenith] --- [Node 13: Epsilon]
+          /     \               /     \               /     \
+         /       \             /       \             /       \
+[P1 Core: 0] --- [Node 3: Gate] --- [Node 7: Relic] --- [Node 11: Gate] --- [P2 Core: 14]
+         \       /             \       /             \       /
+          \     /               \     /               \     /
+       [Node 2: Gamma] --- [Node 6: South] --- [Node 8: Titan] --- [Node 12: Omega]
+</code></pre>
+<h3>Node Directory &amp; Resource Yields</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Node ID</th>
+<th style="text-align:left">Node Designation</th>
+<th style="text-align:center">Position (X, Y)</th>
+<th style="text-align:center">Initial Owner</th>
+<th style="text-align:center">Yield (Gold/Turn)</th>
+<th style="text-align:center">Defense Bonus</th>
+<th style="text-align:left">Neutral Garrison</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><strong>0</strong></td>
+<td style="text-align:left"><strong>Player 1 Core Citadel</strong></td>
+<td style="text-align:center">(10.0, 50.0)</td>
+<td style="text-align:center">Player 1</td>
+<td style="text-align:center"><strong>+15 🪙</strong></td>
+<td style="text-align:center"><strong>+50%</strong></td>
+<td style="text-align:left">1 Raider, 1 Guard, 1 Scout</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>1</strong></td>
+<td style="text-align:left">Alpha Bastion</td>
+<td style="text-align:center">(25.0, 25.0)</td>
+<td style="text-align:center">Neutral</td>
+<td style="text-align:center"><strong>+4 🪙</strong></td>
+<td style="text-align:center">+25%</td>
+<td style="text-align:left">1 Raider</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>2</strong></td>
+<td style="text-align:left">Gamma Bastion</td>
+<td style="text-align:center">(25.0, 75.0)</td>
+<td style="text-align:center">Neutral</td>
+<td style="text-align:center"><strong>+4 🪙</strong></td>
+<td style="text-align:center">+25%</td>
+<td style="text-align:left">1 Raider</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>3</strong></td>
+<td style="text-align:left">Vanguard Chokepoint Gate</td>
+<td style="text-align:center">(32.0, 50.0)</td>
+<td style="text-align:center">Neutral</td>
+<td style="text-align:center"><strong>+7 🪙</strong></td>
+<td style="text-align:center">+25%</td>
+<td style="text-align:left">2 Guards</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>4</strong></td>
+<td style="text-align:left">North Rig</td>
+<td style="text-align:center">(40.0, 15.0)</td>
+<td style="text-align:center">Neutral</td>
+<td style="text-align:center"><strong>+4 🪙</strong></td>
+<td style="text-align:center">+25%</td>
+<td style="text-align:left">1 Raider</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>5</strong></td>
+<td style="text-align:left">North Outpost</td>
+<td style="text-align:center">(45.0, 35.0)</td>
+<td style="text-align:center">Neutral</td>
+<td style="text-align:center"><strong>+7 🪙</strong></td>
+<td style="text-align:center">+25%</td>
+<td style="text-align:left">2 Guards</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>6</strong></td>
+<td style="text-align:left">South Outpost</td>
+<td style="text-align:center">(45.0, 65.0)</td>
+<td style="text-align:center">Neutral</td>
+<td style="text-align:center"><strong>+7 🪙</strong></td>
+<td style="text-align:center">+25%</td>
+<td style="text-align:left">2 Guards</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>7</strong></td>
+<td style="text-align:left"><strong>Relic Sanctuary</strong></td>
+<td style="text-align:center">(50.0, 50.0)</td>
+<td style="text-align:center">Neutral</td>
+<td style="text-align:center"><strong>+10 🪙</strong></td>
+<td style="text-align:center">+25%</td>
+<td style="text-align:left">2 Guards, 1 Siege</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>8</strong></td>
+<td style="text-align:left">Titan Outpost</td>
+<td style="text-align:center">(55.0, 65.0)</td>
+<td style="text-align:center">Neutral</td>
+<td style="text-align:center"><strong>+7 🪙</strong></td>
+<td style="text-align:center">+25%</td>
+<td style="text-align:left">2 Guards</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>9</strong></td>
+<td style="text-align:left">Zenith Outpost</td>
+<td style="text-align:center">(55.0, 35.0)</td>
+<td style="text-align:center">Neutral</td>
+<td style="text-align:center"><strong>+7 🪙</strong></td>
+<td style="text-align:center">+25%</td>
+<td style="text-align:left">2 Guards</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>10</strong></td>
+<td style="text-align:left">Apex Rig</td>
+<td style="text-align:center">(60.0, 15.0)</td>
+<td style="text-align:center">Neutral</td>
+<td style="text-align:center"><strong>+4 🪙</strong></td>
+<td style="text-align:center">+25%</td>
+<td style="text-align:left">1 Raider</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>11</strong></td>
+<td style="text-align:left">Sentinel Chokepoint Gate</td>
+<td style="text-align:center">(68.0, 50.0)</td>
+<td style="text-align:center">Neutral</td>
+<td style="text-align:center"><strong>+7 🪙</strong></td>
+<td style="text-align:center">+25%</td>
+<td style="text-align:left">2 Guards</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>12</strong></td>
+<td style="text-align:left">Omega Bastion</td>
+<td style="text-align:center">(75.0, 75.0)</td>
+<td style="text-align:center">Neutral</td>
+<td style="text-align:center"><strong>+4 🪙</strong></td>
+<td style="text-align:center">+25%</td>
+<td style="text-align:left">1 Raider</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>13</strong></td>
+<td style="text-align:left">Epsilon Bastion</td>
+<td style="text-align:center">(75.0, 25.0)</td>
+<td style="text-align:center">Neutral</td>
+<td style="text-align:center"><strong>+4 🪙</strong></td>
+<td style="text-align:center">+25%</td>
+<td style="text-align:left">1 Raider</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>14</strong></td>
+<td style="text-align:left"><strong>Player 2 Core Citadel</strong></td>
+<td style="text-align:center">(90.0, 50.0)</td>
+<td style="text-align:center">Player 2</td>
+<td style="text-align:center"><strong>+15 🪙</strong></td>
+<td style="text-align:center"><strong>+50%</strong></td>
+<td style="text-align:left">1 Raider, 1 Guard, 1 Scout</td>
+</tr>
+</tbody>
+</table>
+<h3>Lanes &amp; Travel Times</h3>
 <ul>
-<li>Adjacent bastions and outposts require <strong>2 turns</strong> of lane travel.</li>
-<li>Central gateway bridges ($0 \leftrightarrow 3$, $3 \leftrightarrow 7$, $11 \leftrightarrow 7$, $14 \leftrightarrow 11$) and high flanks ($4 \leftrightarrow 10$) require <strong>3 turns</strong> of travel.</li>
-<li>Path lengths from Node 0 to Relic Node 7 equal exactly 6 turns along both the central artery ($0 \rightarrow 3 \rightarrow 7$) and flank corridors ($0 \rightarrow 1 \rightarrow 5 \rightarrow 7$).</li>
+<li><strong>Standard Lanes</strong>: Transit between adjacent bastions and outposts takes <strong>2 turns</strong>.</li>
+<li><strong>Chokepoint Bridges &amp; Flanks</strong>: Long lanes (such as 0 to 3, 3 to 7, 11 to 7, 14 to 11, and 4 to 10) take <strong>3 turns</strong>.</li>
+<li>Both players have equal 6-turn travel routes from Home Core to the central Relic (e.g. 0 to 3 to 7 vs 14 to 11 to 7).</li>
 </ul>
 <hr />
-<h2>2. Economy, Production &amp; Empire Supply Lines</h2>
-<h3>Starting Capital</h3>
-<p>Both players begin Turn 1 with <strong>30 Gold</strong> (represented by <code>obs.my_credits</code> in the Python API).</p>
-<h3>Turn Income Phase</h3>
-<p>At the start of every turn, players receive Gold equal to the sum of production values of all nodes they own:
-$$\text{Income}<em>p = \sum</em>{n \in \text{Owned}_p} \text{Production}(n)$$</p>
+<h2>4. Economy, Gold &amp; Dynamic Supply Lines</h2>
+<h3>Starting Treasury</h3>
+<p>Both players start Turn 1 with <strong>30 Gold</strong> (accessed via <code>obs.my_credits</code> in the bot API).</p>
+<h3>Turn Income</h3>
+<p>At the start of every turn, players collect Gold from every node they currently own:</p>
 <ul>
-<li><strong>Home Citadels (0, 14)</strong>: +15 Gold/turn</li>
+<li><strong>Core Citadels (0, 14)</strong>: +15 Gold/turn</li>
 <li><strong>Relic Sanctuary (7)</strong>: +10 Gold/turn</li>
-<li><strong>Contested Chokepoint Outposts (3, 5, 6, 8, 9, 11)</strong>: +7 Gold/turn</li>
-<li><strong>Outer Bastions &amp; Rigs (1, 2, 4, 10, 12, 13)</strong>: +4 Gold/turn</li>
+<li><strong>Chokepoint Gates &amp; Outposts (3, 5, 6, 8, 9, 11)</strong>: +7 Gold/turn</li>
+<li><strong>Outer Bastions &amp; Refineries (1, 2, 4, 10, 12, 13)</strong>: +4 Gold/turn</li>
 </ul>
 <h3>Dynamic Empire Supply Lines (Upkeep)</h3>
-<p>Rather than a fixed troop ceiling, army capacity scales dynamically with territorial expansion:
-$$\text{Free Supply Cap}_p = 10 + (4 \times \text{Owned Nodes}_p)$$</p>
+<p>To prevent runaway troop snowballing, maintaining a massive military requires dynamic territorial upkeep:</p>
+<p><strong>Free Supply Capacity = 10 + (4 × Owned Nodes)</strong></p>
 <ul>
-<li><strong>Domestic Maintenance</strong>: Units stationed at friendly owned nodes exceeding the supply cap cost <strong>1 Gold/turn</strong> per unit.</li>
-<li><strong>Expeditionary Maintenance (Supply Tax)</strong>: Units operating on unowned/enemy nodes or traveling in transit lanes cost <strong>2 Gold/turn</strong> per unit over cap.</li>
-<li>Free capacity shields domestic defensive garrisons first before covering distant expeditionary forces.</li>
+<li><strong>Domestic Forces</strong>: Units stationed on friendly owned nodes that exceed your free capacity cost <strong>1 Gold/turn</strong> per unit.</li>
+<li><strong>Expeditionary Forces (Overextension Tax)</strong>: Units stationed on unowned/enemy nodes or traveling along lanes cost <strong>2 Gold/turn</strong> per unit over capacity.</li>
+<li>Free capacity automatically covers your domestic defenders first before covering expeditionary units.</li>
 </ul>
 <hr />
-<h2>3. Unit Roster &amp; Lanchester Rock-Paper-Scissors Combat</h2>
-<pre><code>                 RAIDER (10 Gold)
-               /                  \
-      2.0x vs /                    \ 0.5x vs
-             v                      v
-     SIEGE (18 Gold) &lt;--------- GUARD (12 Gold)
-                       2.0x vs
+<h2>5. Units &amp; Rock-Paper-Scissors Combat</h2>
+<p>Units clash using a deterministic Lanchester attrition model with a 2.0x counter-damage multiplier:</p>
+<pre><code>               RAIDER (10 Gold)
+              /                \
+     2.0x vs /                  \ 0.5x vs
+            v                    v
+    SIEGE (18 Gold) &lt;------- GUARD (12 Gold)
+                    2.0x vs
 </code></pre>
-<h3>Complete Unit Attribute Matrix</h3>
-<p>| Unit Type | Gold Cost | Max HP | Base ATK | Counter Target (2.0x Damage) | Vulnerable To (0.5x Damage) | Strategic Specialization |
-|:---|:---:|:---:|:---:|:---:|:---:|:---|
-| <strong>Raider</strong> | 10 🪙 | 20 | 12 | <strong>Siege</strong> (2.0x) | Guard (0.5x) | Fast shock cavalry, harasser, siege destroyer |
-| <strong>Siege</strong> | 18 🪙 | 35 | 22 | <strong>Guard</strong> (2.0x) | Raider (0.5x) | Heavy artillery, fortress breaker, high HP anchor |
-| <strong>Guard</strong> | 12 🪙 | 30 | 14 | <strong>Raider</strong> (2.0x) | Siege (0.5x) | Armored infantry, choke point wall, raider shredder |
-| <strong>Scout</strong> | 6 🪙 | 10 | 0 | None (Non-combat) | All Units | Pierces lane fog, +15% targeting bonus, capture freezer |</p>
-<h3>Combat Resolution Mechanics</h3>
+<h3>Complete Unit Roster</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Unit Type</th>
+<th style="text-align:center">Gold Cost</th>
+<th style="text-align:center">Max HP</th>
+<th style="text-align:center">Base ATK</th>
+<th style="text-align:center">Counter Bonus (2.0x Damage)</th>
+<th style="text-align:center">Vulnerable To (0.5x Damage)</th>
+<th style="text-align:left">Tactical Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>Raider</strong></td>
+<td style="text-align:center">10 🪙</td>
+<td style="text-align:center">20</td>
+<td style="text-align:center">12</td>
+<td style="text-align:center"><strong>Siege</strong> (2.0x)</td>
+<td style="text-align:center">Guard (0.5x)</td>
+<td style="text-align:left">Fast shock raider, cheap swarm, siege destroyer</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Siege</strong></td>
+<td style="text-align:center">18 🪙</td>
+<td style="text-align:center">35</td>
+<td style="text-align:center">22</td>
+<td style="text-align:center"><strong>Guard</strong> (2.0x)</td>
+<td style="text-align:center">Raider (0.5x)</td>
+<td style="text-align:left">Heavy artillery, high HP anchor, guard crusher</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Guard</strong></td>
+<td style="text-align:center">12 🪙</td>
+<td style="text-align:center">30</td>
+<td style="text-align:center">14</td>
+<td style="text-align:center"><strong>Raider</strong> (2.0x)</td>
+<td style="text-align:center">Siege (0.5x)</td>
+<td style="text-align:left">Armored infantry, wall anchor, raider shredder</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Scout</strong></td>
+<td style="text-align:center">6 🪙</td>
+<td style="text-align:center">10</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">None (Non-combat)</td>
+<td style="text-align:center">All Units</td>
+<td style="text-align:left">Pierces fog, +15% targeting bonus, capture freezer</td>
+</tr>
+</tbody>
+</table>
+<h3>Combat Resolution Rules</h3>
 <ol>
-<li><strong>Deterministic Resolution</strong>: Combat resolves simultaneously across all contested nodes using Lanchester attrition equations. There is zero RNG in combat outcomes.</li>
-<li><strong>Targeting Priority</strong>: Squads focus incoming damage on units they counter (2.0x damage multiplier).</li>
+<li><strong>Targeting Priority</strong>: Combat units prioritize firing on the unit types they counter, dealing <strong>2.0x damage</strong>.</li>
 <li><strong>Stationary Defense Bonuses</strong>:
 <ul>
-<li><strong>Home Core Citadels (0, 14)</strong>: Stationary defenders receive a <strong>+50% Defense Bonus</strong> (incoming damage halved).</li>
-<li><strong>Outposts &amp; Bastions (1–13)</strong>: Stationary defenders receive a <strong>+25% Defense Bonus</strong>.</li>
+<li><strong>Home Core Citadels (0, 14)</strong>: Defenders gain a <strong>+50% Defense Bonus</strong> (halving incoming damage).</li>
+<li><strong>Outposts &amp; Bastions (1–13)</strong>: Defenders gain a <strong>+25% Defense Bonus</strong>.</li>
 </ul>
 </li>
-<li><strong>Meeting Engagements</strong>: When opposing fleets arrive at an unowned or neutral node on the same turn, combat resolves as an open meeting engagement (0% defender bonus for both sides).</li>
+<li><strong>Meeting Engagements</strong>: When opposing forces arrive at a neutral node on the same turn, combat resolves as an open meeting engagement with <strong>0% defense bonus</strong> for both sides.</li>
 </ol>
 <hr />
-<h2>4. Tactical Reconnaissance &amp; The Fog-of-War System</h2>
-<p>The tournament engine enforces strict information asymmetry:</p>
-<h3>Information Visibility Rules</h3>
+<h2>6. Reconnaissance, Fog-of-War &amp; Scout Utilities</h2>
+<p>The tournament engine enforces strict information fog:</p>
 <ul>
-<li><strong>Owned Nodes &amp; Garrison</strong>: Always fully visible.</li>
-<li><strong>Adjacent Node Radars</strong>: You can inspect unit counts on nodes directly connected to any node you own.</li>
-<li><strong>Unscouted Nodes</strong>: Deep unowned nodes obscured by fog display <code>node.units = None</code>.</li>
-<li><strong>Traveling Fleets (Radar Silhouettes)</strong>: You always see enemy fleet trajectories (<code>origin_node</code>, <code>dest_node</code>, <code>turns_remaining</code>, and <code>total_count</code>).</li>
-<li><strong>Hidden Unit Compositions</strong>: The specific unit breakdown of enemy fleets (<code>fleet.units</code>) is masked (<code>None</code>) unless you have positioned a <strong>Scout</strong> along the flight path.</li>
+<li><strong>Owned Territory</strong>: Fully visible garrisons.</li>
+<li><strong>Adjacent Node Radars</strong>: You can see unit counts on nodes directly connected to nodes you own.</li>
+<li><strong>Deep Unowned Nodes</strong>: Obscured by fog; <code>node.units</code> is returned as <code>None</code>.</li>
+<li><strong>Traveling Fleets (Radar Silhouettes)</strong>: You can see all enemy fleets on lanes (<code>origin_node</code>, <code>dest_node</code>, <code>turns_remaining</code>, <code>total_count</code>).</li>
+<li><strong>Hidden Unit Compositions</strong>: The specific unit breakdown (<code>fleet.units</code>) is hidden (<code>None</code>) unless you have positioned a <strong>Scout</strong> along the flight path.</li>
 </ul>
 <h3>Scout Combat Targeting &amp; Capture Freeze</h3>
 <ul>
-<li><strong>+15% Targeting Bonus</strong>: Having a friendly Scout present or stationed adjacent to a battle grants your combat units a +15% damage bonus.</li>
-<li><strong>-15% Blind Penalty</strong>: Fighting an enemy army that possesses Scout reconnaissance while you have none inflicts a -15% blind targeting penalty on your units.</li>
-<li><strong>Capture Lock</strong>: If an enemy attempts to capture a node, stationing or moving a friendly Scout to that node freezes the capture timer, preventing ownership from flipping!</li>
+<li><strong>+15% Targeting Bonus</strong>: Having a friendly Scout present or stationed adjacent to a battle grants your units a +15% damage bonus.</li>
+<li><strong>-15% Blind Penalty</strong>: Fighting an enemy army that has a Scout while you have none inflicts a -15% blind targeting penalty on your units.</li>
+<li><strong>Capture Lock</strong>: If an enemy attempts to capture a node, sending or stationing a Scout at that node freezes the capture progress counter!</li>
 </ul>
 <hr />
-<h2>5. Territorial Occupation &amp; The 2-Turn Flip Mechanic</h2>
-<p>Nodes are not captured instantaneously. Controlling a node requires <strong>2 consecutive turns of uncontested occupation</strong>:</p>
+<h2>7. Node Occupation &amp; The 2-Turn Flip Mechanic</h2>
+<p>Capturing a node requires <strong>2 consecutive turns of uncontested occupation</strong>:</p>
 <ol>
-<li><strong>Defenders Cleared</strong>: Enemy garrison is wiped out; invading units occupy the node.</li>
-<li><strong>Contested State (1/2)</strong>: Node enters contested status (<code>node.capture_progress = 1</code>).
+<li><strong>Clear Defenders</strong>: Neutral or enemy garrison is eliminated; invading units occupy the node.</li>
+<li><strong>Contested State (Turn 1)</strong>: Node enters contested status (<code>node.capture_progress = 1</code>).
 <ul>
-<li>Ownership remains with the prior owner.</li>
+<li>Ownership has <strong>not</strong> flipped yet.</li>
 <li>Recruitment at this node is <strong>locked</strong> (<code>capturing_player != 0</code>).</li>
-<li>If the defender sends a relief force that arrives on the next turn, combat triggers and the capture is halted!</li>
+<li>If the original owner sends a relief fleet that arrives on the next turn, combat begins and the capture clock is halted.</li>
 </ul>
 </li>
-<li><strong>Flipped Ownership (2/2)</strong>: If occupation remains uncontested for a second consecutive turn, ownership formally flips to the invader, and production resumes under the new banner.</li>
+<li><strong>Ownership Flip (Turn 2)</strong>: If occupation remains uncontested for a second consecutive turn, ownership formally flips to the invader and resource production begins under the new banner.</li>
 </ol>
 <hr />
-<h2>6. The Dynamic Relic Sanctuary (Turns 80 to 100)</h2>
-<p>To prevent hardcoded scripted timing exploits, the mystical <strong>Relic Sanctuary (Node 7)</strong> awakens dynamically:</p>
+<h2>8. Dynamic Relic Sanctuary (Turns 80 to 100)</h2>
+<p>The mystical <strong>Relic Sanctuary (Node 7)</strong> awakens dynamically in the late game:</p>
 <ul>
-<li><strong>Random Activation Window</strong>: Node 7 awakens between <strong>Turn 80 and Turn 100</strong>.</li>
-<li><strong>5-Turn Advance Charging Alert</strong>: Exactly 5 turns prior to awakening, the engine broadcasts <code>obs.relic_charging = True</code>.</li>
-<li><strong>Relic Harvest (+10 Bonus Points/Turn)</strong>: The player controlling Node 7 receives +10 Victory Points per turn.</li>
-<li><strong>Territorial Point Doubler (2x Multiplier)</strong>: Once active (<code>obs.relic_active = True</code>), every owned node on the map generates <strong>2 Victory Points per turn</strong> instead of 1.</li>
+<li><strong>Random Activation Window</strong>: Awakens dynamically between <strong>Turn 80 and Turn 100</strong>.</li>
+<li><strong>5-Turn Advance Warning</strong>: Exactly 5 turns before activation, the engine broadcasts <code>obs.relic_charging = True</code>.</li>
+<li><strong>Relic Harvest</strong>: Controlling Node 7 grants <strong>+10 Bonus Victory Points per turn</strong>.</li>
+<li><strong>Territorial Doubler (2x Multiplier)</strong>: Once active (<code>obs.relic_active = True</code>), every owned node on the map produces <strong>2 Victory Points per turn</strong> instead of 1.</li>
 </ul>
 <hr />
-<h2>7. Match Lifecycle, Scoring &amp; Deterministic Tiebreakers</h2>
-<p>Matches terminate when:</p>
+<h2>9. Match Lifecycle &amp; Strict Deterministic Tiebreaker</h2>
+<p>Matches last up to <strong>120 turns</strong>. A match terminates upon:</p>
 <ol>
 <li><strong>Total Elimination</strong>: A player loses all nodes and has zero active or traveling units.</li>
-<li><strong>Turn 120 Limit</strong>: If neither player is eliminated by Turn 120, a deterministic composite tiebreak formula determines the winner:</li>
+<li><strong>Turn 120 Limit</strong>: If both players survive to Turn 120, a deterministic composite tiebreak score is calculated:</li>
 </ol>
-<p>$$\text{Tiebreak Score} = (\text{Points} \times 10^5) + (\text{Relic Turns} \times 10^3) + (\text{Total Army Value} \times 10) + \text{Banked Gold}$$</p>
-<p>Because this incorporates cumulative victory points, duration of Relic control, total army asset value in Gold, and unspent treasury reserves, it is mathematically unique. <strong>There are strictly no draws.</strong></p>
+<p><strong>Tiebreak Score = (Victory Points × 100,000) + (Relic Turns Held × 1,000) + (Total Army Value × 10) + Banked Gold</strong></p>
+<p>Because this formula incorporates cumulative points, relic possession duration, total military asset value in Gold, and unspent treasury reserves, it is mathematically unique. <strong>There are strictly no draws.</strong></p>
 <hr />
-<h2>8. Competitor Bot API &amp; Order Protocol</h2>
+<h2>10. Competitor Bot API &amp; Order Protocol</h2>
 <p>Every bot inherits from <code>BotBase</code> and implements the <code>act(obs)</code> method:</p>
 <pre><code class="language-python">from __future__ import annotations
 from typing import List
@@ -387,81 +567,77 @@ class CompetitorBot(BotBase):
 
     def act(self, obs: BotObservation) -&gt; List[Order]:
         orders: List[Order] = []
-        
-        # Access owned territory
         my_nodes = self.get_my_nodes(obs)
         if not my_nodes:
             return orders
 
-        # 1. Training Order Example
+        # 1. Training Order Example (recruit 1 Raider at home base)
         if obs.my_credits &gt;= 10:
             orders.append(self.train(self.home_id, UnitType.RAIDER, 1))
 
-        # 2. Movement Order Example
-        orders.append(self.move(self.home_id, 1, {UnitType.RAIDER: 1}))
+        # 2. Movement Order Example (dispatch 2 Raiders along shortest path)
+        orders.append(self.move(self.home_id, 1, {UnitType.RAIDER: 2}))
 
         return orders
 </code></pre>
 <h3>Observation Schema Reference (<code>BotObservation</code>)</h3>
 <ul>
-<li><code>obs.current_turn</code>: Current integer turn ($1 \dots 120$).</li>
+<li><code>obs.current_turn</code>: Current integer turn (1 to 120).</li>
 <li><code>obs.max_turns</code>: Maximum match turns (120).</li>
-<li><code>obs.my_player_id</code>: Your player ID (<code>1</code> or <code>2</code>).</li>
-<li><code>obs.my_credits</code>: Spendable Gold reserve.</li>
-<li><code>obs.my_score</code>: Your accumulated victory points.</li>
+<li><code>obs.my_player_id</code>: Your faction ID (1 or 2).</li>
+<li><code>obs.my_credits</code>: Your current spendable Gold reserve.</li>
+<li><code>obs.my_score</code>: Your current accumulated victory points.</li>
 <li><code>obs.opponent_score</code>: Opponent's accumulated victory points.</li>
 <li><code>obs.relic_charging</code>: Boolean 5-turn warning alert before Relic awakens.</li>
 <li><code>obs.relic_active</code>: Boolean flag indicating if Relic is active.</li>
-<li><code>obs.relic_node_id</code>: Node ID of the Relic Sanctuary (<code>7</code>).</li>
-<li><code>obs.nodes</code>: Dictionary mapping Node ID ($0 \dots 14$) to <code>VisibleNode</code>.</li>
+<li><code>obs.relic_node_id</code>: Node ID of the Relic Sanctuary (7).</li>
+<li><code>obs.nodes</code>: Dict mapping Node ID (0 to 14) to <code>VisibleNode</code>.
+<ul>
+<li><code>node.id</code>: Integer ID (0 to 14).</li>
+<li><code>node.owner</code>: Owner ID (1 for P1, 2 for P2, 0 for Neutral).</li>
+<li><code>node.production</code>: Gold generated per turn (4, 7, 10, or 15).</li>
+<li><code>node.defense_bonus</code>: Stationary damage reduction (0.50 at home, 0.25 at outposts).</li>
+<li><code>node.capture_progress</code>: Turns captured (0, 1, or 2).</li>
+<li><code>node.capturing_player</code>: ID of capturing faction (0 if uncontested).</li>
+<li><code>node.units</code>: Dict of units <code>{&quot;raider&quot;: int, &quot;guard&quot;: int, ...}</code> if scouted, or <code>None</code> if obscured.</li>
+</ul>
+</li>
 <li><code>obs.lanes</code>: List of travel lane dicts (<code>node_a</code>, <code>node_b</code>, <code>travel_turns</code>).</li>
 <li><code>obs.my_fleets</code>: List of friendly <code>VisibleFleet</code> objects.</li>
-<li><code>obs.enemy_fleets</code>: List of enemy <code>VisibleFleet</code> objects (masked unless scouted).</li>
+<li><code>obs.enemy_fleets</code>: List of enemy <code>VisibleFleet</code> objects (radar silhouettes; unit compositions masked unless scouted).</li>
 </ul>
 <h3>Built-in Helper Methods on <code>BotBase</code></h3>
 <ul>
-<li><code>self.get_my_nodes(obs) -&gt; List[VisibleNode]</code>: Returns nodes owned by your faction.</li>
+<li><code>self.get_my_nodes(obs) -&gt; List[VisibleNode]</code>: Returns all nodes currently owned by you.</li>
 <li><code>self.get_enemy_nodes(obs) -&gt; List[VisibleNode]</code>: Returns nodes owned by your opponent.</li>
 <li><code>self.get_neutral_nodes(obs) -&gt; List[VisibleNode]</code>: Returns unowned neutral nodes.</li>
-<li><code>self.get_distance(obs, u, v) -&gt; int</code>: Returns travel turns between nodes $u$ and $v$.</li>
-<li><code>self.get_path(obs, u, v) -&gt; List[int]</code>: Returns sequence of node IDs along shortest route.</li>
-<li><code>self.get_neighbors(obs, node_id) -&gt; List[int]</code>: Returns connected node IDs.</li>
-<li><code>self.train(node_id, unit_type, count) -&gt; TrainOrder</code>: Factory for recruitment.</li>
-<li><code>self.move(origin, dest, units) -&gt; MoveOrder</code>: Factory for fleet movement.</li>
+<li><code>self.get_distance(obs, u, v) -&gt; int</code>: Returns shortest travel turns between nodes u and v.</li>
+<li><code>self.get_path(obs, u, v) -&gt; List[int]</code>: Returns sequence of node IDs along shortest route (e.g. <code>[0, 1, 5, 7]</code>).</li>
+<li><code>self.get_neighbors(obs, node_id) -&gt; List[int]</code>: Returns adjacent connected node IDs.</li>
+<li><code>self.train(node_id, unit_type, count) -&gt; TrainOrder</code>: Creates a validated train command.</li>
+<li><code>self.move(origin, dest, units) -&gt; MoveOrder</code>: Creates a validated fleet move command.</li>
 </ul>
 <hr />
-<h2>9. Tournament Match Execution &amp; Verification Tools</h2>
-<h3>Dry-Run Validator Tool</h3>
-<p>Always run the validator before submitting your bot:</p>
-<pre><code class="language-bash">python validate_bot.py bots/my_bot.py
-</code></pre>
-<p>This tool validates class inheritance, Player 1 / Player 2 instantiation, typing conformance, and late-game relic reaction.</p>
-<h3>Running 1v1 Matches &amp; Best-of-3 Series</h3>
-<ul>
-<li>Standard 1v1 match:<pre><code class="language-bash">python -m runner.match --p1 my_bot.py --p2 turtle --turns 120
-</code></pre>
-</li>
-<li>Best-of-3 Series with Alternating Faction Sides:<pre><code class="language-bash">python -m runner.match --p1 my_bot.py --p2 balanced --bo3
-</code></pre>
-</li>
-</ul>
-<h3>Evaluating Against the Canonical Balance Matrix</h3>
-<p>Benchmark your bot against the three baseline archetypes (<code>Rusher</code>, <code>Turtle</code>, <code>Balanced</code>):</p>
-<pre><code class="language-bash">python -m runner.tournament --rounds 10
-</code></pre>
-<hr />
-<h2>10. Competitor Rules of Engagement &amp; Constraints</h2>
+<h2>11. Rules of Engagement &amp; Execution Constraints</h2>
 <ol>
-<li><strong>Execution Time Limit</strong>: Bots must return orders within <strong>50 milliseconds</strong> per turn. Compute timeouts forfeit orders for that turn.</li>
-<li><strong>Memory &amp; State Persistence</strong>: Bots may store state in <code>self</code> across turns. State persists throughout an individual match.</li>
-<li><strong>No External Calls</strong>: Bots must run purely in Python standard library. Subprocess execution, socket communication, file system tampering, or thread spawning are strictly prohibited.</li>
-<li><strong>Order Validity</strong>: Orders attempting to move units not physically stationed at a node or training units without adequate Gold are ignored.</li>
+<li><strong>50 Millisecond Time Limit</strong>: Your bot must return orders within <strong>50 milliseconds</strong> per turn. Compute timeouts will forfeit orders for that turn.</li>
+<li><strong>Pure Standard Library</strong>: Submissions must use standard Python 3. Subprocesses, network sockets, thread pools, or disk modifications are strictly forbidden and will result in disqualification.</li>
+<li><strong>Persistent Memory</strong>: You may store cross-turn strategic state on <code>self</code> (e.g. enemy sightings, build orders). Memory persists throughout an individual match.</li>
+<li><strong>Order Validity</strong>: Orders attempting to move units that do not exist at a node or training units without sufficient Gold will be safely ignored by the engine.</li>
 <li><strong>No Draws</strong>: Every match terminates with an unambiguous winner.</li>
 </ol>
+<hr />
+<h2>12. Debugging &amp; Common Pitfalls</h2>
+<ul>
+<li><strong>Path Index Bounds</strong>: <code>self.get_path(obs, u, v)</code> returns <code>[u, next_node, ..., v]</code>. Always check <code>if len(path) &gt;= 2:</code> before accessing <code>path[1]</code>.</li>
+<li><strong>Recruitment Lockout</strong>: You cannot train units at a node while it is actively being contested (<code>node.capturing_player != 0</code>).</li>
+<li><strong>Moving from Unowned Nodes</strong>: Units can only launch fleets from nodes you currently own. Wait for the 2-turn capture progress to flip before moving out!</li>
+<li><strong>Local Budget Tracking</strong>: Always deduct Gold locally as you generate <code>TrainOrder</code>s within <code>act(obs)</code> to ensure you don't over-commit your reserves.</li>
+</ul>
 
 
 <div class="footer">
-  Node War Autonomous AI Simulation Tournament • Collegiate Hackathon Edition • All Rights Reserved
+  Autonomous AI Simulation Tournament • Participant Manual • All Rights Reserved
 </div>
 
 </body>

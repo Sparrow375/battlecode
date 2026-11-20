@@ -43,7 +43,7 @@ def set_cell_background(cell, color_hex: str):
     tcPr.append(shd)
 
 
-def set_cell_margins(cell, top=120, bottom=120, left=160, right=160):
+def set_cell_margins(cell, top=100, bottom=100, left=140, right=140):
     """Sets cell padding in dxa (1 pt = 20 dxa)."""
     tcPr = cell._element.get_or_add_tcPr()
     tcMar = parse_xml(
@@ -64,20 +64,20 @@ def build_docx_from_markdown(md_path: str, docx_path: str, title: str, subtitle:
 
     doc = docx.Document()
 
-    # Page Margins (0.8 inch)
+    # Page Margins (0.75 inch)
     for section in doc.sections:
-        section.top_margin = Inches(0.8)
-        section.bottom_margin = Inches(0.8)
-        section.left_margin = Inches(0.8)
-        section.right_margin = Inches(0.8)
+        section.top_margin = Inches(0.75)
+        section.bottom_margin = Inches(0.75)
+        section.left_margin = Inches(0.75)
+        section.right_margin = Inches(0.75)
 
     # Base Normal style
     style_normal = doc.styles["Normal"]
     style_normal.font.name = "Arial"
-    style_normal.font.size = Pt(10.5)
+    style_normal.font.size = Pt(10)
     style_normal.font.color.rgb = CHARCOAL
-    style_normal.paragraph_format.line_spacing = 1.25
-    style_normal.paragraph_format.space_after = Pt(6)
+    style_normal.paragraph_format.line_spacing = 1.2
+    style_normal.paragraph_format.space_after = Pt(5)
 
     # Document Header Title
     title_p = doc.add_paragraph()
@@ -85,21 +85,21 @@ def build_docx_from_markdown(md_path: str, docx_path: str, title: str, subtitle:
     title_p.paragraph_format.space_after = Pt(2)
     run_title = title_p.add_run(title)
     run_title.font.name = "Arial"
-    run_title.font.size = Pt(22)
+    run_title.font.size = Pt(20)
     run_title.font.bold = True
     run_title.font.color.rgb = NAVY
 
     sub_p = doc.add_paragraph()
-    sub_p.paragraph_format.space_after = Pt(14)
+    sub_p.paragraph_format.space_after = Pt(12)
     run_sub = sub_p.add_run(subtitle)
     run_sub.font.name = "Arial"
-    run_sub.font.size = Pt(11)
+    run_sub.font.size = Pt(10.5)
     run_sub.font.italic = True
     run_sub.font.color.rgb = SLATE
 
     # Horizontal Divider Bar
     div_p = doc.add_paragraph()
-    div_p.paragraph_format.space_after = Pt(14)
+    div_p.paragraph_format.space_after = Pt(12)
     run_div = div_p.add_run("―" * 55)
     run_div.font.color.rgb = ROYAL_BLUE
     run_div.font.size = Pt(8)
@@ -135,27 +135,27 @@ def build_docx_from_markdown(md_path: str, docx_path: str, title: str, subtitle:
                 cell_text = row[c_idx] if c_idx < len(row) else ""
                 cell = table.cell(r_idx, c_idx)
                 cell.text = cell_text
-                set_cell_margins(cell, top=100, bottom=100, left=140, right=140)
+                set_cell_margins(cell, top=80, bottom=80, left=110, right=110)
 
                 p = cell.paragraphs[0]
                 p.paragraph_format.space_after = Pt(2)
                 p.paragraph_format.space_before = Pt(2)
-                p.paragraph_format.line_spacing = 1.15
+                p.paragraph_format.line_spacing = 1.1
 
                 if r_idx == 0:
                     set_cell_background(cell, HEADER_BG)
                     for run in p.runs:
                         run.font.bold = True
                         run.font.color.rgb = RGBColor(255, 255, 255)
-                        run.font.size = Pt(9.5)
+                        run.font.size = Pt(8.5)
                 else:
                     if r_idx % 2 == 1:
                         set_cell_background(cell, ALT_ROW_BG)
                     for run in p.runs:
-                        run.font.size = Pt(9.5)
+                        run.font.size = Pt(8.5)
                         run.font.color.rgb = CHARCOAL
 
-        doc.add_paragraph().paragraph_format.space_after = Pt(8)
+        doc.add_paragraph().paragraph_format.space_after = Pt(6)
         table_lines = []
         in_table = False
 
@@ -168,16 +168,16 @@ def build_docx_from_markdown(md_path: str, docx_path: str, title: str, subtitle:
         code_table.alignment = WD_TABLE_ALIGNMENT.CENTER
         cell = code_table.cell(0, 0)
         set_cell_background(cell, CODE_BG)
-        set_cell_margins(cell, top=120, bottom=120, left=180, right=180)
+        set_cell_margins(cell, top=100, bottom=100, left=140, right=140)
         p = cell.paragraphs[0]
         p.paragraph_format.space_after = Pt(0)
         p.paragraph_format.space_before = Pt(0)
         p.paragraph_format.line_spacing = 1.15
         run = p.add_run(code_text)
         run.font.name = "Consolas"
-        run.font.size = Pt(9)
+        run.font.size = Pt(8)
         run.font.color.rgb = CHARCOAL
-        doc.add_paragraph().paragraph_format.space_after = Pt(8)
+        doc.add_paragraph().paragraph_format.space_after = Pt(6)
         code_lines = []
         in_code_block = False
 
@@ -215,7 +215,7 @@ def build_docx_from_markdown(md_path: str, docx_path: str, title: str, subtitle:
         if line.startswith("# ") and i < 3:
             i += 1
             continue
-        if line.startswith("**College Hackathon") or line.startswith("*Document Version"):
+        if line.startswith("**Autonomous") or line.startswith("*Document Version") or line.startswith("**A Systematic"):
             i += 1
             continue
         if line.strip() == "---":
@@ -225,11 +225,11 @@ def build_docx_from_markdown(md_path: str, docx_path: str, title: str, subtitle:
         # Headings
         if line.startswith("## "):
             h = doc.add_paragraph()
-            h.paragraph_format.space_before = Pt(16)
-            h.paragraph_format.space_after = Pt(6)
+            h.paragraph_format.space_before = Pt(14)
+            h.paragraph_format.space_after = Pt(4)
             run = h.add_run(line[3:].strip())
             run.font.name = "Arial"
-            run.font.size = Pt(14)
+            run.font.size = Pt(13)
             run.font.bold = True
             run.font.color.rgb = NAVY
             i += 1
@@ -237,11 +237,11 @@ def build_docx_from_markdown(md_path: str, docx_path: str, title: str, subtitle:
 
         if line.startswith("### "):
             h = doc.add_paragraph()
-            h.paragraph_format.space_before = Pt(12)
-            h.paragraph_format.space_after = Pt(4)
+            h.paragraph_format.space_before = Pt(10)
+            h.paragraph_format.space_after = Pt(3)
             run = h.add_run(line[4:].strip())
             run.font.name = "Arial"
-            run.font.size = Pt(12)
+            run.font.size = Pt(11)
             run.font.bold = True
             run.font.color.rgb = ROYAL_BLUE
             i += 1
@@ -253,7 +253,7 @@ def build_docx_from_markdown(md_path: str, docx_path: str, title: str, subtitle:
             h.paragraph_format.space_after = Pt(2)
             run = h.add_run(line[5:].strip())
             run.font.name = "Arial"
-            run.font.size = Pt(11)
+            run.font.size = Pt(10)
             run.font.bold = True
             run.font.color.rgb = SLATE
             i += 1
@@ -262,7 +262,6 @@ def build_docx_from_markdown(md_path: str, docx_path: str, title: str, subtitle:
         # Blockquote / Alert callout
         if line.startswith("> "):
             callout_text = line[2:].strip()
-            # gather multi-line callout
             j = i + 1
             while j < len(lines) and lines[j].startswith("> "):
                 callout_text += " " + lines[j][2:].strip()
@@ -272,23 +271,23 @@ def build_docx_from_markdown(md_path: str, docx_path: str, title: str, subtitle:
             c_table = doc.add_table(rows=1, cols=1)
             c_table.alignment = WD_TABLE_ALIGNMENT.CENTER
             cell = c_table.cell(0, 0)
-            set_cell_background(cell, "EFF6FF")  # light blue
-            set_cell_margins(cell, top=100, bottom=100, left=160, right=160)
+            set_cell_background(cell, "EFF6FF")
+            set_cell_margins(cell, top=80, bottom=80, left=140, right=140)
             p = cell.paragraphs[0]
             p.paragraph_format.space_after = Pt(0)
             p.paragraph_format.space_before = Pt(0)
             run = p.add_run(callout_text)
             run.font.italic = True
-            run.font.size = Pt(10)
+            run.font.size = Pt(9.5)
             run.font.color.rgb = NAVY
-            doc.add_paragraph().paragraph_format.space_after = Pt(6)
+            doc.add_paragraph().paragraph_format.space_after = Pt(5)
             continue
 
         # Bullet List Item
         if line.strip().startswith("- ") or line.strip().startswith("* "):
             content = line.strip()[2:]
             bp = doc.add_paragraph(style="List Bullet")
-            bp.paragraph_format.space_after = Pt(3)
+            bp.paragraph_format.space_after = Pt(2.5)
             bp.paragraph_format.space_before = Pt(0)
             _add_markdown_styled_runs(bp, content)
             i += 1
@@ -299,7 +298,7 @@ def build_docx_from_markdown(md_path: str, docx_path: str, title: str, subtitle:
         if match_num:
             content = match_num.group(2)
             np = doc.add_paragraph(style="List Number")
-            np.paragraph_format.space_after = Pt(3)
+            np.paragraph_format.space_after = Pt(2.5)
             np.paragraph_format.space_before = Pt(0)
             _add_markdown_styled_runs(np, content)
             i += 1
@@ -309,9 +308,6 @@ def build_docx_from_markdown(md_path: str, docx_path: str, title: str, subtitle:
         if line.strip():
             p = doc.add_paragraph()
             _add_markdown_styled_runs(p, line.strip())
-        else:
-            # Empty line
-            pass
 
         i += 1
 
@@ -325,8 +321,7 @@ def build_docx_from_markdown(md_path: str, docx_path: str, title: str, subtitle:
 
 
 def _add_markdown_styled_runs(paragraph, text: str):
-    """Splits inline markdown bold, italic, code spans and math symbols into Word runs."""
-    # Pattern to match `code`, **bold**, *italic*
+    """Splits inline markdown bold, italic, code spans into Word runs."""
     tokens = re.split(r"(`[^`]+`|\*\*[^*]+\*\*|\*[^*]+\*)", text)
     for token in tokens:
         if not token:
@@ -335,8 +330,8 @@ def _add_markdown_styled_runs(paragraph, text: str):
             code_str = token[1:-1]
             run = paragraph.add_run(code_str)
             run.font.name = "Consolas"
-            run.font.size = Pt(9.5)
-            run.font.color.rgb = RGBColor(180, 83, 9)  # Amber
+            run.font.size = Pt(9)
+            run.font.color.rgb = RGBColor(180, 83, 9)
         elif token.startswith("**") and token.endswith("**"):
             bold_str = token[2:-2]
             run = paragraph.add_run(bold_str)
@@ -348,23 +343,21 @@ def _add_markdown_styled_runs(paragraph, text: str):
             run.font.italic = True
             run.font.color.rgb = SLATE
         else:
-            # Clean LaTeX markers like $T \ge 95$
             clean_str = token.replace("$", "")
             run = paragraph.add_run(clean_str)
             run.font.color.rgb = CHARCOAL
 
 
-def build_html_for_pdf(md_path: str, html_path: str, title: str, subtitle: str):
+def build_html_for_pdf(md_path: str, html_path: str, title: str, subtitle: str, badge: str):
     """Builds an executive HTML document formatted specifically for print to PDF."""
     with open(md_path, "r", encoding="utf-8") as f:
         md_text = f.read()
 
-    # Convert markdown to clean HTML using python markdown-it-py (installed)
+    # Enable table parsing in markdown-it-py!
     from markdown_it import MarkdownIt
-    md = MarkdownIt()
+    md = MarkdownIt().enable('table')
     content_html = md.render(md_text)
 
-    # Wrap in executive print layout
     full_html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -375,7 +368,7 @@ def build_html_for_pdf(md_path: str, html_path: str, title: str, subtitle: str):
 
   @page {{
     size: A4 portrait;
-    margin: 16mm 14mm 16mm 14mm;
+    margin: 14mm 12mm 14mm 12mm;
     @bottom-right {{
       content: counter(page);
       font-family: 'Inter', sans-serif;
@@ -394,15 +387,15 @@ def build_html_for_pdf(md_path: str, html_path: str, title: str, subtitle: str):
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     color: #1e293b;
     background: #ffffff;
-    line-height: 1.55;
-    font-size: 10pt;
+    line-height: 1.5;
+    font-size: 9.5pt;
     padding: 0;
   }}
 
   .header-banner {{
     border-bottom: 3px solid #1e3a8a;
-    padding-bottom: 12px;
-    margin-bottom: 20px;
+    padding-bottom: 10px;
+    margin-bottom: 16px;
   }}
 
   .header-badge {{
@@ -411,96 +404,98 @@ def build_html_for_pdf(md_path: str, html_path: str, title: str, subtitle: str):
     color: #ffffff;
     font-size: 7.5pt;
     font-weight: 700;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    padding: 3px 8px;
-    border-radius: 4px;
-    margin-bottom: 8px;
-  }}
-
-  h1 {{
-    font-size: 20pt;
-    font-weight: 800;
-    color: #1e3a8a;
-    line-height: 1.2;
-    margin-bottom: 4px;
-  }}
-
-  .subtitle {{
-    font-size: 10.5pt;
-    font-weight: 500;
-    color: #475569;
+    padding: 2.5px 7px;
+    border-radius: 3px;
     margin-bottom: 6px;
   }}
 
+  h1 {{
+    font-size: 18pt;
+    font-weight: 800;
+    color: #1e3a8a;
+    line-height: 1.2;
+    margin-bottom: 3px;
+  }}
+
+  .subtitle {{
+    font-size: 10pt;
+    font-weight: 500;
+    color: #475569;
+    margin-bottom: 5px;
+  }}
+
   .meta-bar {{
-    font-size: 8.5pt;
+    font-size: 8pt;
     color: #64748b;
   }}
 
   h2 {{
-    font-size: 13pt;
+    font-size: 12pt;
     font-weight: 700;
     color: #1e3a8a;
-    margin-top: 22px;
-    margin-bottom: 8px;
+    margin-top: 18px;
+    margin-bottom: 6px;
     border-bottom: 1px solid #e2e8f0;
-    padding-bottom: 4px;
+    padding-bottom: 3px;
     page-break-after: avoid;
   }}
 
   h3 {{
-    font-size: 11pt;
+    font-size: 10.5pt;
     font-weight: 700;
     color: #2563eb;
-    margin-top: 14px;
-    margin-bottom: 6px;
-    page-break-after: avoid;
-  }}
-
-  h4 {{
-    font-size: 10pt;
-    font-weight: 600;
-    color: #334155;
-    margin-top: 10px;
+    margin-top: 12px;
     margin-bottom: 4px;
     page-break-after: avoid;
   }}
 
+  h4 {{
+    font-size: 9.5pt;
+    font-weight: 600;
+    color: #334155;
+    margin-top: 8px;
+    margin-bottom: 3px;
+    page-break-after: avoid;
+  }}
+
   p {{
-    margin-bottom: 8px;
+    margin-bottom: 7px;
   }}
 
   ul, ol {{
-    margin-left: 20px;
-    margin-bottom: 10px;
+    margin-left: 18px;
+    margin-bottom: 8px;
   }}
 
   li {{
-    margin-bottom: 3px;
+    margin-bottom: 2.5px;
   }}
 
   table {{
     width: 100%;
     border-collapse: collapse;
-    margin: 12px 0 16px 0;
-    font-size: 8.5pt;
+    margin: 10px 0 14px 0;
+    font-size: 8pt;
     page-break-inside: avoid;
   }}
 
   th {{
     background: #1e3a8a;
     color: #ffffff;
-    font-weight: 600;
+    font-weight: 700;
     text-align: left;
-    padding: 6px 10px;
+    padding: 5px 8px;
     border: 1px solid #1e3a8a;
+    white-space: nowrap;
   }}
 
   td {{
-    padding: 5px 10px;
+    padding: 4.5px 8px;
     border: 1px solid #cbd5e1;
     color: #1e293b;
+    vertical-align: top;
   }}
 
   tr:nth-child(even) td {{
@@ -510,24 +505,26 @@ def build_html_for_pdf(md_path: str, html_path: str, title: str, subtitle: str):
   pre {{
     background: #f8fafc;
     border: 1px solid #e2e8f0;
-    border-left: 4px solid #2563eb;
+    border-left: 3.5px solid #2563eb;
     border-radius: 4px;
-    padding: 10px 14px;
-    margin: 10px 0 14px 0;
+    padding: 7px 10px;
+    margin: 8px 0 12px 0;
     font-family: 'JetBrains Mono', 'Consolas', monospace;
-    font-size: 8.5pt;
-    line-height: 1.45;
+    font-size: 7.5pt;
+    line-height: 1.35;
     color: #0f172a;
-    overflow-x: auto;
+    overflow-x: hidden;
+    white-space: pre-wrap;
+    word-break: break-word;
     page-break-inside: avoid;
   }}
 
   code {{
     font-family: 'JetBrains Mono', 'Consolas', monospace;
-    font-size: 8.5pt;
+    font-size: 8pt;
     background: #f1f5f9;
     color: #b45309;
-    padding: 1px 4px;
+    padding: 1px 3.5px;
     border-radius: 3px;
   }}
 
@@ -535,15 +532,16 @@ def build_html_for_pdf(md_path: str, html_path: str, title: str, subtitle: str):
     background: transparent;
     color: inherit;
     padding: 0;
+    white-space: pre-wrap;
   }}
 
   blockquote {{
     background: #eff6ff;
-    border-left: 4px solid #2563eb;
-    padding: 8px 14px;
-    margin: 10px 0 12px 0;
+    border-left: 3.5px solid #2563eb;
+    padding: 6px 12px;
+    margin: 8px 0 10px 0;
     border-radius: 0 4px 4px 0;
-    font-size: 9.5pt;
+    font-size: 9pt;
     color: #1e3a8a;
     page-break-inside: avoid;
   }}
@@ -551,14 +549,19 @@ def build_html_for_pdf(md_path: str, html_path: str, title: str, subtitle: str):
   hr {{
     border: none;
     border-top: 1px solid #e2e8f0;
-    margin: 16px 0;
+    margin: 14px 0;
+  }}
+
+  strong {{
+    font-weight: 700;
+    color: #0f172a;
   }}
 
   .footer {{
-    margin-top: 30px;
+    margin-top: 24px;
     border-top: 1px solid #cbd5e1;
-    padding-top: 8px;
-    font-size: 8pt;
+    padding-top: 6px;
+    font-size: 7.5pt;
     color: #94a3b8;
     text-align: center;
   }}
@@ -567,16 +570,16 @@ def build_html_for_pdf(md_path: str, html_path: str, title: str, subtitle: str):
 <body>
 
 <div class="header-banner">
-  <div class="header-badge">OFFICIAL TOURNAMENT GUIDE</div>
+  <div class="header-badge">{badge}</div>
   <h1>{title}</h1>
   <div class="subtitle">{subtitle}</div>
-  <div class="meta-bar">Campus Esports & AI Hackathon Series • Production Release 3.2 • Tournament Engine Standard</div>
+  <div class="meta-bar">Campus AI Hackathon Series • Official Participant Release • Confidential Competition Material</div>
 </div>
 
 {content_html}
 
 <div class="footer">
-  Node War Autonomous AI Simulation Tournament • Collegiate Hackathon Edition • All Rights Reserved
+  Autonomous AI Simulation Tournament • Participant Manual • All Rights Reserved
 </div>
 
 </body>
@@ -624,7 +627,7 @@ def convert_html_to_pdf_via_edge(html_path: str, pdf_path: str):
 
 def main():
     print("=" * 65)
-    print("   NODE WAR - GUIDEBOOK & HANDBOOK COMPILER")
+    print("   NODE WAR - PARTICIPANT GUIDEBOOK & HANDBOOK COMPILER")
     print("=" * 65)
 
     docs = [
@@ -634,8 +637,9 @@ def main():
             "docx": os.path.join(DOCS_DIR, "NODE_WAR_OFFICIAL_GAME_GUIDEBOOK.docx"),
             "html": os.path.join(DOCS_DIR, "NODE_WAR_OFFICIAL_GAME_GUIDEBOOK.html"),
             "pdf": os.path.join(DOCS_DIR, "NODE_WAR_OFFICIAL_GAME_GUIDEBOOK.pdf"),
-            "title": "NODE WAR // Official Game Guidebook",
-            "subtitle": "Complete Rules, Economics, Lanchester Combat, API Specification & Tactical Manual"
+            "title": "NODE WAR // Official Competitor Guidebook",
+            "subtitle": "Rules, Economics, Lanchester Combat, Dynamic Supply Lines & API Reference",
+            "badge": "OFFICIAL PARTICIPANT MANUAL"
         },
         {
             "id": "engineering_handbook",
@@ -644,7 +648,8 @@ def main():
             "html": os.path.join(DOCS_DIR, "COMPETITIVE_BOT_ENGINEERING_HANDBOOK.html"),
             "pdf": os.path.join(DOCS_DIR, "COMPETITIVE_BOT_ENGINEERING_HANDBOOK.pdf"),
             "title": "THE ART OF TOURNAMENT BOT CRAFT",
-            "subtitle": "A Systematic Engineering Playbook & Architectural Framework for Strategy Bot Tournaments"
+            "subtitle": "A Systematic Engineering Playbook & Architectural Framework for Strategy Bot Tournaments",
+            "badge": "COMPETITIVE STRATEGY HANDBOOK"
         }
     ]
 
@@ -654,13 +659,8 @@ def main():
             print(f"❌ Source markdown not found: {d['md']}")
             continue
 
-        # 1. Build Word Document (.docx)
         build_docx_from_markdown(d["md"], d["docx"], d["title"], d["subtitle"])
-
-        # 2. Build HTML Print Source
-        build_html_for_pdf(d["md"], d["html"], d["title"], d["subtitle"])
-
-        # 3. Convert to PDF (.pdf) via Microsoft Edge
+        build_html_for_pdf(d["md"], d["html"], d["title"], d["subtitle"], d["badge"])
         convert_html_to_pdf_via_edge(d["html"], d["pdf"])
 
     print("\n" + "=" * 65)

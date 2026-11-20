@@ -8,7 +8,7 @@
 
   @page {
     size: A4 portrait;
-    margin: 16mm 14mm 16mm 14mm;
+    margin: 14mm 12mm 14mm 12mm;
     @bottom-right {
       content: counter(page);
       font-family: 'Inter', sans-serif;
@@ -27,15 +27,15 @@
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     color: #1e293b;
     background: #ffffff;
-    line-height: 1.55;
-    font-size: 10pt;
+    line-height: 1.5;
+    font-size: 9.5pt;
     padding: 0;
   }
 
   .header-banner {
     border-bottom: 3px solid #1e3a8a;
-    padding-bottom: 12px;
-    margin-bottom: 20px;
+    padding-bottom: 10px;
+    margin-bottom: 16px;
   }
 
   .header-badge {
@@ -44,96 +44,98 @@
     color: #ffffff;
     font-size: 7.5pt;
     font-weight: 700;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    padding: 3px 8px;
-    border-radius: 4px;
-    margin-bottom: 8px;
-  }
-
-  h1 {
-    font-size: 20pt;
-    font-weight: 800;
-    color: #1e3a8a;
-    line-height: 1.2;
-    margin-bottom: 4px;
-  }
-
-  .subtitle {
-    font-size: 10.5pt;
-    font-weight: 500;
-    color: #475569;
+    padding: 2.5px 7px;
+    border-radius: 3px;
     margin-bottom: 6px;
   }
 
+  h1 {
+    font-size: 18pt;
+    font-weight: 800;
+    color: #1e3a8a;
+    line-height: 1.2;
+    margin-bottom: 3px;
+  }
+
+  .subtitle {
+    font-size: 10pt;
+    font-weight: 500;
+    color: #475569;
+    margin-bottom: 5px;
+  }
+
   .meta-bar {
-    font-size: 8.5pt;
+    font-size: 8pt;
     color: #64748b;
   }
 
   h2 {
-    font-size: 13pt;
+    font-size: 12pt;
     font-weight: 700;
     color: #1e3a8a;
-    margin-top: 22px;
-    margin-bottom: 8px;
+    margin-top: 18px;
+    margin-bottom: 6px;
     border-bottom: 1px solid #e2e8f0;
-    padding-bottom: 4px;
+    padding-bottom: 3px;
     page-break-after: avoid;
   }
 
   h3 {
-    font-size: 11pt;
+    font-size: 10.5pt;
     font-weight: 700;
     color: #2563eb;
-    margin-top: 14px;
-    margin-bottom: 6px;
-    page-break-after: avoid;
-  }
-
-  h4 {
-    font-size: 10pt;
-    font-weight: 600;
-    color: #334155;
-    margin-top: 10px;
+    margin-top: 12px;
     margin-bottom: 4px;
     page-break-after: avoid;
   }
 
+  h4 {
+    font-size: 9.5pt;
+    font-weight: 600;
+    color: #334155;
+    margin-top: 8px;
+    margin-bottom: 3px;
+    page-break-after: avoid;
+  }
+
   p {
-    margin-bottom: 8px;
+    margin-bottom: 7px;
   }
 
   ul, ol {
-    margin-left: 20px;
-    margin-bottom: 10px;
+    margin-left: 18px;
+    margin-bottom: 8px;
   }
 
   li {
-    margin-bottom: 3px;
+    margin-bottom: 2.5px;
   }
 
   table {
     width: 100%;
     border-collapse: collapse;
-    margin: 12px 0 16px 0;
-    font-size: 8.5pt;
+    margin: 10px 0 14px 0;
+    font-size: 8pt;
     page-break-inside: avoid;
   }
 
   th {
     background: #1e3a8a;
     color: #ffffff;
-    font-weight: 600;
+    font-weight: 700;
     text-align: left;
-    padding: 6px 10px;
+    padding: 5px 8px;
     border: 1px solid #1e3a8a;
+    white-space: nowrap;
   }
 
   td {
-    padding: 5px 10px;
+    padding: 4.5px 8px;
     border: 1px solid #cbd5e1;
     color: #1e293b;
+    vertical-align: top;
   }
 
   tr:nth-child(even) td {
@@ -143,24 +145,26 @@
   pre {
     background: #f8fafc;
     border: 1px solid #e2e8f0;
-    border-left: 4px solid #2563eb;
+    border-left: 3.5px solid #2563eb;
     border-radius: 4px;
-    padding: 10px 14px;
-    margin: 10px 0 14px 0;
+    padding: 7px 10px;
+    margin: 8px 0 12px 0;
     font-family: 'JetBrains Mono', 'Consolas', monospace;
-    font-size: 8.5pt;
-    line-height: 1.45;
+    font-size: 7.5pt;
+    line-height: 1.35;
     color: #0f172a;
-    overflow-x: auto;
+    overflow-x: hidden;
+    white-space: pre-wrap;
+    word-break: break-word;
     page-break-inside: avoid;
   }
 
   code {
     font-family: 'JetBrains Mono', 'Consolas', monospace;
-    font-size: 8.5pt;
+    font-size: 8pt;
     background: #f1f5f9;
     color: #b45309;
-    padding: 1px 4px;
+    padding: 1px 3.5px;
     border-radius: 3px;
   }
 
@@ -168,15 +172,16 @@
     background: transparent;
     color: inherit;
     padding: 0;
+    white-space: pre-wrap;
   }
 
   blockquote {
     background: #eff6ff;
-    border-left: 4px solid #2563eb;
-    padding: 8px 14px;
-    margin: 10px 0 12px 0;
+    border-left: 3.5px solid #2563eb;
+    padding: 6px 12px;
+    margin: 8px 0 10px 0;
     border-radius: 0 4px 4px 0;
-    font-size: 9.5pt;
+    font-size: 9pt;
     color: #1e3a8a;
     page-break-inside: avoid;
   }
@@ -184,14 +189,19 @@
   hr {
     border: none;
     border-top: 1px solid #e2e8f0;
-    margin: 16px 0;
+    margin: 14px 0;
+  }
+
+  strong {
+    font-weight: 700;
+    color: #0f172a;
   }
 
   .footer {
-    margin-top: 30px;
+    margin-top: 24px;
     border-top: 1px solid #cbd5e1;
-    padding-top: 8px;
-    font-size: 8pt;
+    padding-top: 6px;
+    font-size: 7.5pt;
     color: #94a3b8;
     text-align: center;
   }
@@ -200,19 +210,19 @@
 <body>
 
 <div class="header-banner">
-  <div class="header-badge">OFFICIAL TOURNAMENT GUIDE</div>
+  <div class="header-badge">COMPETITIVE STRATEGY HANDBOOK</div>
   <h1>THE ART OF TOURNAMENT BOT CRAFT</h1>
   <div class="subtitle">A Systematic Engineering Playbook & Architectural Framework for Strategy Bot Tournaments</div>
-  <div class="meta-bar">Campus Esports & AI Hackathon Series • Production Release 3.2 • Tournament Engine Standard</div>
+  <div class="meta-bar">Campus AI Hackathon Series • Official Participant Release • Confidential Competition Material</div>
 </div>
 
-<h1>THE ART OF TOURNAMENT BOT CRAFT // Competitive AI Playbook</h1>
-<p><strong>A Systematic Framework for Strategy Bot Tournaments &amp; Hackathons</strong><br />
-<em>Document Version: 2.1 — Competitor Strategy &amp; Engineering Manual</em></p>
+<h1>THE ART OF TOURNAMENT BOT CRAFT // Strategy Bot Engineering Playbook</h1>
+<p><strong>A Systematic Architectural Framework for Competitive AI Tournaments &amp; Hackathons</strong><br />
+<em>Document Version: 2.2 — Pre-Tournament Preparation Guide</em></p>
 <hr />
 <h2>Executive Summary</h2>
-<p>Competitive AI programming tournaments (such as Battlecode, Node War, Halite, and Screeps) present a unique software engineering challenge. Unlike traditional competitive programming (which tests algorithmic problem solving on static inputs) or academic machine learning (which prioritizes statistical convergence over thousands of GPU hours), <strong>tournament bot engineering tests real-time strategic decision making under tight execution latency and strict incomplete information constraints.</strong></p>
-<p>This playbook provides teams with a battle-tested engineering methodology, architectural patterns, team workflow divisions, and debugging safeguards to build a podium-contending bot in a 24-hour sprint.</p>
+<p>Competitive AI programming tournaments (such as Battlecode, Halite, and Screeps) present a unique software engineering challenge. Unlike traditional competitive programming (which tests algorithmic problem solving on static inputs) or academic machine learning (which prioritizes statistical convergence over thousands of GPU hours), <strong>tournament bot engineering tests real-time strategic decision making under tight execution latency and strict incomplete information constraints.</strong></p>
+<p>This playbook provides teams with a battle-tested engineering methodology, architectural patterns, team workflow divisions, and debugging safeguards to build a podium-contending agent in a 24-hour sprint.</p>
 <hr />
 <h2>1. The Competitive AI Mindset: Engineering vs Academic ML</h2>
 <pre><code>Academic / Pure ML Approach             Competitive Engineering Approach
@@ -225,36 +235,36 @@
 </code></pre>
 <blockquote>
 <p><strong>The Golden Rule of Bot Hackathons</strong>:<br />
-A simple, robust, well-instrumented heuristic agent that makes zero illegal moves and never crashes will defeat a complex, half-tuned minimax or neural policy 9 times out of 10. Start simple, measure everything, and iterate methodically.</p>
+A simple, robust, well-instrumented heuristic agent that makes zero illegal moves and never crashes will defeat a complex, half-tuned neural policy 9 times out of 10. Start simple, measure everything, and iterate methodically.</p>
 </blockquote>
 <hr />
 <h2>2. The 24-Hour Tournament Engineering Lifecycle</h2>
 <p>A successful hackathon team divides their timeline into five disciplined phases:</p>
 <pre><code>[Hours 0-2]    PHASE 1: Environment Setup, Validator Pass &amp; &quot;Do-Nothing&quot; Smoke Test
 [Hours 2-6]    PHASE 2: Economic Foundation &amp; Greedy Macro-Expansion
-[Hours 6-12]   PHASE 3: Combat Micro, Counter-Drafting &amp; Threat Maps
+[Hours 6-12]   PHASE 3: Tactical Micro, Counter-Drafting &amp; Threat Maps
 [Hours 12-18]  PHASE 4: Hierarchical State Machine &amp; Adaptive Opponent Profiling
 [Hours 18-22]  PHASE 5: Automated Regression Matrix, Scrimmage &amp; Parameter Tuning
 [Hours 22-24]  PHASE 6: Code Freeze, Defensive Error Guards &amp; Final Submission
 </code></pre>
 <h3>Phase 1: Environment &amp; Tooling Verification (Hours 0–2)</h3>
 <ul>
-<li>Get the local match runner, test harness, and visualizer operating immediately.</li>
-<li>Run the official dry-run validator on the reference starter bot.</li>
-<li>Implement an automated &quot;smoke test&quot; script that runs a 10-game headless series in under 5 seconds.</li>
-<li>Create your team's repository with automated branch protections or a clean versioning convention (<code>bot_v1.py</code>, <code>bot_v2.py</code>).</li>
+<li>Get the local match runner and validation harness operating immediately.</li>
+<li>Run the official dry-run validator on your starter template.</li>
+<li>Implement an automated &quot;smoke test&quot; script that verifies clean execution without timeouts.</li>
+<li>Establish clean versioning for your team's code (<code>bot_v1.py</code>, <code>bot_v2.py</code>).</li>
 </ul>
 <h3>Phase 2: Macro-Economics &amp; Expansion (Hours 2–6)</h3>
 <ul>
-<li><strong>Do not touch combat yet.</strong> In strategy games, economy dictates firepower.</li>
-<li>Solve territorial expansion: Build a greedy expansion priority queue based on travel distance and resource yield.</li>
+<li><strong>Do not touch combat micro yet.</strong> In strategy games, economy dictates firepower.</li>
+<li>Build a greedy territorial expansion priority queue based on travel distance and resource yield.</li>
 <li>Establish clean budget partitioning (e.g. 50% expansion, 30% military defense, 20% liquid reserve).</li>
-<li>Ensure your bot never wastes money or sits at max resources while under-developed.</li>
+<li>Ensure your bot never wastes money or sits on idle capital while under-developed.</li>
 </ul>
 <h3>Phase 3: Tactical Micro &amp; Counter-Drafting (Hours 6–12)</h3>
 <ul>
 <li>Implement tactical reconnaissance: Track enemy unit sightings, movement directions, and army sizes in persistent memory.</li>
-<li>Build reactive recruitment: If enemy unit composition is observed, shift production weighting immediately toward its direct counter.</li>
+<li>Build reactive recruitment: If enemy unit composition is observed, shift production weighting immediately toward direct counter units.</li>
 <li>Implement tactical staging: Never send single isolated units into meat-grinders. Gather strike forces into critical mass thresholds before launching offensive maneuvers.</li>
 </ul>
 <h3>Phase 4: State Machine &amp; Meta-Adaptation (Hours 12–18)</h3>
@@ -266,27 +276,52 @@ A simple, robust, well-instrumented heuristic agent that makes zero illegal move
 <ul>
 <li>Never rely on visual intuition alone. Build a local automated evaluation script:
 <ul>
-<li>Run 50 games against your baseline bots.</li>
-<li>Run 50 games against previous iterations of your own bot (<code>v4</code> vs <code>v3</code>).</li>
+<li>Run multi-game headless series against previous iterations of your own bot (<code>v4</code> vs <code>v3</code>).</li>
+<li>Alternate Player 1 / Player 2 sides to eliminate positional bias.</li>
 </ul>
 </li>
-<li>Track win rate, average game duration, and loss reasons. Reject any change that regresses overall win rate, even if it looks clever in the visualizer.</li>
+<li>Track win rate, average game duration, and loss reasons. Reject any change that regresses overall win rate, even if it seemed clever.</li>
 </ul>
 <h3>Phase 6: Code Freeze &amp; Submission Hardening (Hours 22–24)</h3>
 <ul>
 <li><strong>Absolute code freeze 2 hours before the deadline.</strong> No new features.</li>
-<li>Wrap all core decision routines in defensive <code>try/catch</code> blocks with safe fallbacks.</li>
+<li>Wrap all core decision routines in defensive error guards with safe fallbacks.</li>
 <li>Verify memory consumption and CPU execution latency per turn.</li>
 <li>Run final validation checks and submit your locked build.</li>
 </ul>
 <hr />
 <h2>3. Team Roles &amp; Division of Labor (3 to 4 Person Teams)</h2>
-<p>| Team Role | Primary Ownership | Deliverables |
-|:---|:---|:---|
-| <strong>Role 1: Systems &amp; Infrastructure Lead</strong> | Match harness, local CI test runner, visualizer automation, regression tracking. | Automated benchmarking scripts, head-to-head win rate matrix, submission packager. |
-| <strong>Role 2: Macro &amp; Economy Strategist</strong> | Pathfinding, territory expansion, resource yield optimization, supply maintenance. | Optimal expansion algorithms, budget managers, dynamic supply calculators. |
-| <strong>Role 3: Tactical Micro &amp; Combat Specialist</strong> | Unit composition weighting, target selection, combat simulators, retreat triggers. | Lanchester combat estimators, rock-paper-scissors counter-drafters, squad staging logic. |
-| <strong>Role 4: Game Theory &amp; Meta Specialist</strong> | Opponent archetype classification, mixed strategies, objective timing attacks. | State machines, endgame timing triggers, anti-predictability logic. |</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Team Role</th>
+<th style="text-align:left">Primary Ownership</th>
+<th style="text-align:left">Deliverables</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>Role 1: Systems &amp; Infrastructure Lead</strong></td>
+<td style="text-align:left">Validation harness, local benchmarking, regression tracking.</td>
+<td style="text-align:left">Automated testing scripts, head-to-head win rate matrix, submission packager.</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Role 2: Macro &amp; Economy Strategist</strong></td>
+<td style="text-align:left">Pathfinding, territory expansion, resource yield optimization, supply maintenance.</td>
+<td style="text-align:left">Optimal expansion algorithms, budget managers, dynamic supply calculators.</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Role 3: Tactical Micro &amp; Combat Specialist</strong></td>
+<td style="text-align:left">Unit composition weighting, target selection, combat estimators, retreat triggers.</td>
+<td style="text-align:left">Lanchester combat estimators, rock-paper-scissors counter-drafters, squad staging logic.</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Role 4: Game Theory &amp; Meta Specialist</strong></td>
+<td style="text-align:left">Opponent archetype classification, mixed strategies, objective timing attacks.</td>
+<td style="text-align:left">State machines, endgame timing triggers, anti-predictability logic.</td>
+</tr>
+</tbody>
+</table>
 <hr />
 <h2>4. Fundamental Bot Architectural Patterns</h2>
 <h3>Pattern A: Hierarchical Finite State Machine (HFSM)</h3>
@@ -297,22 +332,22 @@ A simple, robust, well-instrumented heuristic agent that makes zero illegal move
                        v
                [MID-GAME CONSOLIDATION]
                /                      \
-   (Enemy rush detected)       (Relic charging alert)
+   (Enemy rush detected)       (Endgame objective active)
              v                                v
     [PERIMETER DEFENSE]            [OBJECTIVE CONVERGENCE]
 </code></pre>
 <ul>
-<li><strong>State Transitions</strong>: Conditioned on unambiguous game flags (<code>obs.current_turn</code>, territory ratio, army counts, charging alerts).</li>
+<li><strong>State Transitions</strong>: Conditioned on unambiguous game flags (turn count, territory ratio, army counts, charging alerts).</li>
 <li><strong>Sub-States</strong>: Each macro state specifies distinct production ratios, target priorities, and risk tolerance thresholds.</li>
 </ul>
 <h3>Pattern B: Utility-Based Scoring Architecture</h3>
-<p>Instead of hardcoding hundreds of fragile <code>if/else</code> statements, evaluate decisions using continuous mathematical utility functions:</p>
-<p>$$\text{Utility}(\text{Action}) = \sum_{i} w_i \cdot f_i(\text{Action})$$</p>
-<p>For example, when evaluating candidate nodes to expand toward or attack:
-$$\text{Score}(N) = w_1 \cdot \frac{\text{Yield}(N)}{\text{Distance}(N)} + w_2 \cdot \text{Vulnerability}(N) - w_3 \cdot \text{ThreatLevel}(N)$$</p>
+<p>Instead of hardcoding hundreds of fragile branching conditions, evaluate decisions using continuous mathematical utility functions:</p>
+<p><strong>Utility(Action) = w1 × Benefit + w2 × Proximity − w3 × Risk</strong></p>
+<p>For example, when evaluating candidate territories to expand toward or attack:</p>
+<p><strong>Target Score = (w1 × Resource Yield / Travel Distance) + (w2 × Strategic Value) − (w3 × Enemy Threat Level)</strong></p>
 <ul>
-<li><strong>Advantage</strong>: Smooth behavior tuning. You adjust numerical weights ($w_1, w_2, w_3$) rather than rewriting branching code.</li>
-<li><strong>Priority Queue Execution</strong>: Sort all potential actions by utility score and execute the highest-scoring orders until turn Gold is exhausted.</li>
+<li><strong>Advantage</strong>: Smooth behavior tuning. You adjust numerical weights (w1, w2, w3) rather than rewriting branching code.</li>
+<li><strong>Priority Queue Execution</strong>: Sort all potential actions by utility score and execute the highest-scoring orders until turn budget is exhausted.</li>
 </ul>
 <h3>Pattern C: The Blackboard &amp; World Model Pattern</h3>
 <p>In games featuring fog of war, you cannot react to what you do not remember:</p>
@@ -320,8 +355,8 @@ $$\text{Score}(N) = w_1 \cdot \frac{\text{Yield}(N)}{\text{Distance}(N)} + w_2 \
 <li><strong>Allied World Model</strong>: Maintain a dedicated class instance (<code>self.memory</code>) that tracks:
 <ul>
 <li>Last observed location and headcount of enemy units.</li>
-<li>Estimated travel trajectories of enemy fleets.</li>
-<li>Node ownership transition timers.</li>
+<li>Estimated travel trajectories of enemy forces.</li>
+<li>Territory ownership transition timers.</li>
 <li>Cumulative opponent production tendencies.</li>
 </ul>
 </li>
@@ -337,27 +372,7 @@ rng = random.Random(self.player_id * 1000 + obs.current_turn)
 <li><strong>Stochastic Openings</strong>: 70% standard expansion, 30% alternative flank pressure. This forces opponents to defend both wings and prevents hardcoded early counter-ambushes.</li>
 </ul>
 <hr />
-<h2>5. Overcoming the &quot;Rock-Paper-Scissors&quot; Trap</h2>
-<p>In triangular combat games, developing directly against one baseline bot creates severe blind spots:</p>
-<pre><code>Trained solely against Rusher  --&gt;  Becomes hyper-defensive Turtle
-Trained solely against Turtle  --&gt;  Becomes slow, greedy Siege/Macro
-Trained solely against Balanced --&gt;  Leaves flanks open to cheap Raids
-</code></pre>
-<h3>The Solution: Multi-Opponent Evaluation</h3>
-<ul>
-<li>Never consider your bot &quot;improved&quot; because it beat a specific test dummy.</li>
-<li>Measure performance against an <strong>ensemble portfolio</strong>:
-<ul>
-<li>10 games vs Rusher</li>
-<li>10 games vs Turtle</li>
-<li>10 games vs Balanced</li>
-<li>10 games vs Your Previous Stable Version</li>
-</ul>
-</li>
-<li>Only merge changes that maintain or elevate the aggregate portfolio win rate.</li>
-</ul>
-<hr />
-<h2>6. Defensive Coding &amp; Execution Safety Rules</h2>
+<h2>5. Defensive Coding &amp; Execution Safety Rules</h2>
 <h3>1. Fail-Safe Order Generation</h3>
 <p>Wrap order creation in boundary guards. Never assume list indices exist:</p>
 <pre><code class="language-python">path = self.get_path(obs, origin, target)
@@ -376,12 +391,12 @@ for target, unit_type, count in planned_recruitment:
 <h3>3. Strict Execution Timeout Profiling</h3>
 <ul>
 <li>Time your turn calculations locally. If your bot takes 20ms on your laptop, it may take 45ms on the tournament host under system load.</li>
-<li>Avoid expensive operations inside inner loops (e.g. repeated Floyd-Warshall recalculations or deep copy operations). Cache static graph data once upon initialization.</li>
+<li>Avoid expensive operations inside inner loops (e.g. repeated graph recalculations or deep copy operations). Cache static graph data once upon initialization.</li>
 </ul>
 <h3>4. Zero Console Spam in Final Build</h3>
 <p>Remove all verbose <code>print()</code> statements from your final submitted code. Console I/O is notoriously slow in Python and can cause unexpected turn timeouts.</p>
 <hr />
-<h2>7. The Final 2-Hour Pre-Flight Submission Checklist</h2>
+<h2>6. The Final 2-Hour Pre-Flight Submission Checklist</h2>
 <p>Complete this checklist before submitting your final bot archive:</p>
 <ul>
 <li>[ ] <strong>Validator Execution</strong>: Bot passes the official dry-run validator with zero warnings or errors.</li>
@@ -391,7 +406,7 @@ for target, unit_type, count in planned_recruitment:
 <li>Home base is under active enemy siege.</li>
 <li>Treasury is at 0 Gold.</li>
 <li>Active army count is completely wiped out.</li>
-<li>All neutral nodes are captured.</li>
+<li>All neutral targets are captured.</li>
 </ul>
 </li>
 <li>[ ] <strong>Tiebreaker Optimization</strong>: Bot actively banks endgame points and army asset value to win strict deterministic tiebreaks.</li>
@@ -403,7 +418,7 @@ for target, unit_type, count in planned_recruitment:
 
 
 <div class="footer">
-  Node War Autonomous AI Simulation Tournament • Collegiate Hackathon Edition • All Rights Reserved
+  Autonomous AI Simulation Tournament • Participant Manual • All Rights Reserved
 </div>
 
 </body>

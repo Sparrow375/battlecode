@@ -57,3 +57,7 @@
 - [x] Task 55: Create automated document generation pipeline in Python producing styled Word documents (.docx) and high-res PDFs (.pdf) with executive styling, tables, code blocks, and callout boxes.
 - [x] Task 56: Compile and verify both `.docx` and `.pdf` artifacts in `docs/` with complete page rendering and file integrity checks.
 - [x] Task 57: Update `context.md`, `architechture.md`, and commit/push to git.
+- [x] Task 58: Revise `docs/NODE_WAR_OFFICIAL_GAME_GUIDEBOOK.md` strictly for PARTICIPANTS: remove all references to `serve.py`, baseline bots (`rusher`, `turtle`, `balanced`), and internal runner CLI; fix ASCII map width, clean all math formulas into human-readable Unicode, and provide comprehensive standalone game rules and API reference.
+- [x] Task 59: Revise `docs/COMPETITIVE_BOT_ENGINEERING_HANDBOOK.md` as a strictly game-agnostic general tournament engineering playbook for tonight's handout (clean math, real tables, no game spoilers).
+- [x] Task 60: Update `scripts/build_docs.py` to enable table parsing (`MarkdownIt().enable('table')`), fit ASCII diagrams without page clipping, apply clean typography, and re-generate both `.docx` and `.pdf` documents.
+- [x] Task 61: Verify output PDFs and Word documents (ensure tables render as HTML tables, math is clean and uncorrupted, no text overflow), update `context.md`, `architechture.md`, and commit/push to git.
