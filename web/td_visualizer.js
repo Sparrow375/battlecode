@@ -172,7 +172,7 @@ class NodeWarTDVisualizer {
   // ---------------------------------------------------------------------------
   getNodeScreenPos(nodeId) {
     if (!this.replayData || !this.replayData.map) return null;
-    const node = this.replayData.map.nodes.find(n => n.id === nodeId);
+    const node = this.replayData.map.nodes.find(n => n.id == nodeId);
     if (!node) return null;
 
     const scale = this.getScaleFactor();
@@ -235,7 +235,11 @@ class NodeWarTDVisualizer {
     this.ctx.scale(this.zoomLevel, this.zoomLevel);
 
     // Layer 1: Cartoon Grass Meadow
-    this.drawMeadowBackground();
+    try {
+      this.drawMeadowBackground();
+    } catch (e) {
+      console.error("Meadow draw error:", e);
+    }
 
     if (!this.replayData) {
       this.drawLoadingScreen();
@@ -250,22 +254,46 @@ class NodeWarTDVisualizer {
     }
 
     // Layer 2: Winding Sand/Dirt Roads (Lanes)
-    this.drawWindingRoads();
+    try {
+      this.drawWindingRoads();
+    } catch (e) {
+      console.error("Roads draw error:", e);
+    }
 
     // Layer 3: Environment Decor (Trees, Rocks, Fences)
-    this.drawEnvironmentDecor();
+    try {
+      this.drawEnvironmentDecor();
+    } catch (e) {
+      console.error("Decor draw error:", e);
+    }
 
     // Layer 4: Nodes as Illustrated Castles & Towers
-    this.drawCastleNodes(frame);
+    try {
+      this.drawCastleNodes(frame);
+    } catch (e) {
+      console.error("Castles draw error:", e);
+    }
 
     // Layer 5: Animated Soldier Squads on Paths
-    this.drawSoldierSquads(frame);
+    try {
+      this.drawSoldierSquads(frame);
+    } catch (e) {
+      console.error("Soldiers draw error:", e);
+    }
 
     // Layer 6: Combat Clashes, Sparks, Cannon Smoke
-    this.drawCombatFX();
+    try {
+      this.drawCombatFX();
+    } catch (e) {
+      console.error("Combat FX draw error:", e);
+    }
 
     // Layer 7: Fog of War (Player Perspective)
-    this.drawCartoonFogOfWar(frame);
+    try {
+      this.drawCartoonFogOfWar(frame);
+    } catch (e) {
+      console.error("Fog draw error:", e);
+    }
 
     this.ctx.restore();
   }
@@ -748,11 +776,6 @@ class NodeWarTDVisualizer {
     activeItems.forEach((item, idx) => {
       const ix = (x - w / 2) + 3 * scale + idx * itemWidth + itemWidth / 2;
       this.ctx.fillStyle = item.color;
-      this.ctx.fillText(`${item.icon}${item.count}`, ix, y + h / 2);
-    });
-
-    this.ctx.restore();
-  }
       this.ctx.fillText(`${item.icon}${item.count}`, ix, y + h / 2);
     });
 

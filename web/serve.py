@@ -12,6 +12,7 @@ import http.server
 import socketserver
 import json
 import glob
+import urllib.parse
 from typing import Dict, Any, Type
 
 from runner.match import run_match, BOT_REGISTRY, discover_custom_bots, resolve_bot, load_bot_from_file
@@ -74,8 +75,8 @@ class NodeWarRequestHandler(http.server.SimpleHTTPRequestHandler):
             return
 
         elif self.path.startswith("/api/replay/"):
-            filename = self.path[len("/api/replay/"):]
-            replay_file = os.path.join(PROJECT_ROOT, "replays", filename)
+            filename = urllib.parse.unquote(self.path[len("/api/replay/"):])
+            replay_file = os.path.join(PROJECT_ROOT, "replays", os.path.basename(filename))
             if os.path.exists(replay_file):
                 with open(replay_file, "r", encoding="utf-8") as f:
                     data = json.load(f)
@@ -109,7 +110,7 @@ class NodeWarRequestHandler(http.server.SimpleHTTPRequestHandler):
             return
 
         elif self.path.startswith("/api/bot-source/"):
-            filename = self.path[len("/api/bot-source/"):]
+            filename = urllib.parse.unquote(self.path[len("/api/bot-source/"):])
             filename = os.path.basename(filename)
             bot_file = os.path.join(PROJECT_ROOT, "bots", filename)
             if os.path.exists(bot_file):
@@ -212,6 +213,7 @@ class NodeWarRequestHandler(http.server.SimpleHTTPRequestHandler):
             params = json.loads(body.decode("utf-8")) if body else {}
             filename = params.get("filename")
             if filename:
+                filename = urllib.parse.unquote(filename)
                 replay_file = os.path.join(PROJECT_ROOT, "replays", os.path.basename(filename))
                 if os.path.exists(replay_file):
                     with open(replay_file, "r", encoding="utf-8") as f:

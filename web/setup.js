@@ -190,12 +190,18 @@ class NodeWarSetupDeck {
         return;
       }
 
-      // 1. Post to active-match endpoint for cross-device persistence
-      await fetch(getApiUrl('/api/active-match'), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ match_data: data })
-      });
+      // 1. Sync with active-match endpoint for cross-tab and cross-device persistence
+      if (data.filename) {
+        try {
+          await fetch(getApiUrl('/api/active-match'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ filename: data.filename })
+          });
+        } catch (syncErr) {
+          console.warn("Active match sync notice:", syncErr);
+        }
+      }
 
       // 2. Broadcast to any open stream tab/window in real-time
       this.broadcast({ type: 'LOAD_MATCH', data: data });

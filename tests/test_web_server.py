@@ -106,6 +106,16 @@ class TestWebServer(unittest.TestCase):
             data = json.loads(response.read().decode("utf-8"))
             self.assertIn("metadata", data)
             self.assertIn("bot1.py", data["metadata"]["p1_name"])
+            filename = data.get("filename")
+
+        # Test encoded GET /api/replay/<filename>
+        if filename:
+            encoded_name = urllib.parse.quote(filename)
+            replay_url = f"http://127.0.0.1:{self.test_port}/api/replay/{encoded_name}"
+            with urllib.request.urlopen(replay_url) as r_resp:
+                self.assertEqual(r_resp.status, 200)
+                r_data = json.loads(r_resp.read().decode("utf-8"))
+                self.assertEqual(r_data["metadata"]["p1_name"], data["metadata"]["p1_name"])
 
 if __name__ == "__main__":
     unittest.main()

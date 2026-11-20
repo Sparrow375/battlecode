@@ -118,5 +118,7 @@ f:\Avaneesh\projects\battlecode\
   - **Tournament Control & Caster Deck (`web/setup.html` & `web/setup.js`)**:
     - Dedicated organizer workstation for bot selection, presets, custom game configs, balance matrix testing, custom bot playground, and replay library.
     - **Live Remote Deck Sync**: Built real-time caster remote controller communicating with the projector view via `BroadcastChannel('node_war_stream')` and persistent `/api/active-match` API (play, pause, scrub, step, jump to relic/clash, switch engine modes remotely from the laptop).
+  - **URL Unquoting & Special Character Sanitization**: Added `urllib.parse.unquote()` for replay filenames, bot sources, and active match requests, ensuring URL-encoded characters (like `%20` spaces and parentheses) resolve correctly from disk.
+  - Server actively running and tested on `http://localhost:8000`.
 - All 22 unit tests, bot integration tests, and HTTP endpoints passing.
 - Balance Matrix tournament evaluation verified: Rusher (0%) vs Turtle (100%), Turtle (0%) vs Balanced (100%), Balanced (0%) vs Rusher (100%) [100% Cycle Valid].
