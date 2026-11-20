@@ -91,6 +91,62 @@ Open **`http://localhost:8000`** in any web browser to:
 
 ---
 
+## Arena Themes
+
+Use **Arena Theme** in the battlefield toolbar to select Medieval Conquest (default),
+Cyber Warfare, Galactic Dominion, Wasteland Survival, or The Ultimate Arena.
+Tower Defense uses independently rendered illustrated structures, troops, decorations,
+terrain, and roads. Tactical view retains the schematic with themed terrain and routes.
+3D Arena uses theme-specific geometry for castles, servers, planets, stations, bunkers,
+units and relics, with orbit, zoom, camera reset and node selection.
+Selection is manual and independent of tournament progression.
+
+Themes are defined in `web/arena_themes.js`; 3D models live in `web/arena_3d_art.js`.
+All assets are bundled in `web/assets/arenas/`, with no remote asset downloads or build step.
+Switching preserves playback, camera, selection, and match data. Python rules and bot
+interfaces are unchanged. Run frontend state-preservation checks with:
+
+```bash
+node --test tests/test_arena_themes.cjs
+```
+
+## Optional cinematic spectator camera
+
+The site starts in **2D Tactical**. **3D Arena** creates its WebGL renderer only when
+selected. **Cinematic Battle** loads its camera controller on demand and starts in
+**Free Camera**, with automatic directing off. Returning to another view stops the
+director and restores the normal 3D camera. Re-entering cinematic mode requires
+another explicit selection of **Automatic Cinematic** to enable directing.
+
+Select a node or use **Next Active Battle**, then choose Player 1, Player 2 or Neutral
+POV. Camera options include attacker/defender follow, side, top-down and free camera.
+Transitions can be disabled; **Skip Animation** shows the recorded result immediately.
+The automatic director changes shots no faster than once every four seconds while
+replay playback is running. Camera POV is independent of the header's fog-of-war view.
+
+Combat snapshots contain after-state units, so cinematic mode can reconstruct the
+focused engagement from the event's recorded before/after unit counts. This is labelled
+**Combat reconstruction**, uses capped representative models, and never computes a
+new battle result. Outside cinematic mode those temporary models are disposed.
+
+Low and Medium target 30 FPS; High targets 60 FPS. Low reduces pixel ratio, shadow work,
+model tessellation, scenery, visible unit representatives, dynamic lights and particles.
+Adaptive quality lowers the tier after sustained slow rendering. Graphics context loss,
+initialization failure or sustained instability returns to Tactical without resetting
+the replay cursor or match. All playback controls affect the saved spectator timeline,
+not Python bot execution. **Latest Recorded State** moves to the last available snapshot;
+the UI does not claim that a precomputed replay is live.
+
+Run `node --test tests/test_arena_themes.cjs tests/test_cinematic.cjs` for regression checks.
+The separate development page at `http://localhost:8000/tests/cinematic_harness.html`
+measures actual rendering at all three quality levels, checks repeated mode switches
+and GPU allocation counts, and injects WebGL context-loss and initialization failures.
+Its test controls are not part of the tournament interface. Measurements depend on the
+browser and viewport and do not certify performance on another tournament laptop.
+
+If saved replay names contain spaces, restart `python serve.py` to pick up the replay
+URL-decoding fix. The frontend also skips unreadable saved entries during auto-load.
+
 ## 👨‍💻 Writing a Custom Bot
 
 Create a new bot in `bots/` inheriting from `BotBase` (see `bots/starter_bot.py`):

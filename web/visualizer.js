@@ -12,7 +12,11 @@ class NodeWarVisualizer {
     this.speedMs = 1000;
     this.viewMode = 'spectator'; // 'spectator' | 'p1' | 'p2'
     this.selectedNodeId = null;
-    this.engineMode = 'td'; // Default to Cartoon Tower Defense Game Visualizer
+    this.engineMode = 'td'; // Tower Defense is the default view.
+    this.arenaThemeId = 'medieval';
+    this.themeRequest = 0;
+    this.tacticalZoom = 1;
+    this.tacticalPan = { x: 0, y: 0 };
 
     this.particles = [];
 
@@ -25,26 +29,26 @@ class NodeWarVisualizer {
       console.warn("Could not initialize TD visualizer:", e);
     }
 
-    // Initialize 3D Three.js visualizer if available
-    try {
-      if (window.NodeWarThreeVisualizer) {
-        this.threeViz = new window.NodeWarThreeVisualizer('three-container');
-      }
-    } catch (e) {
-      console.warn("Could not initialize Three.js visualizer:", e);
-    }
+    // No WebGL renderer or cinematic controller is created in the default view.
+    this.threeViz = null;
+    this.cinematic = null;
 
     window.nodeWarApp = this;
+    this.victory = window.ChampionshipVictory ? new window.ChampionshipVictory(this) : null;
 
     this.initCanvasResize();
     this.bindEvents();
     this.bindEngineModeEvents();
+    document.getElementById('select-arena-theme').addEventListener('change', e => this.setArenaTheme(e.target.value));
     this.bindControlCenterEvents();
     this.loadBotList();
     this.loadReplayList();
     this.startAnimationLoop();
 
-    // Set initial mode state (Cartoon Tower Defense)
+    // Migrate any saved '2d' preference — 2D Tactical is restored and valid.
+    // No migration needed; all modes are available.
+
+    // Set the stable initial view, initialising WebGL upfront for 3D Arena.
     this.setEngineMode(this.engineMode);
   }
 
@@ -62,6 +66,8 @@ class NodeWarVisualizer {
     };
     if (!this._resizeBound) {
       window.addEventListener('resize', resize);
+      this.resizeObserver = new ResizeObserver(resize);
+      this.resizeObserver.observe(this.canvas.parentElement);
       this._resizeBound = true;
     }
     resize();
@@ -131,12 +137,29 @@ class NodeWarVisualizer {
     // Canvas click & hover
     this.canvas.addEventListener('click', (e) => this.handleCanvasClick(e));
     this.canvas.addEventListener('mousemove', (e) => this.handleCanvasHover(e));
+    this.canvas.addEventListener('wheel', e => {
+      e.preventDefault(); this.zoomTactical(e.deltaY < 0 ? 1.15 : 1/1.15);
+    }, { passive: false });
+    this.canvas.addEventListener('pointerdown', e => {
+      if (e.button !== 0) return;
+      this.tacticalDrag = { x: e.clientX, y: e.clientY, pan: { ...this.tacticalPan } };
+      this.tacticalDragged = false; this.canvas.setPointerCapture(e.pointerId);
+    });
+    this.canvas.addEventListener('pointermove', e => {
+      if (!this.tacticalDrag) return;
+      const dx=e.clientX-this.tacticalDrag.x,dy=e.clientY-this.tacticalDrag.y;
+      if (Math.hypot(dx,dy)>4) this.tacticalDragged=true;
+      this.tacticalPan = { x:this.tacticalDrag.pan.x+dx, y:this.tacticalDrag.pan.y+dy };
+    });
+    this.canvas.addEventListener('pointerup', () => { this.tacticalDrag=null; });
+    this.canvas.addEventListener('pointercancel', () => { this.tacticalDrag=null; });
   }
 
   bindEngineModeEvents() {
     const btnTD = document.getElementById('btn-mode-td');
     const btn3D = document.getElementById('btn-mode-3d');
     const btn2D = document.getElementById('btn-mode-2d');
+    document.getElementById('btn-mode-cinematic').addEventListener('click', () => this.setEngineMode('cinematic'));
 
     if (btnTD) {
       btnTD.addEventListener('click', () => this.setEngineMode('td'));
@@ -149,8 +172,97 @@ class NodeWarVisualizer {
     }
   }
 
-  setEngineMode(mode) {
+  async setArenaTheme(id) {
+    if (!window.ArenaThemes.themes[id]) return;
+    const request = ++this.themeRequest;
+    const select = document.getElementById('select-arena-theme');
+    select.setAttribute('aria-busy', 'true');
+    try {
+      // Prepare an entire pack before swapping it, so no half-loaded frame is drawn.
+      const assets = id === 'medieval'
+        ? await this.tdViz.assetsReady
+        : await window.ArenaThemes.loadAssets(id);
+      if (request !== this.themeRequest) return;
+      this.tdViz.setTheme(id, assets);
+      this.arenaThemeId = id;
+      if(this.victory) this.victory.evaluate();
+      document.body.dataset.arenaTheme = id;
+      document.documentElement.style.setProperty('--arena-accent', window.ArenaThemes.themes[id].accent);
+      if (this.threeViz) this.threeViz.setTheme(id);
+      if(this.engineMode==='cinematic' && this.cinematic) {this.cinematic.refreshCombat();this.cinematic.setFocusedLabels(this.cinematic.focusId);}
+      select.value = id;
+      this.render();
+    } catch (error) {
+      if (request !== this.themeRequest) return;
+      select.value = this.arenaThemeId;
+      console.error('Arena theme could not load:', error);
+      this.logEvent('Theme could not load. Please try again.', 'system');
+    } finally {
+      if (request === this.themeRequest) select.removeAttribute('aria-busy');
+    }
+  }
+
+  notify(message) {
+    const notice=document.getElementById('arena-notification');
+    notice.textContent=message;notice.classList.remove('hidden');
+    clearTimeout(this.noticeTimer);this.noticeTimer=setTimeout(()=>notice.classList.add('hidden'),7000);
+  }
+
+  ensureThree() {
+    if (this.threeViz) return this.threeViz;
+    try {
+      this.threeViz=new window.NodeWarThreeVisualizer('three-container', { onFailure: error => this.graphicsFallback(error) });
+      this.threeViz.setTheme(this.arenaThemeId);
+      if (this.replayData) {
+        this.threeViz.loadReplay(this.replayData);
+        this.threeViz.syncFrame(this.replayData.frames[this.currentFrameIdx]);
+      }
+      return this.threeViz;
+    } catch (error) { this.graphicsFallback(error); return null; }
+  }
+
+  async ensureCinematic(request) {
+    if (!window.ArenaCinematic) {
+      if (!this.cinematicLoading) this.cinematicLoading=new Promise((resolve,reject)=>{
+        const script=document.createElement('script');script.src='cinematic.js';script.id='cinematic-module';
+        script.onload=resolve;script.onerror=()=>{script.remove();this.cinematicLoading=null;reject(new Error('Cinematic controls could not load'));};
+        document.head.appendChild(script);
+      });
+      await this.cinematicLoading;
+    }
+    if(request!==this.modeRequest) return null;
+    if (!this.cinematic) this.cinematic=new window.ArenaCinematic(this,this.threeViz);
+    return this.cinematic;
+  }
+
+  graphicsFallback(error) {
+    if(this.victory) this.victory.cleanup3D();
+    console.warn('3D view stopped:', error.message || error);
+    if (this.cinematic) { this.cinematic.dispose(); this.cinematic=null; }
+    if (this.threeViz) { this.threeViz.dispose(); this.threeViz=null; }
+    this.setEngineMode('td');
+    this.notify('3D stopped safely. Tower Defense view is ready; your match and playback position are preserved.');
+  }
+
+  async setEngineMode(mode) {
+    if (!['td','2d','3d','cinematic'].includes(mode)) return;
+    const request=this.modeRequest=(this.modeRequest || 0)+1;
+    if (mode==='3d' || mode==='cinematic') {
+      if (!this.ensureThree()) return;
+      if (mode==='cinematic') {
+        try { await this.ensureCinematic(request); }
+        catch (error) { if(request===this.modeRequest) { this.setEngineMode('3d');this.notify(error.message); } return; }
+      }
+      if(request!==this.modeRequest) return;
+    }
+    if (this.engineMode==='cinematic' && mode!=='cinematic' && this.cinematic) this.cinematic.deactivate();
     this.engineMode = mode;
+    if(this.victory) this.victory.cleanup3D();
+    document.body.dataset.arenaView=mode;
+    document.getElementById('cinematic-controls').classList.toggle('hidden',mode!=='cinematic');
+    const btnCinematic=document.getElementById('btn-mode-cinematic');
+    btnCinematic.classList.toggle('active',mode==='cinematic');
+    document.getElementById('zoom-level-badge').textContent = `${Math.round((mode === '2d' ? this.tacticalZoom : (this.tdViz ? this.tdViz.zoomLevel : 1))*100)}%`;
     const canvasTD = document.getElementById('td-canvas');
     const container3D = document.getElementById('three-container');
     const canvas2D = document.getElementById('game-canvas');
@@ -166,7 +278,7 @@ class NodeWarVisualizer {
     if (btn2D) btn2D.classList.remove('active');
 
     if (zoomBar) {
-      if (mode === '3d') zoomBar.classList.add('hidden');
+      if (mode === '3d' || mode === 'cinematic') zoomBar.classList.add('hidden');
       else zoomBar.classList.remove('hidden');
     }
 
@@ -183,20 +295,7 @@ class NodeWarVisualizer {
           this.tdViz.syncFrame(currentFrame);
         }
       }
-    } else if (mode === '3d') {
-      if (canvasTD) canvasTD.classList.add('hidden');
-      if (container3D) container3D.classList.remove('hidden');
-      if (canvas2D) canvas2D.classList.add('hidden');
-      if (camPresets) camPresets.classList.remove('hidden');
-      if (btn3D) btn3D.classList.add('active');
-      if (this.threeViz) {
-        this.threeViz.onResize();
-        if (this.replayData && this.replayData.frames) {
-          const currentFrame = this.replayData.frames[this.currentFrameIdx];
-          this.threeViz.syncFrame(currentFrame);
-        }
-      }
-    } else {
+    } else if (mode === '2d') {
       if (canvasTD) canvasTD.classList.add('hidden');
       if (container3D) container3D.classList.add('hidden');
       if (canvas2D) canvas2D.classList.remove('hidden');
@@ -206,12 +305,27 @@ class NodeWarVisualizer {
       if (this.replayData && this.replayData.frames) {
         this.render();
       }
+    } else {
+      if (canvasTD) canvasTD.classList.add('hidden');
+      if (container3D) container3D.classList.remove('hidden');
+      if (canvas2D) canvas2D.classList.add('hidden');
+      if (camPresets) camPresets.classList.toggle('hidden',mode==='cinematic');
+      if (btn3D && mode==='3d') btn3D.classList.add('active');
+      if (this.threeViz) {
+        this.threeViz.onResize();
+        if (this.replayData && this.replayData.frames) {
+          const currentFrame = this.replayData.frames[this.currentFrameIdx];
+          this.threeViz.syncFrame(currentFrame);
+        }
+      }
+      if(mode==='cinematic') this.cinematic.activate();
     }
   }
 
   selectNode(nodeId) {
     this.selectedNodeId = nodeId;
     this.renderNodeInspector(nodeId);
+    if(this.engineMode==='cinematic' && this.cinematic) this.cinematic.focus(nodeId);
   }
 
   bindControlCenterEvents() {
@@ -288,9 +402,9 @@ class NodeWarVisualizer {
     const btnZoomIn = document.getElementById('btn-zoom-in');
     const btnZoomOut = document.getElementById('btn-zoom-out');
     const btnZoomReset = document.getElementById('btn-zoom-reset');
-    if (btnZoomIn) btnZoomIn.addEventListener('click', () => { if (this.tdViz) this.tdViz.zoomIn(); });
-    if (btnZoomOut) btnZoomOut.addEventListener('click', () => { if (this.tdViz) this.tdViz.zoomOut(); });
-    if (btnZoomReset) btnZoomReset.addEventListener('click', () => { if (this.tdViz) this.tdViz.resetZoom(); });
+    if (btnZoomIn) btnZoomIn.addEventListener('click', () => { if (this.engineMode === '2d') this.zoomTactical(1.25); else if (this.tdViz) this.tdViz.zoomIn(); });
+    if (btnZoomOut) btnZoomOut.addEventListener('click', () => { if (this.engineMode === '2d') this.zoomTactical(.8); else if (this.tdViz) this.tdViz.zoomOut(); });
+    if (btnZoomReset) btnZoomReset.addEventListener('click', () => { if (this.engineMode === '2d') { this.tacticalPan={x:0,y:0}; this.tacticalZoom=1; this.zoomTactical(1); } else if (this.tdViz) this.tdViz.resetZoom(); });
 
     // Load custom script into editor button
     const loadScriptBtn = document.getElementById('btn-load-script-into-editor');
@@ -562,7 +676,9 @@ class NodeWarVisualizer {
 
         // Load first replay if nothing loaded yet
         if (!this.replayData) {
-          this.fetchReplay(data.replays[0].filename);
+          for(const replay of data.replays) {
+            if(await this.fetchReplay(replay.filename,true)) break;
+          }
         }
       } else {
         vault.innerHTML = '<div class="muted">No replays found. Simulate a match!</div>';
@@ -572,17 +688,21 @@ class NodeWarVisualizer {
     }
   }
 
-  async fetchReplay(filename) {
+  async fetchReplay(filename, silent=false) {
     try {
-      const res = await fetch(`/api/replay/${filename}`);
+      const res = await fetch(`/api/replay/${encodeURIComponent(filename)}`);
+      if(!res.ok) throw new Error('Replay could not be loaded');
       const data = await res.json();
       this.loadReplayData(data);
+      return true;
     } catch (err) {
-      console.error("Failed to load replay:", err);
+      if(!silent) this.notify('This replay could not load. Choose another saved match or simulate a new one.');
+      return false;
     }
   }
 
   loadReplayData(data) {
+    if(this.victory) this.victory.reset();
     this.replayData = data;
     this.currentFrameIdx = 0;
     this.pause();
@@ -642,6 +762,8 @@ class NodeWarVisualizer {
         this.threeViz.syncFrame(data.frames[0]);
       }
     }
+    if(this.engineMode==='cinematic' && this.cinematic) this.cinematic.onFrame(true);
+    if(this.victory) this.victory.load(data);
   }
 
   // =========================================
@@ -695,6 +817,8 @@ class NodeWarVisualizer {
       if (this.threeViz) {
         this.threeViz.syncFrame(currentFrame, prevFrame);
       }
+      if(this.engineMode==='cinematic' && this.cinematic) this.cinematic.onFrame();
+      if(this.victory) this.victory.evaluate();
     }
   }
 
@@ -837,6 +961,7 @@ class NodeWarVisualizer {
   // =========================================
   startAnimationLoop() {
     const loop = () => {
+      if(this.victory) this.victory.tick(performance.now());
       this.render();
       requestAnimationFrame(loop);
     };
@@ -844,11 +969,17 @@ class NodeWarVisualizer {
   }
 
   render() {
+    if (this.engineMode !== '2d') return;
     this.ctx.clearRect(0, 0, this.displayWidth, this.displayHeight);
+    this.ctx.save();
+    this.ctx.translate(this.displayWidth/2+this.tacticalPan.x,this.displayHeight/2+this.tacticalPan.y);
+    this.ctx.scale(this.tacticalZoom,this.tacticalZoom);
+    this.ctx.translate(-this.displayWidth/2,-this.displayHeight/2);
     this.drawTacticalGrid();
 
     if (!this.replayData) {
       this.drawLoadingMessage();
+      this.ctx.restore();
       return;
     }
 
@@ -857,9 +988,26 @@ class NodeWarVisualizer {
     this.drawFleets(frame);
     this.drawNodes(frame);
     this.drawParticles();
+    if(this.victory) this.victory.draw2D(this.ctx,id=>this.getNodeScreenPos(id),frame);
+    this.ctx.restore();
+  }
+
+  zoomTactical(factor) {
+    this.tacticalZoom=Math.max(.75,Math.min(3,this.tacticalZoom*factor));
+    document.getElementById('zoom-level-badge').textContent=`${Math.round(this.tacticalZoom*100)}%`;
+    this.render();
+  }
+
+  tacticalPointer(e) {
+    const rect=this.canvas.getBoundingClientRect();
+    return {x:(e.clientX-rect.left-this.displayWidth/2-this.tacticalPan.x)/this.tacticalZoom+this.displayWidth/2,
+      y:(e.clientY-rect.top-this.displayHeight/2-this.tacticalPan.y)/this.tacticalZoom+this.displayHeight/2};
   }
 
   drawTacticalGrid() {
+    if (this.arenaThemeId !== 'medieval') {
+      window.ArenaThemes.drawTerrain(this.ctx, this.displayWidth, this.displayHeight, this.arenaThemeId);
+    }
     this.ctx.strokeStyle = 'rgba(35, 44, 69, 0.25)';
     this.ctx.lineWidth = 1;
     const step = 40;
@@ -887,7 +1035,7 @@ class NodeWarVisualizer {
       this.ctx.beginPath();
       this.ctx.moveTo(pA.x, pA.y);
       this.ctx.lineTo(pB.x, pB.y);
-      this.ctx.strokeStyle = 'rgba(60, 80, 120, 0.4)';
+      this.ctx.strokeStyle = this.arenaThemeId === 'medieval' ? 'rgba(60, 80, 120, 0.4)' : window.ArenaThemes.themes[this.arenaThemeId].path;
       this.ctx.lineWidth = 3;
       this.ctx.stroke();
 
@@ -1057,9 +1205,8 @@ class NodeWarVisualizer {
   }
 
   handleCanvasClick(e) {
-    const rect = this.canvas.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const clickY = e.clientY - rect.top;
+    if (this.tacticalDragged) return;
+    const {x:clickX,y:clickY}=this.tacticalPointer(e);
 
     if (!this.replayData) return;
     const nodes = this.replayData.map.nodes;
@@ -1079,9 +1226,8 @@ class NodeWarVisualizer {
   }
 
   handleCanvasHover(e) {
-    const rect = this.canvas.getBoundingClientRect();
-    const hoverX = e.clientX - rect.left;
-    const hoverY = e.clientY - rect.top;
+    if (this.tacticalDrag) return;
+    const {x:hoverX,y:hoverY}=this.tacticalPointer(e);
 
     if (!this.replayData) return;
     const nodes = this.replayData.map.nodes;

@@ -147,6 +147,25 @@
             <div class="triangle-row"><span class="badge guard">GUARD (12)</span> &gt; <span class="badge raider">RAIDER</span> (2x)</div>
             <div class="triangle-row"><span class="badge scout">SCOUT (6)</span> Vision &amp; Intel</div>
           </div>
+
+          <div id="championship-bracket" class="panel-section hidden" tabindex="-1">
+            <h3>Championship Final</h3><p id="championship-pairing"></p><strong id="championship-bracket-result"></strong>
+            <p class="muted-small">Official result from the loaded match. This display does not advance the tournament.</p>
+          </div>
+
+          <details class="victory-settings panel-section" id="victory-settings">
+            <summary>Championship spectator settings <span id="victory-setting-status">Ordinary match · celebration inactive</span></summary>
+            <div class="victory-settings-fields">
+              <label><input type="checkbox" id="victory-final"> Official tournament final (organizer designation)</label>
+              <label><input type="checkbox" id="victory-enabled" disabled> Victory Celebration</label>
+              <label>Celebration quality <select id="victory-quality"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option></select></label>
+              <label><input type="checkbox" id="victory-audio"> Victory audio</label>
+              <label><input type="checkbox" id="victory-commentary"> Winner commentary</label>
+              <label>Language <select id="victory-language"><option value="en-IN">English</option><option value="hi-IN">Hindi</option></select></label>
+              <label>Voice <select id="victory-voice"><option value="">Browser default</option></select></label>
+              <button id="victory-replay-setting" class="quick-nav-btn" disabled>Replay Celebration</button>
+            </div>
+          </details>
         </div>
 
         <!-- TAB 2: BALANCE TOURNAMENT MATRIX -->
@@ -230,30 +249,56 @@ class MyCustomBot(BotBase):
 
       <!-- Center: Multi-Engine Battlefield Viewport -->
       <main class="canvas-viewport" id="viewport-container">
-        <!-- 1. Cartoon Tower Defense Canvas (Default) -->
-        <canvas id="td-canvas" class="td-viewport"></canvas>
-
-        <!-- 2. 3D Three.js WebGL Container -->
-        <div id="three-container" class="three-viewport hidden"></div>
-
-        <!-- 3. 2D Tactical Canvas -->
-        <canvas id="game-canvas" class="hidden"></canvas>
-
-        <div id="combat-banner" class="combat-banner hidden"></div>
-
         <!-- Viewport Top Controls (Engine Mode Toggle & Quick Nav) -->
         <div class="viewport-top-bar">
           <div class="engine-mode-toggle">
-            <button id="btn-mode-td" class="engine-btn active" title="Cartoon Tower Defense Game View">&#9876; Tower Defense</button>
+            <button id="btn-mode-td" class="engine-btn active" title="Illustrated Tower Defense View">&#9876; Tower Defense</button>
             <button id="btn-mode-3d" class="engine-btn" title="3D Isometric Battlefield">&#9650; 3D Arena</button>
             <button id="btn-mode-2d" class="engine-btn" title="2D Tactical Schematic">&#9632; 2D Tactical</button>
+            <button id="btn-mode-cinematic" class="engine-btn" title="Optional cinematic camera controls">&#9654; Cinematic Battle</button>
           </div>
+          <label class="arena-theme-control" for="select-arena-theme">
+            <span>Arena Theme</span>
+            <select id="select-arena-theme">
+              <option value="medieval" selected>Medieval Conquest</option>
+              <option value="cyber">Cyber Warfare</option>
+              <option value="galactic">Galactic Dominion</option>
+              <option value="wasteland">Wasteland Survival</option>
+              <option value="championship">The Ultimate Arena</option>
+            </select>
+          </label>
           <div class="quick-nav-overlay">
             <button id="btn-jump-relic" class="quick-nav-btn" title="Jump to Relic Phase">&#9889; Relic</button>
             <button id="btn-jump-clash" class="quick-nav-btn" title="Jump to Next Battle">&#9876; Next Battle</button>
             <button id="btn-jump-end" class="quick-nav-btn" title="Jump to Match Finish">&#9209; Finish</button>
           </div>
         </div>
+
+        <section id="cinematic-controls" class="cinematic-controls hidden" aria-label="Cinematic camera controls">
+          <div class="cinematic-selects">
+            <label>Perspective<select id="cinematic-pov"><option value="neutral">Neutral POV</option><option value="p1">Player 1 POV</option><option value="p2">Player 2 POV</option></select></label>
+            <label>Camera<select id="cinematic-camera"><option value="free">Free Camera</option><option value="automatic">Automatic Cinematic (opt in)</option><option value="attacker">Follow Attacker</option><option value="defender">Follow Defender</option><option value="side">Side Battle View</option><option value="top">Top-Down View</option></select></label>
+            <label>Quality<select id="cinematic-quality"><option value="low">Low · 30 FPS</option><option value="medium" selected>Medium · 30 FPS</option><option value="high">High · 60 FPS</option></select></label>
+            <label class="cinematic-check"><input id="cinematic-transitions" type="checkbox" checked> Smooth transitions</label>
+            <label class="cinematic-check"><input id="cinematic-adaptive" type="checkbox" checked> Adaptive quality</label>
+          </div>
+          <div class="cinematic-actions">
+            <button id="cinematic-focus" class="quick-nav-btn">Focus Selected Node</button>
+            <button id="cinematic-next" class="quick-nav-btn">Next Active Battle</button>
+            <button id="cinematic-reset" class="quick-nav-btn">Reset Camera</button>
+            <button id="cinematic-skip" class="quick-nav-btn">Skip Animation</button>
+            <button id="cinematic-latest" class="quick-nav-btn">Latest Recorded State</button>
+            <button id="cinematic-return" class="quick-nav-btn">Return to Tactical</button>
+          </div>
+          <div class="cinematic-status-row"><span id="cinematic-status" role="status">Manual camera · select a node to inspect</span><span id="cinematic-performance">Medium · measuring FPS</span></div>
+          <div id="cinematic-replay-status" class="cinematic-replay-status">Replay controls below affect spectator playback only.</div>
+        </section>
+
+        <div class="battlefield-stage">
+        <canvas id="td-canvas" class="td-viewport"></canvas>
+        <div id="three-container" class="three-viewport hidden"></div>
+        <canvas id="game-canvas" class="hidden"></canvas>
+        <div id="combat-banner" class="combat-banner hidden"></div>
 
         <!-- 3D Camera Presets Bar (Bottom-Left) -->
         <div class="camera-presets-overlay" id="camera-presets-bar">
@@ -262,7 +307,6 @@ class MyCustomBot(BotBase):
           <button class="cam-btn" data-cam="p1" title="Focus Player 1 Citadel">P1 Core</button>
           <button class="cam-btn" data-cam="relic" title="Focus Relic Sanctuary">Relic</button>
           <button class="cam-btn" data-cam="p2" title="Focus Player 2 Citadel">P2 Core</button>
-          <button class="cam-btn" data-cam="cinematic" title="Spectator Orbit Flyby">&#9733; Orbit</button>
           <button class="cam-btn" data-cam="reset" title="Reset Camera View">&#8635;</button>
         </div>
 
@@ -276,6 +320,21 @@ class MyCustomBot(BotBase):
 
         <!-- 3D Hover Tooltip -->
         <div id="three-tooltip" class="three-tooltip hidden"></div>
+        <div id="arena-notification" class="arena-notification hidden" role="status"></div>
+        <section id="victory-overlay" class="victory-overlay hidden" aria-label="Championship celebration">
+          <div class="victory-kicker">CHAMPIONS LEAGUE 2026</div>
+          <div id="victory-phase" class="victory-phase" role="status"></div>
+          <div class="victory-announcement">
+            <span class="victory-laurel" aria-hidden="true">✦</span><h2 id="victory-team"></h2>
+            <p id="victory-college"></p><p class="victory-title">TOURNAMENT CHAMPIONS</p>
+            <p id="victory-result"></p>
+          </div>
+          <div class="victory-actions">
+            <button id="victory-replay">Replay Celebration</button><button id="victory-skip">Skip Celebration</button>
+            <button id="victory-battlefield">View Final Battlefield</button><button id="victory-bracket">Return to Tournament Bracket</button>
+          </div>
+        </section>
+        </div>
       </main>
 
       <!-- Right Panel: Node Inspector & Battle Feed -->
@@ -327,9 +386,12 @@ class MyCustomBot(BotBase):
   <!-- Three.js 3D Engine & Controls (Vendor + CDN fallback) -->
   <script src="vendor/three.min.js"></script>
   <script src="vendor/OrbitControls.js"></script>
+  <script src="arena_themes.js"></script>
+  <script src="arena_3d_art.js"></script>
   <script src="three_visualizer.js"></script>
   <!-- Cartoon Tower Defense Game Visualizer -->
   <script src="td_visualizer.js"></script>
+  <script src="victory.js"></script>
   <script src="visualizer.js"></script>
 </body>
 </html>

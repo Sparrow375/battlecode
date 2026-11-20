@@ -1,0 +1,54 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Championship celebration verification</title>
+<style>body{margin:0;background:#0b1120;color:#e7e6dc;font:14px/1.5 system-ui}header,pre{padding:16px}button{padding:10px;color:#ffe3a1;background:#28241b;border:1px solid #bba367;cursor:pointer}iframe{width:100%;height:900px;border:0}pre{white-space:pre-wrap}</style>
+<header><strong>Championship celebration — isolated browser test</strong><p>The saved match is designated as a final only within this test instance. No replay files, bots, or tournament progression are modified.</p><button id="run">Run celebration checks</button> <span id="status" role="status">Ready</span></header>
+<iframe id="arena" src="../index.html" title="Celebration test instance"></iframe><pre id="report">No checks run.</pre>
+<script>
+const sleep=ms=>new Promise(r=>setTimeout(r,ms)),status=document.getElementById('status'),report=document.getElementById('report');
+async function until(fn,timeout=25000){const start=performance.now();while(!fn()){if(performance.now()-start>timeout)throw Error('Timeout: '+status.textContent);await sleep(100);}}
+const check=(value,message)=>{if(!value)throw Error(message);};
+document.getElementById('run').onclick=async()=>{
+ const result={checks:[],performance:[],limitations:['Browser measurements at this viewport are not certification of another tournament laptop or projector.','Audio resource lifecycle is checked; audible quality and installed speech voices need an operator rehearsal.']};document.getElementById('run').disabled=true;
+ try{
+ const win=document.getElementById('arena').contentWindow;await until(()=>win.nodeWarApp?.replayData);const app=win.nodeWarApp,c=app.victory;
+ const fire=(id,value)=>{const el=win.document.getElementById('victory-'+id);if(typeof value==='boolean')el.checked=value;else el.value=value;el.dispatchEvent(new win.Event('change'));};
+ const unchanged=JSON.stringify(app.replayData),last=app.replayData.frames.length-1;app.pause();await app.setArenaTheme('championship');
+ app.setFrame(last);check(!c.active,'Ordinary match celebrated');check(!app.threeViz,'2D allocated WebGL');
+ fire('final',true);check(c.active,'Explicit final did not activate');c.reset();app.setFrame(0);c.evaluate();check(!c.active,'Celebrated before final frame');
+ result.checks.push('Ordinary match and earlier replay frames do not celebrate; no WebGL resources in 2D');
+ // Compare real Tower Defense frame CPU costs with and without the presentation layer.
+ await app.setEngineMode('td');app.setFrame(last);fire('enabled',false);
+ const td=app.tdViz,original=td.render;let costs=[];td.render=function(){const start=win.performance.now();original.call(this);costs.push(win.performance.now()-start);};
+ await sleep(1400);const baseline=costs.slice(5);costs=[];fire('enabled',true);await sleep(2200);const active=costs.slice(5);td.render=original;
+ const mean=a=>+(a.reduce((s,n)=>s+n,0)/Math.max(1,a.length)).toFixed(2);
+ result.performance.push({mode:'Tower Defense',baselineRenderMs:mean(baseline),celebrationRenderMs:mean(active),frames:active.length,width:td.displayWidth,height:td.displayHeight});
+ check(app.engineMode==='td','Celebration forced a mode change');check(c.resultData.winner===app.replayData.metadata.winner,'Wrong winner');c.skip();check(c.state==='COMPLETE','Skip not immediate');
+ c.replay();check(c.state==='VICTORY_CONFIRMED','Replay did not restart');c.skip();c.viewBattlefield();check(c.hidden,'Final battlefield did not clear overlay');c.replay();
+ result.checks.push('Tower Defense preserves mode and final state; Replay, Skip, and Final Battlefield controls work');
+ for(const mode of ['2d','3d','cinematic']){
+   status.textContent='Checking '+mode;await app.setEngineMode(mode);c.replay();await sleep(250);c.skip();await sleep(250);
+   check(c.active && c.state==='COMPLETE','Celebration lost on '+mode);check(app.currentFrameIdx===last,'Final frame changed');
+   if(mode==='cinematic')check(app.cinematic.mode==='free','Cinematic director enabled itself');
+   if(mode!=='2d')check(c.fx?.trophy.visible,'3D trophy missing');
+ }
+ result.checks.push('All four views retain the same official winner and final frame; manual Cinematic stays manual');
+ app.threeViz.adaptive=false;
+ for(const quality of ['low','medium','high']){
+   status.textContent='Measuring '+quality+' celebration';fire('quality',quality);c.replay();const sample=app.threeViz.metrics.samples;await until(()=>app.threeViz.metrics.samples>=sample+2);c.skip();
+   const m=app.threeViz.metrics;result.performance.push({mode:'Cinematic celebration',quality,fps:+m.fps.toFixed(1),renderMs:+m.renderMs.toFixed(2),drawCalls:m.drawCalls,geometries:m.geometries,textures:m.textures,width:app.threeViz.container.clientWidth,height:app.threeViz.container.clientHeight});report.textContent=JSON.stringify(result,null,2);
+ }
+ status.textContent='Checking cleanup and audio lifecycle';fire('quality','low');c.skip();await sleep(200);let samples=[];
+ for(let i=0;i<8;i++){c.replay();await sleep(100);c.skip();await sleep(100);c.viewBattlefield();await sleep(100);check(!c.fx,'Celebration meshes retained');samples.push({...app.threeViz.renderer.info.memory});}
+ check(samples.at(-1).geometries<=samples[0].geometries+2 && samples.at(-1).textures<=samples[0].textures+2,'GPU allocations grew after repeated celebration');result.memory={cycles:8,samples};
+ fire('audio',true);c.replay();await sleep(100);result.audioContextState=c.audio?.state || 'unavailable';c.skip();check(!c.audio,'Skip retained audio context');fire('audio',false);
+ result.checks.push('Eight replay/skip/close cycles release owned effects; GPU allocations bounded; optional audio releases on skip');
+ status.textContent='Checking graphics failure safety';c.replay();await sleep(150);const ext=app.threeViz.renderer.getContext().getExtension('WEBGL_lose_context');check(ext,'No context-loss test extension');ext.loseContext();await until(()=>app.engineMode==='2d' && !app.threeViz);
+ check(c.active && win.document.getElementById('victory-team').textContent===c.resultData.name,'Graphics failure lost champion announcement');c.skip();
+ result.checks.push('Real WebGL context loss restores Tactical while preserving champion announcement and final match');
+ c.showBracket();check(!win.document.getElementById('championship-bracket').classList.contains('hidden'),'Final bracket card missing');
+ check(JSON.stringify(app.replayData)===unchanged,'Presentation mutated authoritative replay');
+ fire('enabled',false);check(!c.active,'OFF did not clean up');fire('final',false);
+ result.checks.push('Final bracket result shown; disable cleans up; authoritative replay unchanged');result.passed=true;status.textContent='PASS';
+ }catch(error){result.passed=false;result.error=error.message;status.textContent='FAIL: '+error.message;}
+ report.textContent=JSON.stringify(result,null,2);document.getElementById('run').disabled=false;
+};
+</script></html>

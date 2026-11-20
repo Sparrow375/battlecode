@@ -22,6 +22,8 @@ class NodeWarTDVisualizer {
     // Sprite Asset Cache
     this.assets = {};
     this.assetsLoaded = false;
+    this.themeId = 'medieval';
+    this.theme = window.ArenaThemes.themes.medieval;
 
     // Combat & Environmental FX
     this.combatParticles = [];
@@ -43,7 +45,7 @@ class NodeWarTDVisualizer {
     this.canvas.style.cursor = 'grab';
 
     this.initCanvasResize();
-    this.loadAssets();
+    this.assetsReady = this.loadAssets();
     this.bindEvents();
     this.startAnimationLoop();
   }
@@ -84,26 +86,35 @@ class NodeWarTDVisualizer {
       fence: 'assets/td/env/fence.svg'
     };
 
-    let loadedCount = 0;
-    const totalCount = Object.keys(assetManifest).length;
-
-    for (const [key, src] of Object.entries(assetManifest)) {
+    const pack = {};
+    return Promise.all(Object.entries(assetManifest).map(([key, src]) => new Promise(resolve => {
       const img = new Image();
-      img.src = src;
       img.onload = () => {
-        loadedCount++;
-        if (loadedCount >= totalCount) {
-          this.assetsLoaded = true;
-          this.generateDecorations();
-        }
+        pack[key] = img;
+        resolve();
       };
       img.onerror = () => {
         console.warn(`Could not load TD asset: ${src}`);
-        loadedCount++;
-        if (loadedCount >= totalCount) this.assetsLoaded = true;
+        resolve();
       };
-      this.assets[key] = img;
-    }
+      img.src = src;
+    }))).then(() => {
+      this.medievalAssets = pack;
+      if (this.themeId === 'medieval') this.assets = pack;
+      this.assetsLoaded = true;
+      this.generateDecorations();
+      return pack;
+    });
+  }
+
+  setTheme(id, assets) {
+    this.themeId = id;
+    this.theme = window.ArenaThemes.themes[id];
+    this.assets = assets;
+    this.assetsLoaded = true;
+    this.generateDecorations();
+    // Frame, camera, selection and the interpolation clock are intentionally preserved.
+    this.render();
   }
 
   initCanvasResize() {
@@ -120,6 +131,8 @@ class NodeWarTDVisualizer {
     };
     if (!this._resizeBound) {
       window.addEventListener('resize', resize);
+      this.resizeObserver = new ResizeObserver(resize);
+      this.resizeObserver.observe(this.canvas.parentElement);
       this._resizeBound = true;
     }
     resize();
@@ -133,8 +146,8 @@ class NodeWarTDVisualizer {
     const node = this.replayData.map.nodes.find(n => n.id === nodeId);
     if (!node) return null;
 
-    const padX = 100;
-    const padY = 70;
+    const padX = Math.min(100, this.displayWidth * 0.125);
+    const padY = Math.min(70, this.displayHeight * 0.12);
     const w = this.displayWidth - padX * 2;
     const h = this.displayHeight - padY * 2;
 
@@ -146,6 +159,34 @@ class NodeWarTDVisualizer {
 
   generateDecorations() {
     this.decorations = [];
+    if (this.themeId !== 'medieval') {
+      // Galactic: minimal — no busy satellites/asteroids; just 4 subtle corner accents
+      if (this.themeId === 'galactic') {
+        this.decorations = [
+          {type:'hut',xRel:.05,yRel:.10,scale:.80},
+          {type:'hut',xRel:.94,yRel:.12,scale:.75},
+          {type:'hut',xRel:.05,yRel:.88,scale:.80},
+          {type:'hut',xRel:.94,yRel:.86,scale:.75},
+        ];
+        return;
+      }
+      // Wasteland: a few strategic ruins/rocks — no water towers or barrel clusters
+      if (this.themeId === 'wasteland') {
+        this.decorations = [
+          {type:'rock',xRel:.07,yRel:.14,scale:1.0},
+          {type:'rock',xRel:.91,yRel:.16,scale:.90},
+          {type:'rock',xRel:.08,yRel:.82,scale:.95},
+          {type:'rock',xRel:.93,yRel:.84,scale:.85},
+          {type:'hut', xRel:.46,yRel:.05,scale:.80},
+          {type:'rock',xRel:.04,yRel:.52,scale:.70},
+        ];
+        return;
+      }
+      // Other non-medieval themes: original sparse layout
+      this.decorations = [[.07,.13],[.92,.15],[.08,.83],[.92,.84],[.46,.06],[.28,.94],[.75,.94],[.04,.56]]
+        .map(([xRel,yRel],i)=>({type:i%2?'hut':'tree',xRel,yRel,scale:i%3===0?1.25:.9}));
+      return;
+    }
     const count = 35;
     const seedPrng = (s) => () => (s = Math.sin(s) * 10000, s - Math.floor(s));
     const random = seedPrng(42);
@@ -166,7 +207,7 @@ class NodeWarTDVisualizer {
   // ---------------------------------------------------------------------------
   startAnimationLoop() {
     const loop = () => {
-      this.render();
+      if (!this.canvas.classList.contains('hidden')) this.render();
       requestAnimationFrame(loop);
     };
     requestAnimationFrame(loop);
@@ -217,15 +258,20 @@ class NodeWarTDVisualizer {
     this.drawSoldierSquads(frame);
 
     // Layer 6: Combat Clashes, Sparks, Cannon Smoke
-    this.drawCombatFX();
+    if(!window.nodeWarApp?.victory?.active) this.drawCombatFX();
 
     // Layer 7: Fog of War (Player Perspective)
     this.drawCartoonFogOfWar(frame);
+    if(window.nodeWarApp?.victory) window.nodeWarApp.victory.draw2D(this.ctx,id=>this.getNodeScreenPos(id),frame);
 
     this.ctx.restore();
   }
 
   drawMeadowBackground() {
+    if (this.themeId !== 'medieval') {
+      window.ArenaThemes.drawTerrain(this.ctx, this.displayWidth, this.displayHeight, this.themeId);
+      return;
+    }
     // Vibrant cartoon green meadow (infinite pan-safe bounds)
     const span = 2500;
     const grad = this.ctx.createRadialGradient(
@@ -262,8 +308,8 @@ class NodeWarTDVisualizer {
       this.ctx.beginPath();
       this.ctx.moveTo(pA.x, pA.y);
       this.ctx.lineTo(pB.x, pB.y);
-      this.ctx.strokeStyle = '#997b53'; // Dark earth border
-      this.ctx.lineWidth = 42;
+      this.ctx.strokeStyle = this.theme.edge;
+      this.ctx.lineWidth = this.themeId === 'medieval' || this.themeId === 'wasteland' ? 42 : 21;
       this.ctx.lineCap = 'round';
       this.ctx.lineJoin = 'round';
       this.ctx.stroke();
@@ -278,11 +324,32 @@ class NodeWarTDVisualizer {
       this.ctx.beginPath();
       this.ctx.moveTo(pA.x, pA.y);
       this.ctx.lineTo(pB.x, pB.y);
-      this.ctx.strokeStyle = '#e9d8a6'; // Warm sandy dirt road
-      this.ctx.lineWidth = 32;
+      this.ctx.strokeStyle = this.theme.path;
+      if (this.themeId === 'wasteland') {
+        // Worn desert track: subtle gradient from dusty amber to muted sand
+        const material = this.ctx.createLinearGradient(pA.x,pA.y,pB.x,pB.y);
+        material.addColorStop(0,'#7a5830');material.addColorStop(.5,'#a07848');material.addColorStop(1,'#7a5830');
+        this.ctx.strokeStyle = material;
+      } else if (this.themeId !== 'medieval') {
+        const material = this.ctx.createLinearGradient(pA.x,pA.y,pB.x,pB.y);
+        material.addColorStop(0,this.themeId === 'championship' ? '#885a2e' : '#2d416e');
+        material.addColorStop(.5,this.themeId === 'championship' ? '#ffd689' : '#91b4ff');
+        material.addColorStop(1,this.themeId === 'championship' ? '#885a2e' : '#2d416e');
+        this.ctx.strokeStyle = material;
+      }
+      this.ctx.lineWidth = this.themeId === 'medieval' || this.themeId === 'wasteland' ? 32 : 13;
+      this.ctx.shadowBlur = this.themeId === 'medieval' || this.themeId === 'wasteland' ? 0 : 12;
+      this.ctx.shadowColor = this.theme.path;
       this.ctx.lineCap = 'round';
       this.ctx.lineJoin = 'round';
       this.ctx.stroke();
+      this.ctx.shadowBlur = 0;
+      // Worn-edge highlight for wasteland paths (thin muted centre line)
+      if (this.themeId === 'wasteland') {
+        this.ctx.strokeStyle = '#c09a6888'; this.ctx.lineWidth = 4; this.ctx.stroke();
+      } else if (this.themeId !== 'medieval') {
+        this.ctx.strokeStyle = '#f1f6ff'; this.ctx.lineWidth = 1.3; this.ctx.stroke();
+      }
     });
   }
 
@@ -309,8 +376,8 @@ class NodeWarTDVisualizer {
       }
       if (tooClose) return;
 
-      const w = (img.width || 60) * dec.scale * 0.7;
-      const h = (img.height || 60) * dec.scale * 0.7;
+      const w = (this.themeId === 'medieval' ? (img.width || 60) * .7 : 102) * dec.scale;
+      const h = (this.themeId === 'medieval' ? (img.height || 60) * .7 : 102) * dec.scale;
 
       this.ctx.drawImage(img, x - w / 2, y - h / 2, w, h);
     });
@@ -324,6 +391,11 @@ class NodeWarTDVisualizer {
       if (!p) return;
 
       const dynamicNode = frame.nodes[String(staticNode.id)] || staticNode;
+      const structureScale = Math.min(1, this.displayWidth / 800, this.displayHeight / 600);
+      this.ctx.save();
+      this.ctx.translate(p.x, p.y);
+      this.ctx.scale(structureScale, structureScale);
+      this.ctx.translate(-p.x, -p.y);
       const owner = dynamicNode.owner;
       const isRelic = (staticNode.id === 7);
       const isHomeP1 = (staticNode.id === 0);
@@ -333,14 +405,14 @@ class NodeWarTDVisualizer {
       const residentPlayer = dynamicNode.resident_player || owner;
 
       // Check if battle is active at this node
-      const activeBattle = frame.combat_events && frame.combat_events.find(cb => cb.node_id === staticNode.id);
+      const activeBattle = !window.nodeWarApp?.victory?.active && frame.combat_events && frame.combat_events.find(cb => cb.node_id === staticNode.id);
 
       // Node Selection Highlight Ring
       if (this.selectedNodeId === staticNode.id) {
         this.ctx.save();
         this.ctx.beginPath();
         this.ctx.arc(p.x, p.y + 4, 52, 0, Math.PI * 2);
-        this.ctx.strokeStyle = '#ffd166';
+        this.ctx.strokeStyle = this.theme.effect;
         this.ctx.lineWidth = 4;
         this.ctx.setLineDash([8, 6]);
         this.ctx.stroke();
@@ -354,11 +426,11 @@ class NodeWarTDVisualizer {
       const ownerSuffix = (owner === 1) ? '_p1' : (owner === 2 ? '_p2' : '_neutral');
 
       if (isHomeP1) {
-        img = this.assets.castle_p1;
+        img = this.assets['castle' + ownerSuffix];
         drawW = 120;
         drawH = 120;
       } else if (isHomeP2) {
-        img = this.assets.castle_p2;
+        img = this.assets['castle' + ownerSuffix];
         drawW = 120;
         drawH = 120;
       } else if (isRelic) {
@@ -423,7 +495,10 @@ class NodeWarTDVisualizer {
 
       // Draw Main Structure Image
       if (img && this.assetsLoaded) {
+        const victory=window.nodeWarApp?.victory;
+        if(victory?.active && !victory.hidden && owner===3-victory.resultData.winner)this.ctx.filter=`brightness(${1-Math.min(.55,victory.elapsed/3000*.55)})`;
         this.ctx.drawImage(img, p.x - drawW / 2, p.y - drawH / 2, drawW, drawH);
+        this.ctx.filter='none';
       }
 
       // 3. Stationed Garrison Soldiers Drawn Directly on the Castle!
@@ -434,7 +509,9 @@ class NodeWarTDVisualizer {
         const cannonSprite = isP1 ? this.assets.cannon_p1 : this.assets.cannon_p2;
         const eagleSprite = isP1 ? this.assets.eagle_p1 : this.assets.eagle_p2;
 
-        const breathe = Math.sin(Date.now() * 0.004 + staticNode.id) * 1.5;
+        const victory=window.nodeWarApp?.victory;
+        const cheering=victory?.active && !victory.hidden && victory.resultData.winner===residentPlayer && victory.stage>=3;
+        const breathe = victory?.active ? (cheering && victory.stage<6 && !victory.reduced ? -Math.max(0,Math.sin(victory.elapsed*.004+staticNode.id))*6 : 0) : Math.sin(Date.now() * 0.004 + staticNode.id) * 1.5;
 
         // Draw Knight Guard stationed at left gate
         if ((units.guard || 0) > 0 && knightSprite) {
@@ -511,6 +588,7 @@ class NodeWarTDVisualizer {
       if (activeBattle && this.assetsLoaded) {
         this.drawSoldierDuel(p.x, p.y + drawH * 0.16, activeBattle);
       }
+      this.ctx.restore();
     });
   }
 
@@ -589,7 +667,7 @@ class NodeWarTDVisualizer {
       const sparkRadius = 14 + Math.random() * 8;
       const grad = this.ctx.createRadialGradient(midX, midY, 2, midX, midY, sparkRadius);
       grad.addColorStop(0, '#ffffff');
-      grad.addColorStop(0.35, '#ffd166');
+      grad.addColorStop(0.35, this.theme.effect);
       grad.addColorStop(0.7, '#ff0055');
       grad.addColorStop(1, 'rgba(255, 0, 85, 0)');
       this.ctx.fillStyle = grad;
@@ -740,15 +818,15 @@ class NodeWarTDVisualizer {
       const isMasked = (this.viewMode === 'p1' && !isP1) || (this.viewMode === 'p2' && isP1);
 
       // 1. Draw Animated Road Direction Chevrons (>> pointing to destination)
-      this.drawMarchDirectionChevrons(fx, fy, fwdX, fwdY, teamColor);
+      if(!window.nodeWarApp?.victory?.active)this.drawMarchDirectionChevrons(fx, fy, fwdX, fwdY, teamColor);
 
       // 2. Draw Destination Target Warning at Destination Node
-      this.drawDestinationTarget(pB.x, pB.y, fleet);
+      if(!window.nodeWarApp?.victory?.active)this.drawDestinationTarget(pB.x, pB.y, fleet);
 
       if (isMasked) {
         // --- Shrouded Unknown Silhouette ---
         const rogueImg = isP1 ? this.assets.rogue_p1 : this.assets.rogue_p2;
-        const walkBob = Math.sin(Date.now() * 0.015 + fId) * 3;
+        const walkBob = window.nodeWarApp?.victory?.active ? 0 : Math.sin(Date.now() * 0.015 + fId) * 3;
         if (rogueImg) {
           this.ctx.save();
           this.ctx.filter = 'brightness(0.15) opacity(0.7)';
@@ -806,7 +884,8 @@ class NodeWarTDVisualizer {
         const maxDraw = Math.min(squadUnits.length, 6);
         for (let i = 0; i < maxDraw; i++) {
           const u = squadUnits[i];
-          const walkCycle = Math.sin(Date.now() * 0.018 + i * 1.2 + fId);
+          const celebration=window.nodeWarApp?.victory;
+          const walkCycle = celebration?.active ? (!celebration.hidden && celebration.stage>=3 && celebration.stage<6 && !celebration.reduced && fleet.owner===celebration.resultData.winner ? Math.sin(celebration.elapsed*.004+i) : 0) : Math.sin(Date.now() * 0.018 + i * 1.2 + fId);
           const walkBob = walkCycle * 3.5;
           const walkTilt = (fwdX < 0 ? -1 : 1) * walkCycle * 0.08;
           const bob = Number.isFinite(walkBob) ? walkBob : 0;
@@ -1048,8 +1127,8 @@ class NodeWarTDVisualizer {
   }
 
   drawLoadingScreen() {
-    this.ctx.fillStyle = '#583115';
-    this.ctx.font = 'bold 20px "Orbitron", monospace';
+    this.ctx.fillStyle = this.themeId === 'medieval' ? '#583115' : this.theme.accent;
+    this.ctx.font = `bold ${Math.min(20, this.displayWidth / 36)}px "Orbitron", monospace`;
     this.ctx.textAlign = 'center';
     this.ctx.fillText('PREPARING TOWER DEFENSE BATTLEFIELD...', this.displayWidth / 2, this.displayHeight / 2);
   }
@@ -1060,10 +1139,19 @@ class NodeWarTDVisualizer {
   loadReplay(data) {
     this.replayData = data;
     this.currentFrameIdx = 0;
+    this._lastEventFrame = null;
+    this.combatParticles = [];
+    this.floatingTexts = [];
   }
 
   syncFrame(frame) {
     if (!this.replayData) return;
+    if (this._lastEventFrame === frame) return;
+    this._lastEventFrame = frame;
+    if (!window.nodeWarApp || !window.nodeWarApp.isPlaying) {
+      this.combatParticles = [];
+      this.floatingTexts = [];
+    }
     this.currentTurnStartTime = performance.now();
     this.currentFrameIdx = Math.max(0, Math.min(this.replayData.frames.length - 1, frame.turn - 1));
 
@@ -1089,7 +1177,7 @@ class NodeWarTDVisualizer {
           y: p.y - 48,
           vy: -1.3,
           life: 1.0,
-          color: '#ffd166',
+          color: this.theme.effect,
           font: 'bold 15px "Orbitron", monospace'
         });
 
@@ -1119,7 +1207,7 @@ class NodeWarTDVisualizer {
 
         if (cb.defender_bonus_applied) {
           this.floatingTexts.push({
-            text: `🛡️ +25% DEFENSE BONUS`,
+            text: `🛡️ +${Math.round((frame.nodes[String(cb.node_id)].defense_bonus || 0) * 100)}% DEFENSE`,
             x: p.x,
             y: p.y - 12,
             vy: -0.8,
@@ -1138,7 +1226,7 @@ class NodeWarTDVisualizer {
             vy: (Math.random() - 0.5) * 8 - 2,
             life: 1.0,
             size: Math.random() * 5 + 2,
-            color: Math.random() > 0.5 ? '#ffd166' : '#ff0055'
+            color: Math.random() > 0.5 ? this.theme.effect : '#ff0055'
           });
         }
       });

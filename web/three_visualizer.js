@@ -3,7 +3,18 @@
 // =============================================================================
 
 class NodeWarThreeVisualizer {
-  constructor(containerId = 'three-container') {
+  static QUALITY = {
+    low: { fps:30, pixelRatio:.75, shadow:0, particles:24, units:2, scenery:10 },
+    medium: { fps:30, pixelRatio:1.25, shadow:1024, particles:96, units:3, scenery:16 },
+    high: { fps:60, pixelRatio:2, shadow:2048, particles:256, units:4, scenery:22 }
+  };
+
+  constructor(containerId = 'three-container', options = {}) {
+    this.options=options;
+    this.events=new AbortController();
+    this.quality='medium';this.qualitySettings=NodeWarThreeVisualizer.QUALITY.medium;
+    this.metrics={fps:0,renderMs:0,drawCalls:0,triangles:0,geometries:0,textures:0,samples:0};
+    this.adaptive=true;this.slowWindows=0;this.unstableWindows=0;
     this.container = document.getElementById(containerId);
     if (!this.container) {
       console.error("Three.js container not found:", containerId);
@@ -21,6 +32,7 @@ class NodeWarThreeVisualizer {
     this.currentFrameIdx = 0;
     this.viewMode = 'spectator'; // 'spectator' | 'p1' | 'p2'
     this.selectedNodeId = null;
+    this.themeId = 'medieval';
 
     // Node & Lane 3D Object Registries
     this.nodeObjects = new Map(); // id -> { group, baseMesh, buildingMesh, beaconLight, ringMesh, labelSprite }
@@ -49,9 +61,8 @@ class NodeWarThreeVisualizer {
     this.tooltipEl = document.getElementById('three-tooltip');
     this.hoveredEntity = null;
 
-    this.initScene();
-    this.bindEvents();
-    this.startRenderLoop();
+    try { this.initScene();this.bindEvents();this.applyQuality('medium');this.startRenderLoop(); }
+    catch(error) { this.dispose(); throw error; }
   }
 
   // ---------------------------------------------------------------------------
@@ -64,7 +75,7 @@ class NodeWarThreeVisualizer {
     // Scene
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0x060812);
-    this.scene.fog = new THREE.FogExp2(0x060812, 0.0016);
+    this.scene.fog = new THREE.FogExp2(0x060812, 0.00012);
 
     // Camera: High-angle isometric perspective
     this.camera = new THREE.PerspectiveCamera(38, width / height, 1, 4000);
@@ -73,20 +84,29 @@ class NodeWarThreeVisualizer {
     // WebGL Renderer
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'high-performance' });
     this.renderer.setSize(width, height);
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.15;
+    this.renderer.toneMappingExposure = 0.95;
+    this.renderer.outputEncoding = THREE.sRGBEncoding;
     this.container.appendChild(this.renderer.domElement);
+    this.renderer.domElement.addEventListener('webglcontextlost',event=>{
+      event.preventDefault();this.fail(new Error('Graphics context lost'));
+    },{signal:this.events.signal});
+    this.emptyNotice = document.createElement('div');
+    this.emptyNotice.className = 'renderer-notice';
+    this.emptyNotice.textContent = 'Load a replay or simulate a match to begin.';
+    this.emptyNotice.setAttribute('role','status');
+    this.container.appendChild(this.emptyNotice);
 
     // OrbitControls
     this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
     this.controls.enableDamping = true;
     this.controls.dampingFactor = 0.05;
-    this.controls.maxPolarAngle = Math.PI / 2 - 0.08; // Prevent camera sinking under ground
+    this.controls.maxPolarAngle = Math.PI / 2 - 0.18;
     this.controls.minDistance = 80;
-    this.controls.maxDistance = 1400;
+    this.controls.maxDistance = 2000;
     this.controls.target.set(0, 0, 0);
 
     // Lighting Rig
@@ -94,18 +114,30 @@ class NodeWarThreeVisualizer {
 
     // Ground Arena Platform
     this.setupGroundPlatform();
+    const particleGeometry = new THREE.BufferGeometry();
+    particleGeometry.setAttribute('position',new THREE.BufferAttribute(new Float32Array(256*3),3));
+    particleGeometry.setAttribute('color',new THREE.BufferAttribute(new Float32Array(256*3),3));
+    particleGeometry.setDrawRange(0,0);
+    this.combatCloud = new THREE.Points(particleGeometry,new THREE.PointsMaterial({size:4,vertexColors:true,transparent:true,opacity:.9,depthWrite:false,blending:THREE.AdditiveBlending}));
+    this.combatCloud.frustumCulled = false;
+    this.scene.add(this.combatCloud);
+    this.setTheme(this.themeId);
+    this.fitCamera();
 
     // Resize Handler
-    window.addEventListener('resize', () => this.onResize());
+    this.resizeHandler=()=>this.onResize();
+    window.addEventListener('resize',this.resizeHandler,{signal:this.events.signal});
+    this.resizeObserver = new ResizeObserver(() => this.onResize());
+    this.resizeObserver.observe(this.container);
   }
 
   setupLighting() {
     // Ambient cyberpunk glow
-    const ambientLight = new THREE.AmbientLight(0x1a243a, 1.1);
+    const ambientLight = new THREE.HemisphereLight(0xeaf5ff, 0x626c83, 0.95);
     this.scene.add(ambientLight);
 
     // Main Key Sunlight
-    const keySun = new THREE.DirectionalLight(0xffffff, 1.3);
+    const keySun = new THREE.DirectionalLight(0xffffff, 1.1);
     keySun.position.set(250, 480, 200);
     keySun.castShadow = true;
     keySun.shadow.mapSize.width = 2048;
@@ -119,6 +151,7 @@ class NodeWarThreeVisualizer {
     keySun.shadow.camera.bottom = -d;
     keySun.shadow.bias = -0.0005;
     this.scene.add(keySun);
+    this.keySun=keySun;
 
     // Secondary Cool Blue Fill
     const fillLight = new THREE.DirectionalLight(0x00f3ff, 0.4);
@@ -153,6 +186,7 @@ class NodeWarThreeVisualizer {
     groundMesh.position.y = -7;
     groundMesh.receiveShadow = true;
     this.scene.add(groundMesh);
+    this.groundMesh = groundMesh;
 
     // Hexagonal boundary border ring
     const ringGeo = new THREE.TorusGeometry(462, 3, 16, 64);
@@ -161,11 +195,15 @@ class NodeWarThreeVisualizer {
     borderRing.rotation.x = Math.PI / 2;
     borderRing.position.y = 0.5;
     this.scene.add(borderRing);
+    this.borderRing = borderRing;
 
     // Subtle tactical coordinate grid
     const gridHelper = new THREE.GridHelper(900, 36, 0x18243c, 0x0c1322);
     gridHelper.position.y = 0.2;
     this.scene.add(gridHelper);
+    this.gridHelper = gridHelper;
+    gridHelper.material.transparent = true;
+    gridHelper.material.opacity = .16;
 
     // Floating arena ambient dust particles
     const starGeo = new THREE.BufferGeometry();
@@ -191,9 +229,91 @@ class NodeWarThreeVisualizer {
     if (!this.container || !this.camera || !this.renderer) return;
     const w = this.container.clientWidth;
     const h = this.container.clientHeight;
+    if (!w || !h) return; // Hidden view must never create an invalid projection matrix.
+    const refit = !this.hasOpened || (this.defaultCameraPosition && this.camera.position.distanceTo(this.defaultCameraPosition) < 1);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(w, h);
+    if (refit) { this.fitCamera(); this.hasOpened = true; }
+  }
+
+  applyQuality(id) {
+    if (!NodeWarThreeVisualizer.QUALITY[id] || this.disposed) return;
+    this.quality=id;this.qualitySettings=NodeWarThreeVisualizer.QUALITY[id];
+    const q=this.qualitySettings;
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1,q.pixelRatio));
+    this.renderer.shadowMap.enabled=!!q.shadow;
+    if(this.keySun) {
+      this.keySun.castShadow=!!q.shadow;
+      if(this.keySun.shadow.map) { this.keySun.shadow.map.dispose();this.keySun.shadow.map=null; }
+      this.keySun.shadow.mapSize.set(q.shadow || 512,q.shadow || 512);
+    }
+    this.scene.traverse(obj=>{if(obj.isPointLight) obj.visible=id!=='low';});
+    if(this.ambientDust) this.ambientDust.geometry.setDrawRange(0,id==='low'?50:id==='medium'?160:350);
+    this.slowWindows=0;this.unstableWindows=0;this.metricWindow=null;
+    // Quality affects presentation detail only. Rebuild once, not on every render tick.
+    if(this.replayData) {
+      const frame=this.currentFrame;
+      this.buildMapArchitecture(this.replayData.map);
+      this.setTheme(this.themeId);
+      if(frame) this.syncFrame(frame);
+    }
+    this.onResize();
+  }
+
+  recordMetrics(timestamp,cost) {
+    if(document.hidden) {this.metricWindow=null;return;}
+    if(!this.metricWindow) this.metricWindow={start:timestamp,frames:0,cost:0};
+    const m=this.metricWindow;m.frames++;m.cost+=cost;
+    const elapsed=timestamp-m.start;
+    if(elapsed<2000) return;
+    this.metrics={fps:m.frames*1000/elapsed,renderMs:m.cost/m.frames,
+      drawCalls:this.renderer.info.render.calls,triangles:this.renderer.info.render.triangles,
+      geometries:this.renderer.info.memory.geometries,textures:this.renderer.info.memory.textures,samples:(this.metrics.samples || 0)+1};
+    this.metricWindow=null;
+    if(this.onMetrics) this.onMetrics(this.metrics);
+    if(!this.adaptive) return;
+    const slow=this.metrics.fps<this.qualitySettings.fps*.65 || this.metrics.renderMs>1000/this.qualitySettings.fps*.9;
+    this.slowWindows=slow?this.slowWindows+1:0;
+    this.unstableWindows=this.metrics.fps<8?this.unstableWindows+1:0;
+    if(this.slowWindows>=3 && this.quality!=='low') {
+      const next=this.quality==='high'?'medium':'low';this.applyQuality(next);
+      if(this.onQualityChange) this.onQualityChange(next);
+    } else if(this.quality==='low' && this.unstableWindows>=4) this.fail(new Error('Graphics frame rate became unstable'));
+  }
+
+  fail(error) {
+    if(this.disposed || this.failed) return;
+    this.failed=true;
+    if(this.options.onFailure) this.options.onFailure(error);
+    else this.dispose();
+  }
+
+  dispose() {
+    if(this.disposed) return;
+    this.disposed=true;this.onBeforeRender=null;this.onMetrics=null;this.onQualityChange=null;
+    if(this.rafId!==undefined) cancelAnimationFrame(this.rafId);
+    if(this.events) this.events.abort();
+    if(this.resizeObserver) this.resizeObserver.disconnect();
+    if(this.controls) this.controls.dispose();
+    if(this.scene) {
+      this.scene.traverse(obj=>{if(obj.isLight && obj.shadow && obj.shadow.map) obj.shadow.map.dispose();});
+      window.Arena3DArt.dispose(this.scene);this.scene.clear();
+    }
+    if(this.renderer) {this.renderer.dispose();this.renderer.forceContextLoss();this.renderer.domElement.remove();}
+    if(this.emptyNotice) this.emptyNotice.remove();
+    if(this.tooltipEl) this.tooltipEl.classList.add('hidden');
+    for(const key of ['nodeObjects','garrisonGroups','fleetSquadGroups','fogShrouds']) if(this[key]) this[key].clear();
+    this.particles=[];this.laneObjects=[];
+  }
+
+  fitCamera() {
+    const halfFov = THREE.MathUtils.degToRad(this.camera.fov / 2);
+    const distance = Math.max(390 / (Math.tan(halfFov) * this.camera.aspect), 285 / Math.tan(halfFov)) * 1.12;
+    this.defaultCameraPosition = new THREE.Vector3(0, .85, 1).normalize().multiplyScalar(distance);
+    this.camera.position.copy(this.defaultCameraPosition);
+    this.camera.lookAt(0, 0, 0);
+    if (this.controls) { this.controls.target.set(0, 0, 0); this.controls.update(); }
   }
 
   // ---------------------------------------------------------------------------
@@ -211,11 +331,16 @@ class NodeWarThreeVisualizer {
   }
 
   buildMapArchitecture(mapData) {
+    this.particles = [];
     // Clear previous architecture if any
-    this.nodeObjects.forEach(obj => this.scene.remove(obj.group));
+    this.nodeObjects.forEach(obj => { this.scene.remove(obj.group); window.Arena3DArt.dispose(obj.group); });
     this.nodeObjects.clear();
-    this.laneObjects.forEach(lane => this.scene.remove(lane.group));
+    this.laneObjects.forEach(lane => { this.scene.remove(lane.group); window.Arena3DArt.dispose(lane.group); });
     this.laneObjects = [];
+    this.garrisonGroups.clear();
+    this.fleetSquadGroups.forEach(group => { this.scene.remove(group); window.Arena3DArt.dispose(group); });
+    this.fleetSquadGroups.clear();
+    this.relicAnimation.rings = [];
 
     // 1. Build Lanes (Elevated Cyber-Rails)
     mapData.lanes.forEach(lane => {
@@ -234,9 +359,9 @@ class NodeWarThreeVisualizer {
       const curve = new THREE.LineCurve3(vA, vB);
 
       // Cyber-Highway track
-      const tubeGeo = new THREE.TubeGeometry(curve, 12, 2.2, 6, false);
+      const tubeGeo = new THREE.TubeGeometry(curve, 12, 4, 6, false);
       const tubeMat = new THREE.MeshStandardMaterial({
-        color: 0x101726,
+        color: 0x728399,
         roughness: 0.6,
         metalness: 0.8
       });
@@ -328,32 +453,34 @@ class NodeWarThreeVisualizer {
 
       if (isHome) {
         // --- Megastructure Command Bastion Citadel ---
-        const citadel = this.createCitadelModel(node.id === 0 ? 1 : 2);
+        const citadel = window.Arena3DArt.building(this.themeId, 'core', node.owner, this.quality);
         citadel.position.y = 4.5;
         nodeGroup.add(citadel);
         buildingMesh = citadel;
 
         beaconLight = new THREE.PointLight(this.getOwnerColor(node.owner), 2.2, 120);
+        beaconLight.visible=this.quality!=='low';
         beaconLight.position.set(0, 24, 0);
         nodeGroup.add(beaconLight);
 
       } else if (isRelic) {
         // --- The Ancient Relic Sanctuary ---
-        const relicStructure = this.createRelicSanctuary();
+        const relicStructure = window.Arena3DArt.building(this.themeId, 'relic', node.owner, this.quality);
+        this.relicAnimation.obelisk = relicStructure.userData.reactor;
         relicStructure.position.y = 4.5;
         nodeGroup.add(relicStructure);
         buildingMesh = relicStructure;
 
-      } else if (node.id === 5 || node.id === 6 || node.id === 8 || node.id === 9) {
+      } else if ([3,5,6,8,9,11].includes(node.id)) {
         // --- Heavy Chokepoint Pillbox Fort ---
-        const chokepoint = this.createChokepointModel(node.owner);
+        const chokepoint = window.Arena3DArt.building(this.themeId, 'tower', node.owner, this.quality);
         chokepoint.position.y = 4.5;
         nodeGroup.add(chokepoint);
         buildingMesh = chokepoint;
 
       } else {
         // --- Industrial Quantum Refinery / Outpost ---
-        const outpost = this.createOutpostModel(node.production, node.owner);
+        const outpost = window.Arena3DArt.building(this.themeId, 'bastion', node.owner, this.quality);
         outpost.position.y = 4.5;
         nodeGroup.add(outpost);
         buildingMesh = outpost;
@@ -365,10 +492,10 @@ class NodeWarThreeVisualizer {
         textColor: '#ffffff',
         bgColor: 'rgba(10, 14, 25, 0.88)',
         borderColor: this.getOwnerHex(node.owner),
-        fontSize: 20
+        fontSize: 30
       });
-      labelSprite.position.y = isRelic ? 38 : (isHome ? 32 : 24);
-      labelSprite.scale.set(24, 12, 1);
+      labelSprite.position.set(0, isRelic ? 49 : (isHome ? 82 : 61), 0);
+      labelSprite.scale.set(74, 37, 1);
       nodeGroup.add(labelSprite);
 
       this.scene.add(nodeGroup);
@@ -383,6 +510,7 @@ class NodeWarThreeVisualizer {
         isRelic,
         isHome
       });
+      buildingMesh.userData.appearance = `${this.themeId}_${node.owner}`;
     });
   }
 
@@ -616,202 +744,8 @@ class NodeWarThreeVisualizer {
   // 4. Procedural 3D Soldier Models & Squads
   // ---------------------------------------------------------------------------
   createSoldierModel(unitType, owner, isShadow = false) {
-    const group = new THREE.Group();
-    const color = isShadow ? 0x444455 : this.getOwnerColor(owner);
-    const metalness = isShadow ? 0.2 : 0.8;
-    const roughness = isShadow ? 0.8 : 0.3;
+    return window.Arena3DArt.unit(this.themeId, unitType, owner, isShadow, this.quality);
 
-    if (unitType === 'raider') {
-      // --- RAIDER (Swift Combat Speeder) ---
-      // Fuselage
-      const fuselageGeo = new THREE.ConeGeometry(1.6, 5.5, 4);
-      fuselageGeo.rotateX(Math.PI / 2);
-      const fuselage = new THREE.Mesh(
-        fuselageGeo,
-        new THREE.MeshStandardMaterial({ color: color, metalness, roughness })
-      );
-      fuselage.position.y = 2.8;
-      group.add(fuselage);
-
-      // Swept Wings
-      const wing = new THREE.Mesh(
-        new THREE.BoxGeometry(4.8, 0.3, 2.2),
-        new THREE.MeshStandardMaterial({ color: 0x121826, metalness: 0.9 })
-      );
-      wing.position.set(0, 2.8, -0.6);
-      group.add(wing);
-
-      // Plasma Blasters
-      for (const side of [-1.8, 1.8]) {
-        const gun = new THREE.Mesh(
-          new THREE.CylinderGeometry(0.2, 0.2, 2.5, 6),
-          new THREE.MeshStandardMaterial({ color: 0x334466, metalness: 0.9 })
-        );
-        gun.rotation.x = Math.PI / 2;
-        gun.position.set(side, 2.7, 1.0);
-        group.add(gun);
-      }
-
-      // Thruster engine glow
-      if (!isShadow) {
-        const glow = new THREE.Mesh(
-          new THREE.ConeGeometry(0.8, 2.0, 6),
-          new THREE.MeshBasicMaterial({ color: color, blending: THREE.AdditiveBlending })
-        );
-        glow.rotation.x = -Math.PI / 2;
-        glow.position.set(0, 2.8, -3.2);
-        group.add(glow);
-      }
-
-    } else if (unitType === 'guard') {
-      // --- GUARD (Armored Phalanx Sentinel Mech) ---
-      // Torso
-      const torso = new THREE.Mesh(
-        new THREE.BoxGeometry(2.4, 3.2, 1.8),
-        new THREE.MeshStandardMaterial({ color: 0x182236, metalness, roughness })
-      );
-      torso.position.y = 3.4;
-      group.add(torso);
-
-      // Glowing Helmet Visor
-      const visor = new THREE.Mesh(
-        new THREE.BoxGeometry(1.6, 0.4, 0.5),
-        new THREE.MeshStandardMaterial({
-          color: color,
-          emissive: color,
-          emissiveIntensity: isShadow ? 0.2 : 0.9
-        })
-      );
-      visor.position.set(0, 4.4, 0.85);
-      group.add(visor);
-
-      // Biped Legs
-      for (const side of [-0.7, 0.7]) {
-        const leg = new THREE.Mesh(
-          new THREE.CylinderGeometry(0.4, 0.5, 2.2, 6),
-          new THREE.MeshStandardMaterial({ color: 0x0f1522, metalness: 0.9 })
-        );
-        leg.position.set(side, 1.1, 0);
-        group.add(leg);
-      }
-
-      // Translucent Hexagonal Tower Shield (Left Arm)
-      const shieldGeo = new THREE.CylinderGeometry(2.2, 2.2, 0.4, 6);
-      shieldGeo.rotateZ(Math.PI / 2);
-      const shieldMat = new THREE.MeshStandardMaterial({
-        color: color,
-        emissive: color,
-        emissiveIntensity: isShadow ? 0.1 : 0.6,
-        transparent: true,
-        opacity: isShadow ? 0.4 : 0.75,
-        metalness: 0.4
-      });
-      const shield = new THREE.Mesh(shieldGeo, shieldMat);
-      shield.position.set(-1.9, 3.2, 1.0);
-      group.add(shield);
-
-      // Energy Lance (Right Arm)
-      const lance = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.18, 0.22, 6.0, 6),
-        new THREE.MeshStandardMaterial({ color: color, emissive: color, emissiveIntensity: 0.5 })
-      );
-      lance.rotation.x = Math.PI / 6;
-      lance.position.set(1.8, 3.5, 0.6);
-      group.add(lance);
-
-    } else if (unitType === 'siege') {
-      // --- SIEGE (Heavy Quad-Track Crawler Artillery Tank) ---
-      // Heavy Tank Chassis
-      const chassis = new THREE.Mesh(
-        new THREE.BoxGeometry(4.2, 1.8, 5.0),
-        new THREE.MeshStandardMaterial({ color: 0x141a29, metalness: 0.85, roughness: 0.4 })
-      );
-      chassis.position.y = 1.6;
-      group.add(chassis);
-
-      // Dual Armored Treads
-      for (const side of [-2.0, 2.0]) {
-        const tread = new THREE.Mesh(
-          new THREE.BoxGeometry(0.9, 1.5, 5.4),
-          new THREE.MeshStandardMaterial({ color: 0x0a0e17, metalness: 0.9 })
-        );
-        tread.position.set(side, 1.0, 0);
-        group.add(tread);
-      }
-
-      // Sloped Turret
-      const turret = new THREE.Mesh(
-        new THREE.BoxGeometry(2.6, 1.6, 3.0),
-        new THREE.MeshStandardMaterial({ color: 0x1e273d, metalness: 0.8 })
-      );
-      turret.position.set(0, 3.1, -0.4);
-      group.add(turret);
-
-      // Elongated Heavy Plasma Railgun Cannon
-      const cannon = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.45, 0.6, 6.8, 8),
-        new THREE.MeshStandardMaterial({ color: 0x2d3a56, metalness: 0.9 })
-      );
-      cannon.rotation.x = Math.PI / 2;
-      cannon.position.set(0, 3.3, 3.2);
-      group.add(cannon);
-
-      // Glowing Plasma Coils
-      for (let c = 0; c < 3; c++) {
-        const coil = new THREE.Mesh(
-          new THREE.TorusGeometry(0.7, 0.12, 6, 12),
-          new THREE.MeshBasicMaterial({ color: color })
-        );
-        coil.position.set(0, 3.3, 1.8 + c * 1.4);
-        group.add(coil);
-      }
-
-    } else if (unitType === 'scout') {
-      // --- SCOUT (Floating Recon Probe Drone) ---
-      // Central Chrome Eye Sphere
-      const eye = new THREE.Mesh(
-        new THREE.SphereGeometry(1.4, 12, 12),
-        new THREE.MeshStandardMaterial({
-          color: 0x111625,
-          emissive: color,
-          emissiveIntensity: 0.7,
-          metalness: 0.9
-        })
-      );
-      eye.position.y = 3.6;
-      group.add(eye);
-
-      // Counter-Rotating Horizontal Sensor Rings
-      const ring = new THREE.Mesh(
-        new THREE.TorusGeometry(2.2, 0.18, 6, 16),
-        new THREE.MeshBasicMaterial({ color: color, wireframe: false })
-      );
-      ring.rotation.x = Math.PI / 2;
-      ring.position.y = 3.6;
-      group.add(ring);
-      group.userData.sensorRing = ring;
-
-      // Downward Scanning Spotlight Cone
-      if (!isShadow) {
-        const cone = new THREE.Mesh(
-          new THREE.ConeGeometry(3.5, 6.0, 12, 1, true),
-          new THREE.MeshBasicMaterial({
-            color: color,
-            transparent: true,
-            opacity: 0.25,
-            side: THREE.DoubleSide,
-            blending: THREE.AdditiveBlending,
-            depthWrite: false
-          })
-        );
-        cone.position.set(0, 1.0, 0);
-        group.add(cone);
-      }
-    }
-
-    group.userData.unitType = unitType;
-    group.userData.owner = owner;
-    return group;
   }
 
   // ---------------------------------------------------------------------------
@@ -819,8 +753,11 @@ class NodeWarThreeVisualizer {
   // ---------------------------------------------------------------------------
   syncFrame(frame, prevFrame = null) {
     if (!this.replayData) return;
+    const changed = this.currentFrame !== frame;
     this.currentFrame = frame;
     this.prevFrame = prevFrame || frame;
+    this.frameStartTime = performance.now();
+    if(this.container && this.container.classList.contains('hidden')) return;
 
     // 1. Update Nodes (Owners, Rings, Garrison Units, Capture)
     this.updateNodes3D(frame);
@@ -832,7 +769,7 @@ class NodeWarThreeVisualizer {
     this.updateRelic3D(frame);
 
     // 4. Trigger Combat Clashes & Particle FX
-    if (frame.combat_events && frame.combat_events.length > 0) {
+    if (changed && frame.combat_events && frame.combat_events.length > 0) {
       this.triggerCombatFX(frame.combat_events);
     }
   }
@@ -844,6 +781,16 @@ class NodeWarThreeVisualizer {
 
       const owner = dynamicNode.owner;
       const ownerColor = this.getOwnerColor(owner);
+      const appearance = `${this.themeId}_${owner}`;
+      if (nodeObj.buildingMesh.userData.appearance !== appearance) {
+        nodeObj.group.remove(nodeObj.buildingMesh);
+        window.Arena3DArt.dispose(nodeObj.buildingMesh);
+        const kind = nodeObj.isRelic ? 'relic' : nodeObj.isHome ? 'core' : [3,5,6,8,9,11].includes(nodeId) ? 'tower' : 'bastion';
+        const model = window.Arena3DArt.building(this.themeId, kind, owner, this.quality);
+        model.position.y = 4.5; model.userData.appearance = appearance;
+        nodeObj.group.add(model); nodeObj.buildingMesh = model;
+        if (nodeObj.isRelic) this.relicAnimation.obelisk = model.userData.reactor;
+      }
 
       // Update ring color
       nodeObj.ringMesh.material.color.setHex(ownerColor);
@@ -876,20 +823,22 @@ class NodeWarThreeVisualizer {
       this.garrisonGroups.set(nodeId, squadGroup);
     }
 
+    const isMasked = this.isNodeMasked(nodeId, nodeData);
+    const signature = `${this.quality}_${this.themeId}_${isMasked}_${nodeData.owner}_${nodeData.resident_player}_${JSON.stringify(nodeData.units)}`;
+    if (squadGroup.userData.signature === signature) return;
+    squadGroup.userData.signature = signature;
+
     // Clear previous garrison soldiers
-    while (squadGroup.children.length > 0) {
-      squadGroup.remove(squadGroup.children[0]);
-    }
+    window.Arena3DArt.dispose(squadGroup);
+    while (squadGroup.children.length > 0) squadGroup.remove(squadGroup.children[0]);
 
     // Check Fog of War mask for Node
-    const isMasked = this.isNodeMasked(nodeId, nodeData);
-
     const units = nodeData.units || {};
     const unitList = [];
     if (!isMasked) {
       // Build list of units to render
       for (const [uType, count] of Object.entries(units)) {
-        const c = Math.min(count, 4); // Max 4 per unit type to avoid clutter
+        const c = Math.min(count, this.qualitySettings ? this.qualitySettings.units : 3);
         for (let i = 0; i < c; i++) unitList.push(uType);
       }
     }
@@ -897,14 +846,14 @@ class NodeWarThreeVisualizer {
     if (unitList.length === 0) return;
 
     // Arrange garrisoned soldiers in defensive ring around the fortress platform
-    const ringRadius = 15.5;
+    const ringRadius = nodeId === 0 || nodeId === 14 ? 38 : 28;
     const count = unitList.length;
     unitList.forEach((uType, idx) => {
       const angle = (idx / count) * Math.PI * 2;
       const model = this.createSoldierModel(uType, nodeData.resident_player || nodeData.owner, false);
       model.position.set(Math.cos(angle) * ringRadius, 4.5, Math.sin(angle) * ringRadius);
       model.rotation.y = angle + Math.PI / 2;
-      model.scale.setScalar(0.72);
+      model.scale.setScalar(1.2);
       squadGroup.add(model);
     });
   }
@@ -925,6 +874,7 @@ class NodeWarThreeVisualizer {
     this.fleetSquadGroups.forEach((group, fleetId) => {
       if (!activeFleetIds.has(fleetId)) {
         this.scene.remove(group);
+        window.Arena3DArt.dispose(group);
         this.fleetSquadGroups.delete(fleetId);
       }
     });
@@ -963,16 +913,19 @@ class NodeWarThreeVisualizer {
     // Reposition and orient squad
     squadGroup.position.copy(currentPos);
     squadGroup.rotation.y = angle;
+    squadGroup.scale.setScalar(1.25);
+    squadGroup.userData.motion = { fleet, pA, pB };
 
     // Determine Fog of War masking
     const isMasked = this.isFleetMasked(fleet);
 
     // Rebuild soldiers if fleet composition changed
-    const fleetSignature = `${fleet.owner}_${isMasked}_${JSON.stringify(fleet.units)}`;
+    const fleetSignature = `${this.quality}_${this.themeId}_${fleet.owner}_${isMasked}_${JSON.stringify(fleet.units)}`;
     if (squadGroup.userData.signature !== fleetSignature) {
       squadGroup.userData.signature = fleetSignature;
 
       // Clear children
+      window.Arena3DArt.dispose(squadGroup);
       while (squadGroup.children.length > 0) squadGroup.remove(squadGroup.children[0]);
 
       if (isMasked) {
@@ -997,10 +950,11 @@ class NodeWarThreeVisualizer {
         const models = [];
 
         // Order: Guards (Rank 1 Front), Raiders (Flanks), Siege (Center Rear), Scouts (Overhead)
-        const guards = Math.min(units.guard || 0, 3);
-        const raiders = Math.min(units.raider || 0, 4);
-        const sieges = Math.min(units.siege || 0, 2);
-        const scouts = Math.min(units.scout || 0, 2);
+        const cap=this.qualitySettings ? this.qualitySettings.units : 3;
+        const guards = Math.min(units.guard || 0, cap);
+        const raiders = Math.min(units.raider || 0, cap);
+        const sieges = Math.min(units.siege || 0, Math.min(2,cap));
+        const scouts = Math.min(units.scout || 0, Math.min(2,cap));
 
         // Position Guards front row (z = 4)
         for (let i = 0; i < guards; i++) {
@@ -1046,8 +1000,8 @@ class NodeWarThreeVisualizer {
           borderColor: ownerHex,
           fontSize: 18
         });
-        badge.position.y = 12;
-        badge.scale.set(22, 11, 1);
+        badge.position.y = 18;
+        badge.scale.set(32, 16, 1);
         squadGroup.add(badge);
       }
     }
@@ -1091,7 +1045,10 @@ class NodeWarThreeVisualizer {
     const player = this.viewMode === 'p1' ? 1 : 2;
     // Visible if owned by player or scouted
     if (nodeData.owner === player || nodeData.resident_player === player) return false;
-    return false; // Fog masking allows node structure to show, masks garrison composition
+    return !this.replayData.map.lanes.some(lane => {
+      const other=lane.node_a===nodeId?lane.node_b:lane.node_b===nodeId?lane.node_a:null;
+      return other!==null && this.currentFrame.nodes[String(other)].owner===player;
+    });
   }
 
   isFleetMasked(fleet) {
@@ -1100,7 +1057,11 @@ class NodeWarThreeVisualizer {
     // Player's own fleets are always revealed
     if (fleet.owner === player) return false;
     // Enemy fleet is masked unless scouted
-    return !fleet.is_revealed;
+    if (fleet.is_revealed) return false;
+    const nodes=this.currentFrame.nodes;
+    if ([fleet.origin_node,fleet.dest_node].some(id=>nodes[String(id)].owner===player && (nodes[String(id)].units.scout||0)>0)) return false;
+    return !this.currentFrame.fleets.some(own=>own.owner===player && (own.units.scout||0)>0 &&
+      ((own.origin_node===fleet.origin_node && own.dest_node===fleet.dest_node)||(own.origin_node===fleet.dest_node && own.dest_node===fleet.origin_node)));
   }
 
   // ---------------------------------------------------------------------------
@@ -1113,7 +1074,8 @@ class NodeWarThreeVisualizer {
       const pos = this.mapToWorld(node.x, node.y);
 
       // Spawn burst of combat spark particles
-      for (let i = 0; i < 28; i++) {
+      const limit=this.qualitySettings ? this.qualitySettings.particles : 96;
+      for (let i = 0; i < Math.min(28,limit) && this.particles.length<limit; i++) {
         const angle = Math.random() * Math.PI * 2;
         const speed = Math.random() * 3.5 + 1.5;
         this.particles.push({
@@ -1135,36 +1097,54 @@ class NodeWarThreeVisualizer {
   // 8. Animation & Render Loop
   // ---------------------------------------------------------------------------
   startRenderLoop() {
-    const animate = () => {
-      requestAnimationFrame(animate);
-
+    let lastRender = 0;
+    const animate = timestamp => {
+      if(this.disposed) return;
+      this.rafId=requestAnimationFrame(animate);
+      if (!this.container.clientWidth || this.container.classList.contains('hidden') || timestamp-lastRender<1000/this.qualitySettings.fps-.5) return;
+      lastRender = timestamp;
+      const started=performance.now();
+      try {
       // Update Controls
       if (this.controls) this.controls.update();
+      if (this.controls) {
+        this.controls.target.x=THREE.MathUtils.clamp(this.controls.target.x,-400,400);
+        this.controls.target.z=THREE.MathUtils.clamp(this.controls.target.z,-270,270);
+        this.controls.target.y=THREE.MathUtils.clamp(this.controls.target.y,0,70);
+      }
 
       // Camera Lerp
       this.updateCameraLerp();
 
-      // Cinematic Auto-Orbit
-      if (this.isCinematicOrbit && this.controls) {
-        this.controls.autoRotate = true;
-        this.controls.autoRotateSpeed = 0.8;
-      } else if (this.controls) {
-        this.controls.autoRotate = false;
-      }
+      if(this.controls) this.controls.autoRotate=false;
 
       // Continuous Model Animations (Spins, hover bobs)
       this.animateSceneIdle();
+      if(this.onBeforeRender) this.onBeforeRender(timestamp);
+      if(window.nodeWarApp?.victory) window.nodeWarApp.victory.render3D(this);
 
       // Render
       if (this.renderer && this.scene && this.camera) {
         this.renderer.render(this.scene, this.camera);
+        this.recordMetrics(timestamp,performance.now()-started);
       }
+      } catch(error) {this.fail(error);}
     };
-    requestAnimationFrame(animate);
+    this.rafId=requestAnimationFrame(animate);
   }
 
   animateSceneIdle() {
     const time = Date.now() * 0.002;
+    if (window.nodeWarApp && window.nodeWarApp.isPlaying) {
+      const fraction = Math.min(1, (performance.now() - (this.frameStartTime || performance.now())) / window.nodeWarApp.speedMs);
+      this.fleetSquadGroups.forEach(group => {
+        const motion = group.userData.motion;
+        if (!motion) return;
+        const {fleet,pA,pB} = motion;
+        const progress = Math.min(1, 1 - (fleet.turns_remaining - fraction) / fleet.total_turns);
+        group.position.set(pA.x+(pB.x-pA.x)*progress,3.2,pA.z+(pB.z-pA.z)*progress);
+      });
+    }
 
     // Ambient dust drift
     if (this.ambientDust) {
@@ -1201,6 +1181,12 @@ class NodeWarThreeVisualizer {
         this.particles.splice(i, 1);
       }
     }
+    if (this.combatCloud) {
+      const count=Math.min(256,this.particles.length);
+      const positions=this.combatCloud.geometry.attributes.position, colors=this.combatCloud.geometry.attributes.color;
+      for(let i=0;i<count;i++) { const p=this.particles[i],c=new THREE.Color(p.color);positions.setXYZ(i,p.x,p.y,p.z);colors.setXYZ(i,c.r,c.g,c.b); }
+      positions.needsUpdate=true;colors.needsUpdate=true;this.combatCloud.geometry.setDrawRange(0,count);
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -1211,14 +1197,14 @@ class NodeWarThreeVisualizer {
     const btn = document.querySelector(`.cam-btn[data-cam="${preset}"]`);
     if (btn) btn.classList.add('active');
 
-    this.isCinematicOrbit = (preset === 'cinematic');
+    this.isCinematicOrbit = false;
 
     let targetPos = new THREE.Vector3();
     let targetLook = new THREE.Vector3(0, 0, 0);
 
     switch (preset) {
       case 'iso':
-        targetPos.set(0, 420, 460);
+        targetPos.copy(this.defaultCameraPosition);
         targetLook.set(0, 0, 0);
         break;
       case 'p1':
@@ -1239,7 +1225,7 @@ class NodeWarThreeVisualizer {
         break;
       case 'reset':
       default:
-        targetPos.set(0, 420, 460);
+        targetPos.copy(this.defaultCameraPosition);
         targetLook.set(0, 0, 0);
         break;
     }
@@ -1290,12 +1276,16 @@ class NodeWarThreeVisualizer {
       btn.addEventListener('click', (e) => {
         const cam = e.target.dataset.cam;
         this.setCameraPreset(cam);
-      });
+      },{signal:this.events.signal});
     });
 
     // Pointer move for 3D Raycasting & Tooltip
-    this.renderer.domElement.addEventListener('mousemove', (e) => this.onPointerMove(e));
-    this.renderer.domElement.addEventListener('click', (e) => this.onPointerClick(e));
+    this.renderer.domElement.addEventListener('pointerdown',event=>{this.pointerStart={x:event.clientX,y:event.clientY};},{signal:this.events.signal});
+    this.renderer.domElement.addEventListener('mousemove', (e) => this.onPointerMove(e),{signal:this.events.signal});
+    this.renderer.domElement.addEventListener('click', (e) => {
+      if(this.pointerStart && Math.hypot(e.clientX-this.pointerStart.x,e.clientY-this.pointerStart.y)>5) return;
+      this.onPointerClick(e);
+    },{signal:this.events.signal});
   }
 
   onPointerMove(event) {
@@ -1366,8 +1356,42 @@ class NodeWarThreeVisualizer {
   // 11. Helpers & Text Sprites
   // ---------------------------------------------------------------------------
   loadReplay(replayData) {
+    if (this.emptyNotice) this.emptyNotice.classList.add('hidden');
     this.replayData = replayData;
     this.buildMapArchitecture(replayData.map);
+    if (this.themeId) this.setTheme(this.themeId);
+  }
+
+  setTheme(id) {
+    this.themeId = id;
+    const t = window.ArenaThemes.themes[id];
+    this.renderer.domElement.setAttribute('role', 'img');
+    this.renderer.domElement.setAttribute('aria-label', `${t.name} interactive 3D battlefield`);
+    this.scene.background.set(id === 'medieval' ? 0xa6c8cd : t.ground);
+    this.scene.fog.color.copy(this.scene.background);
+    this.groundMesh.material.color.set(id === 'medieval' ? 0x6c9849 : id === 'wasteland' ? 0xb58b5a : 0x293552);
+    this.groundMesh.material.metalness = .05;
+    if (this.groundMesh.material.map) this.groundMesh.material.map.dispose();
+    const canvas = document.createElement('canvas'); canvas.width = canvas.height = 1024;
+    window.ArenaThemes.drawTerrain(canvas.getContext('2d'),1024,1024,id);
+    const texture = new THREE.CanvasTexture(canvas); texture.encoding = THREE.sRGBEncoding;
+    this.groundMesh.material.map = texture; this.groundMesh.material.needsUpdate = true;
+    this.borderRing.material.color.set(t.accent);
+    this.ambientDust.material.color.set(t.accent);
+    this.ambientDust.visible = id === 'galactic' || id === 'cyber';
+    if (this.gridHelper) this.gridHelper.visible = id === 'cyber' || id === 'championship';
+    this.laneObjects.forEach(lane => {
+      lane.railMesh.material.color.set(t.path);
+      lane.group.children[0].material.color.set(id==='medieval'?0xa28d6c:id==='wasteland'?0x997248:0x4d567b);
+    });
+    if (this.environmentGroup) { this.scene.remove(this.environmentGroup); window.Arena3DArt.dispose(this.environmentGroup); }
+    this.environmentGroup = window.Arena3DArt.environment(id, this.quality);
+    this.scene.add(this.environmentGroup);
+    if (this.currentFrame && this.replayData) {
+      this.updateNodes3D(this.currentFrame);
+      this.updateFleets3D(this.currentFrame);
+      this.updateRelic3D(this.currentFrame);
+    }
   }
 
   setViewMode(mode) {
@@ -1378,8 +1402,8 @@ class NodeWarThreeVisualizer {
   }
 
   getOwnerColor(owner) {
-    if (owner === 1) return 0x00f3ff;
-    if (owner === 2) return 0xff0055;
+    if (owner === 1) return 0x238bff;
+    if (owner === 2) return 0xf52d55;
     return 0x5a6a8c;
   }
 

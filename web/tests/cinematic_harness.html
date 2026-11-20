@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cinematic verification — development harness</title>
+<style>body{margin:0;background:#0a101c;color:#e6f0ff;font:14px/1.5 system-ui}header{padding:12px 20px}button{padding:8px 14px;margin-right:10px;background:#173550;color:#e6f0ff;border:1px solid #5595b7;border-radius:5px;cursor:pointer}iframe{width:100%;height:800px;border:0}pre{white-space:pre-wrap;padding:20px;background:#101b2a}small{color:#9eb2ce}</style>
+<header><strong>Cinematic verification harness</strong> · separate test page, not tournament controls<br>
+<small>Uses a recorded match; measures the actual renderer. Injected failures affect this iframe only. No bots or engine rules are changed.</small><p><button id="run">Run performance and stability checks</button><span id="status" role="status">Ready</span></p></header>
+<iframe id="arena" src="../index.html" title="Tournament test instance"></iframe><pre id="report">No checks run yet.</pre>
+<script>
+const report=document.getElementById('report'),status=document.getElementById('status'),button=document.getElementById('run');
+const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+async function until(check,timeout=25000){const started=performance.now();while(!check()){if(performance.now()-started>timeout)throw new Error('Check timed out: '+status.textContent);await delay(100);}}
+const assert=(condition,message)=>{if(!condition)throw new Error(message);};
+function state(app){return JSON.stringify({index:app.currentFrameIdx,frame:app.replayData.frames[app.currentFrameIdx],metadata:app.replayData.metadata});}
+function summary(viz,win){const m=viz.metrics;return{quality:viz.quality,fps:+m.fps.toFixed(1),renderMs:+m.renderMs.toFixed(2),drawCalls:m.drawCalls,triangles:m.triangles,geometries:m.geometries,textures:m.textures,heapMB:win.performance.memory?+(win.performance.memory.usedJSHeapSize/1048576).toFixed(1):null,width:viz.container.clientWidth,height:viz.container.clientHeight};}
+button.onclick=async()=>{
+ button.disabled=true;const results={quality:[],checks:[],limitations:['FPS is measured in this browser at the recorded viewport, not a guarantee for another laptop or projector.','JS heap is observational; garbage collection is not forced. GPU geometry/texture counts are compared separately.']};
+ try{
+  const win=document.getElementById('arena').contentWindow;
+  status.textContent='Waiting for saved replay';await until(()=>win.nodeWarApp && win.nodeWarApp.replayData);
+  const app=win.nodeWarApp;app.pause();
+  assert(app.engineMode==='2d','Default must be Tactical');assert(!app.threeViz,'WebGL was allocated before selection');assert(!win.ArenaCinematic,'Cinematic module loaded before selection');
+  results.checks.push('Default Tactical; no WebGL renderer or cinematic module before opt-in');
+  // A frame with many actual units and an actual battle, without changing the recorded data.
+  let chosen=0,weight=-1;
+  app.replayData.frames.forEach((frame,index)=>{if(!frame.combat_events.length)return;const count=Object.values(frame.nodes).reduce((sum,n)=>sum+Object.values(n.units||{}).reduce((s,c)=>s+c,0),0)+(frame.fleets||[]).reduce((s,f)=>s+f.total_count,0);if(count>weight){weight=count;chosen=index;}});
+  app.setFrame(chosen);const original=state(app);results.recordedTurn=app.replayData.frames[chosen].turn;results.recordedUnitCount=weight;
+  await app.setEngineMode('cinematic');assert(app.cinematic.active && app.cinematic.mode==='free','Automatic director activated without opt-in');
+  const focusNode=app.replayData.frames[chosen].combat_events[0].node_id;
+  app.cinematic.focus(focusNode);app.cinematic.skipTransition();
+  win.document.getElementById('cinematic-adaptive').checked=false;app.threeViz.adaptive=false;
+  for(const quality of ['low','medium','high']){
+    status.textContent='Measuring '+quality+' quality (two sampling windows)';
+    const select=win.document.getElementById('cinematic-quality');select.value=quality;select.dispatchEvent(new win.Event('change'));
+    const start=app.threeViz.metrics.samples;await until(()=>app.threeViz.metrics.samples>=start+2);
+    results.quality.push(summary(app.threeViz,win));assert(state(app)===original,'Quality changed replay state');
+    report.textContent=JSON.stringify(results,null,2);
+  }
+  status.textContent='Checking themes and repeated mode switches';
+  // Warm the wide view first: Three.js uploads previously culled meshes and hidden label
+  // textures lazily. Compare repeated cycles after those one-time uploads, not against a close-up.
+  const closeUp={...app.threeViz.renderer.info.memory};
+  await app.setEngineMode('3d');await delay(350);await app.setEngineMode('cinematic');await delay(200);
+  const before={...app.threeViz.renderer.info.memory},samples=[];
+  for(let i=0;i<10;i++){await app.setEngineMode('2d');assert(!app.cinematic.active && !app.threeViz.onBeforeRender,'Cinematic callback remained active');await app.setEngineMode('3d');await app.setEngineMode('cinematic');assert(app.cinematic.mode==='free','Director re-enabled on entry');await delay(120);samples.push({...app.threeViz.renderer.info.memory});}
+  const after={...app.threeViz.renderer.info.memory};results.modeSwitchMemory={closeUp,warmedBaseline:before,after,samples,cycles:10};
+  assert(after.geometries<=before.geometries+2 && after.textures<=before.textures+2,'GPU resources grew across mode switches');
+  results.checks.push('Ten Tactical / 3D / Cinematic cycles: director stayed off and GPU allocations stayed bounded');
+  for(const theme of ['medieval','cyber','galactic','wasteland','championship']){await app.setArenaTheme(theme);app.cinematic.focus(7);app.cinematic.skipTransition();await delay(100);assert(state(app)===original,'Theme changed replay state');}
+  results.checks.push('All five themes share the cinematic camera and preserve the recorded frame');
+  const pending=app.setEngineMode('cinematic');await app.setEngineMode('2d');await pending;assert(app.engineMode==='2d' && !app.cinematic.active,'Rapid exit reactivated cinematic');
+  results.checks.push('Rapid mode selection does not reactivate cinematic after exit');
+  status.textContent='Injecting a real WebGL context loss';await app.setEngineMode('cinematic');
+  const old=app.threeViz,extension=old.renderer.getContext().getExtension('WEBGL_lose_context');assert(extension,'Context-loss test extension unavailable');extension.loseContext();
+  await until(()=>app.engineMode==='2d' && !app.threeViz);assert(state(app)===original,'Context loss changed replay state');assert(old.disposed && !old.onBeforeRender,'Lost renderer was not disposed');
+  results.checks.push('Real WebGL context loss: renderer disposed, Tactical restored, replay preserved');
+  status.textContent='Injecting WebGL initialization failure';const Renderer=win.THREE.WebGLRenderer;
+  try{win.THREE.WebGLRenderer=class{constructor(){throw new Error('Injected initialization failure');}};await app.setEngineMode('cinematic');assert(app.engineMode==='2d' && !app.threeViz,'Initialization failure did not fall back');assert(state(app)===original,'Initialization failure changed replay state');}
+  finally{win.THREE.WebGLRenderer=Renderer;}
+  results.checks.push('Injected WebGL initialization failure: Tactical and recorded state preserved');
+  await app.setEngineMode('cinematic');assert(app.cinematic.mode==='free','Recovery enabled automatic director');await app.setEngineMode('2d');
+  results.checks.push('Explicit re-entry after graphics failure succeeds with director off');
+  results.passed=true;status.textContent='PASS — performance and stability checks complete';
+ }catch(error){results.passed=false;results.error=error.message;status.textContent='FAIL — '+error.message;}
+ finally{report.textContent=JSON.stringify(results,null,2);button.disabled=false;}
+};
+</script></html>

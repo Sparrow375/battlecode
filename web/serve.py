@@ -12,6 +12,7 @@ import http.server
 import socketserver
 import json
 import glob
+from urllib.parse import unquote
 from typing import Dict, Any, Type
 
 from runner.match import run_match, BOT_REGISTRY, discover_custom_bots, resolve_bot, load_bot_from_file
@@ -19,7 +20,7 @@ from runner.tournament import run_balance_matrix
 from engine.models import GameConfig
 from bots.base import BotBase
 
-PORT = 8000
+PORT = 8001
 
 class CustomDynamicBot(BotBase):
     """Placeholder for dynamic user-uploaded bots."""
@@ -62,7 +63,7 @@ class NodeWarRequestHandler(http.server.SimpleHTTPRequestHandler):
             return
 
         elif self.path.startswith("/api/replay/"):
-            filename = self.path[len("/api/replay/"):]
+            filename = os.path.basename(unquote(self.path[len("/api/replay/"):]))
             replay_file = os.path.join(PROJECT_ROOT, "replays", filename)
             if os.path.exists(replay_file):
                 with open(replay_file, "r", encoding="utf-8") as f:
