@@ -38,6 +38,16 @@ class NodeWarRequestHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=WEB_DIR, **kwargs)
 
+    def end_headers(self):
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, HEAD")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
+        super().end_headers()
+
+    def do_OPTIONS(self):
+        self.send_response(200)
+        self.end_headers()
+
     def do_GET(self):
         if self.path == "/api/replays":
             replays_dir = os.path.join(PROJECT_ROOT, "replays")
@@ -191,19 +201,20 @@ class NodeWarRequestHandler(http.server.SimpleHTTPRequestHandler):
         self.send_response(status)
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(response)))
-        self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
         self.wfile.write(response)
 
-def run_server():
+class ThreadedHTTPServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
+    daemon_threads = True
+    allow_reuse_address = True
+
+def run_server(port: int = PORT):
     os.chdir(WEB_DIR)
-    # Enable address reuse so restarts don't hit [Errno 10048] address in use
-    socketserver.TCPServer.allow_reuse_address = True
-    with socketserver.TCPServer(("", PORT), NodeWarRequestHandler) as httpd:
+    with ThreadedHTTPServer(("", port), NodeWarRequestHandler) as httpd:
         print(f"\n" + "=" * 60)
         print(f"  NODE WAR - ESPORTS SPECTATOR ARENA")
         print(f"=" * 60)
-        print(f"  Server running live at: http://localhost:{PORT}")
+        print(f"  Server running live at: http://localhost:{port}")
         print(f"  Press Ctrl+C to stop.")
         print(f"=" * 60 + "\n")
         try:

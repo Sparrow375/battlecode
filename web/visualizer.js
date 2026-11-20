@@ -1,5 +1,15 @@
 // Node War - Web Canvas & 3D Isometric Spectator Arena
 
+// Automatically route API requests to simulation server whether opened via http://localhost:8000,
+// a local dev server (e.g. port 5500), or directly as a local file (file://)
+function getApiUrl(path) {
+  const origin = window.location.origin;
+  if (!origin || origin === 'null' || window.location.protocol === 'file:' || (window.location.port !== '8000' && window.location.port !== '')) {
+    return 'http://localhost:8000' + path;
+  }
+  return path;
+}
+
 class NodeWarVisualizer {
   constructor() {
     this.canvas = document.getElementById('game-canvas');
@@ -306,7 +316,7 @@ class NodeWarVisualizer {
 
   async loadBotList() {
     try {
-      const res = await fetch('/api/bots');
+      const res = await fetch(getApiUrl('/api/bots'));
       const data = await res.json();
       this.populateBotSelects(data);
     } catch (err) {
@@ -336,7 +346,7 @@ class NodeWarVisualizer {
         html += '</optgroup>';
       } else {
         html += '<optgroup label="Custom Scripts (bots/)">';
-        html += '<option value="bot1.py">bot1.py (ApexNodeBot)</option>';
+        html += '<option value="bot1.py">bot1.py (NemesisNodeBot)</option>';
         html += '</optgroup>';
       }
 
@@ -395,7 +405,7 @@ class NodeWarVisualizer {
 
     if (scriptSel) {
       scriptSel.innerHTML = '<option value="">Load from bots/ ...</option>';
-      let customFiles = (data && data.custom_files && data.custom_files.length > 0) ? data.custom_files : [{ filename: 'bot1.py', class_name: 'ApexNodeBot' }];
+      let customFiles = (data && data.custom_files && data.custom_files.length > 0) ? data.custom_files : [{ filename: 'bot1.py', class_name: 'NemesisNodeBot' }];
       customFiles.forEach(b => {
         scriptSel.innerHTML += `<option value="${b.filename}">${b.filename} (${b.class_name || 'Bot'})</option>`;
       });
@@ -413,7 +423,7 @@ class NodeWarVisualizer {
 
   async loadScriptIntoEditor(filename) {
     try {
-      const res = await fetch(`/api/bot-source/${filename}`);
+      const res = await fetch(getApiUrl(`/api/bot-source/${filename}`));
       const data = await res.json();
       if (data.source) {
         document.getElementById('custom-bot-editor').value = data.source;
@@ -447,7 +457,7 @@ class NodeWarVisualizer {
     const customCode = document.getElementById('custom-bot-editor').value;
 
     try {
-      const res = await fetch('/api/run-match', {
+      const res = await fetch(getApiUrl('/api/run-match'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -470,7 +480,7 @@ class NodeWarVisualizer {
       this.play();
     } catch (err) {
       console.error("Match simulation failed:", err);
-      alert("Failed to communicate with simulation server: " + err);
+      alert("Failed to communicate with simulation server: " + err + "\n\nMake sure the Node War server is running: python serve.py\nServer address: http://localhost:8000");
     } finally {
       btn.disabled = false;
       btn.textContent = 'SIMULATE & PLAY';
@@ -486,7 +496,7 @@ class NodeWarVisualizer {
     const turns = parseInt(document.getElementById('input-turns').value) || 120;
 
     try {
-      const res = await fetch('/api/run-tournament', {
+      const res = await fetch(getApiUrl('/api/run-tournament'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ rounds: rounds, turns: turns })
@@ -539,7 +549,7 @@ class NodeWarVisualizer {
 
   async loadReplayList() {
     try {
-      const res = await fetch('/api/replays');
+      const res = await fetch(getApiUrl('/api/replays'));
       const data = await res.json();
       const vault = document.getElementById('replay-vault-list');
       vault.innerHTML = '';
@@ -574,7 +584,7 @@ class NodeWarVisualizer {
 
   async fetchReplay(filename) {
     try {
-      const res = await fetch(`/api/replay/${filename}`);
+      const res = await fetch(getApiUrl(`/api/replay/${filename}`));
       const data = await res.json();
       this.loadReplayData(data);
     } catch (err) {
