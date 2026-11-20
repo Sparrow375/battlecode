@@ -137,3 +137,10 @@ f:\Avaneesh\projects\battlecode\
   - **Math & Diagram Sanitization**: Converted all uncompiled raw LaTeX expressions into clean human-readable formulas (e.g. `Tiebreak Score = (Points × 100,000) + (Relic Turns Held × 1,000) + (Total Army Value × 10) + Banked Gold`). Compressed the 15-node ASCII network topology diagram to fit standard portrait pages without horizontal clipping or scrollbars.
   - **Game-Agnostic Playbook**: Refactored `docs/COMPETITIVE_BOT_ENGINEERING_HANDBOOK.md` into a completely game-agnostic framework suitable for immediate handout tonight before the game is revealed.
   - Both `.pdf` and `.docx` recompiled cleanly and verified in `docs/`.
+- **Human-First Strategic Rules & Plain-English Manual Release**:
+  - Enriched `docs/NODE_WAR_OFFICIAL_GAME_GUIDEBOOK.md` with a comprehensive human-centric strategy breakdown ("Risk meets StarCraft on a Chess board"):
+    - Detailed 8-step clockwork turn lifecycle (Income -> Upkeep -> Decisions -> Travel -> Battles -> Capture Progress -> Scoring).
+    - In-depth tactical guide to the 4 unit roles (Raiders as artillery hunters, Guards as wall anchors, Siege as bunker busters, Scouts as aerial spotters and capture freezers).
+    - High-level strategic decision-making guide: Fortress advantage (+50% home defense), 2-turn capture relief counter-attacks, territorial supply cap limits, fog-of-war radar silhouettes, and late-game dynamic Relic timing surges.
+    - Added the 4 Strategic Archetypes diagram and breakdown (Blitzkrieg Rusher, Iron Fortress, Recon Artillery, Dynamic Economist).
+  - Recompiled both Word (.docx) and PDF (.pdf) via `scripts/build_docs.py` with 100% clean formatting and verified zero table or formula corruption.

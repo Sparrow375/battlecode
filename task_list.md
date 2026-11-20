@@ -61,3 +61,7 @@
 - [x] Task 59: Revise `docs/COMPETITIVE_BOT_ENGINEERING_HANDBOOK.md` as a strictly game-agnostic general tournament engineering playbook for tonight's handout (clean math, real tables, no game spoilers).
 - [x] Task 60: Update `scripts/build_docs.py` to enable table parsing (`MarkdownIt().enable('table')`), fit ASCII diagrams without page clipping, apply clean typography, and re-generate both `.docx` and `.pdf` documents.
 - [x] Task 61: Verify output PDFs and Word documents (ensure tables render as HTML tables, math is clean and uncorrupted, no text overflow), update `context.md`, `architechture.md`, and commit/push to git.
+- [x] Task 62: Author comprehensive, intuitive human-first strategic explanation of the game mechanics, turn loop, tradeoffs, and tactical decision-making for competitors.
+- [x] Task 63: Update `docs/NODE_WAR_OFFICIAL_GAME_GUIDEBOOK.md` with the expanded "How to Think and Play Node War" human strategy chapter.
+- [x] Task 64: Recompile Word (.docx) and high-resolution PDF (.pdf) participant guidebooks via `scripts/build_docs.py`.
+- [x] Task 65: Update `context.md`, `architechture.md`, and commit/push to git.
