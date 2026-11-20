@@ -256,7 +256,7 @@ class NodeWarRequestHandler(http.server.SimpleHTTPRequestHandler):
 
 class ThreadedHTTPServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
     daemon_threads = True
-    allow_reuse_address = True
+    allow_reuse_address = (sys.platform != "win32")
 
     def handle_error(self, request, client_address):
         err = sys.exc_info()[1]
