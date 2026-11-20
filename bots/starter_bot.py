@@ -26,9 +26,14 @@ Core Concepts:
 
 from __future__ import annotations
 from typing import List, Dict
-from engine.models import UnitType, Order, TrainOrder, MoveOrder
-from engine.fog import BotObservation
-from bots.base import BotBase
+
+try:
+    from engine.models import UnitType, Order, TrainOrder, MoveOrder
+    from engine.fog import BotObservation
+    from bots.base import BotBase
+except ImportError:
+    # Standalone fallback when running outside the tournament engine
+    from validate_bot import UnitType, Order, TrainOrder, MoveOrder, BotObservation, BotBase
 
 class StarterBot(BotBase):
     def __init__(self, player_id: int):
