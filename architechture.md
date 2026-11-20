@@ -70,16 +70,16 @@ flowchart TD
    - `map.py`: Symmetrical mirrored graph generator (15 nodes) with tiered yields (+4 outer, +7 mid chokes, +10 Relic, +15 Home), neutral garrisons on unclaimed nodes (1 Raider outer, 2 Guards chokes, 2 Guards + 1 Siege Relic), and fortified Home citadels (+50% defense bonus).
    - `combat.py`: Deterministic RPS combat resolution with Scout combat targeting bonus (+15% with scout, -15% blind penalty), neutral meeting engagement resolution (0% defender bonus), and outpost/citadel defense bonuses.
    - `game.py`: Main state machine executing 100% simultaneous turn phases:
-     1. Tiered Resource Production (+4/+7/+10/+15 credits)
-     2. Dynamic Empire Supply Lines Upkeep (`10 + 4*Owned Nodes`; 1 cr/unit home, 2 cr/unit foreign/unowned)
-     3. Simultaneous Train Orders Resolution (for both players)
-     4. Simultaneous Move Orders Resolution & Fleet Launch (for both players)
+     1. Tiered Resource Production (+4/+7/+10/+15 credits/gold)
+     2. Dynamic Empire Supply Lines Upkeep (`10 + 4*Owned Nodes`; 1 cr domestic, 2 cr foreign/in-transit) with **Bankruptcy Desertion Attrition** (`_apply_desertion_attrition` disbands foreign units first, then domestic; Raider -> Scout -> Guard -> Siege to resolve deficits)
+     3. Simultaneous Train Orders Resolution (for both players; recruits defend garrison this turn)
+     4. Simultaneous Move Orders Resolution & Fleet Launch (enforcing **Mobilization Rule**: newly trained units cannot march on the same turn)
      5. Fleet Movement & Lane Transit
      6. Vision Resolution & Scout Combat Modifier
      7. Combat Resolution (Neutral meeting engagements, neutral garrison clashes, and siege defenses)
      8. Two-Turn Node Capture Progress (freezes if actively contested by enemy Scout)
      9. Dynamic Relic Awakening (randomized between Turns 80–100 with 5-turn charging alert; +10 pts/turn + 2x multiplier)
-     10. Victory / Deterministic Tiebreak Check
+     10. Victory / Deterministic Tiebreak Check (with **1:1 Net Worth Parity**: Total Army Asset Value + Banked Gold, eliminating late-game Gold Dump exploits)
    - `fog.py`: Strips hidden fleet compositions from opponent observation while preserving omniscient state for spectator replays; exposes `relic_charging` flag.
 
 2. **`bots/`**:

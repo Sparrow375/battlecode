@@ -90,7 +90,7 @@ $$\text{Income}_p = \sum_{n \in \text{Owned}_p} \text{Production}(n)$$
   - **Chokepoint Gates & Outposts (3, 5, 6, 8, 9, 11)**: +7 Gold/turn
   - **Outer Bastions & Refineries (1, 2, 4, 10, 12, 13)**: +4 Gold/turn
 
-### Dynamic Empire Supply Lines (Upkeep)
+### Dynamic Empire Supply Lines & Bankruptcy Desertion
 Rather than a flat cliff, armies are supported by a dynamic supply capacity scaled to territorial expansion:
 $$\text{Free Supply Cap}_p = 10 + (4 \times \text{Owned Nodes}_p)$$
 
@@ -98,7 +98,10 @@ Armies exceeding this free supply capacity incur per-turn maintenance upkeep:
 - **Domestic Units**: Units stationed on friendly owned nodes incur **1 Gold/turn** per unit above cap.
 - **Foreign / Expeditionary Units**: Units stationed on unowned/enemy nodes or traveling on lanes incur **2 Gold/turn** (supply line tax).
 - Free supply capacity automatically shields domestic forces first before covering expeditionary forces.
-- If a player's Gold is insufficient to cover upkeep, their balance is clamped to **0 Gold**, suspending recruitment until losses or node captures restore economic balance.
+- **Bankruptcy & Desertion Attrition**: If a player's treasury cannot cover their upkeep deficit, their Gold balance is set to **0**, and unpaid units immediately suffer **desertion attrition** until the deficit is eliminated:
+  1. *Foreign Units Desert First*: Stationed on unowned/enemy nodes (saves 2 Gold/unit), then in transit fleets (saves 2 Gold/unit).
+  2. *Domestic Garrisons Desert Second*: Stationed on friendly owned nodes (saves 1 Gold/unit).
+  3. *Desertion Priority Order*: Units desert in order of lowest tactical value: **Raiders $\rightarrow$ Scouts $\rightarrow$ Guards $\rightarrow$ Siege**.
 
 ---
 
@@ -210,7 +213,11 @@ To prevent bots from hardcoding static turn triggers, the central **Relic Sanctu
 
 ### Strict Deterministic Tiebreaker
 If the match reaches Turn 120, a deterministic composite tiebreak score is computed:
-$$\text{Tiebreak Score} = \text{Points} \times 10^5 + \text{Relic Turns Held} \times 10^3 + \text{Total Army Value} \times 10 + \text{Banked Credits}$$
+$$\text{Tiebreak Score} = (\text{Victory Points} \times 100{,}000) + (\text{Relic Turns Held} \times 1{,}000) + \text{Total Net Worth}$$
+where:
+$$\text{Total Net Worth} = \text{Total Army Asset Value} + \text{Banked Gold}$$
+
+**1:1 Parity Rule**: 1 Gold in the treasury provides exactly 1 tiebreak point, and 1 Gold invested in an active soldier provides exactly 1 tiebreak point (e.g., a Guard costs 12 Gold and provides 12 asset points). This guarantees complete economic parity and completely prevents late-game "Gold Dump" exploits on Turn 119/120.
 
 Because this incorporates cumulative points, relic control duration, army value in credits, and banked reserves, it is mathematically distinct for both players. **There are no draws.**
 
@@ -305,6 +312,7 @@ order = self.train(node_id=0, unit_type=UnitType.RAIDER, count=3)
   - Node must **not** be contested (`node.capturing_player == 0`).
   - Player must possess sufficient credits: $\text{count} \times \text{Cost}(\text{unit\_type})$.
   - Units become active in the node's garrison for the current turn.
+  - **The Mobilization Rule**: Newly trained units immediately join the garrison to defend that node against any enemy attacks arriving this turn, but **cannot be moved on the same turn they are trained**. They must spend 1 turn mobilizing at their recruitment node before they can be dispatched into a transit fleet (`MoveOrder`) on subsequent turns.
 
 ### 2. Moving Fleets (`MoveOrder`)
 ```python
@@ -346,7 +354,8 @@ flowchart TD
 2. **Empire Upkeep**: Units exceeding the dynamic supply cap ($10 + 4 \times \text{Owned Nodes}$) incur upkeep deductions (1 Gold/unit domestic, 2 Gold/unit foreign/in transit).
 3. **Bot Decision & Order Validation**:
    - `p1_bot.act(obs_p1)` and `p2_bot.act(obs_p2)` are invoked.
-   - Orders are validated, credits deducted, and fleets launched.
+   - **Phase 3A (Recruitment)**: Train orders resolve simultaneously for both players; recruits join local garrisons and are available to defend this turn.
+   - **Phase 3B (Mobilization & Movement)**: Move orders resolve simultaneously. Recruits trained this turn cannot march this turn (Mobilization Delay Rule); fleets launch from mobilized garrison forces.
 4. **Fleet Movement**: All fleets in transit decrement `turns_remaining -= 1`.
 5. **Fleet Arrival**: Fleets reaching destination (`turns_remaining == 0`) merge into destination node staging pools.
 6. **Node Combat**: Opposing forces stationed or arriving at the same node resolve combat simultaneously. Stationary defenders receive defense bonuses (+50% at home core, +25% at outposts). Scouts provide +15% friendly targeting bonus or -15% enemy blind penalty.

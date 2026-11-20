@@ -65,3 +65,8 @@
 - [x] Task 63: Update `docs/NODE_WAR_OFFICIAL_GAME_GUIDEBOOK.md` with the expanded "How to Think and Play Node War" human strategy chapter.
 - [x] Task 64: Recompile Word (.docx) and high-resolution PDF (.pdf) participant guidebooks via `scripts/build_docs.py`.
 - [x] Task 65: Update `context.md`, `architechture.md`, and commit/push to git.
+- [x] Task 66: Patch Engine for 3 critical competitive exploits: 1:1 net worth tiebreaker parity (eliminating Turn 120 Gold Dump), starvation desertion attrition in Phase 2 Upkeep (eliminating unpaid doom stacks), and mobilization delay enforcement (eliminating same-turn train and march tempo advantage).
+- [x] Task 67: Add comprehensive unit tests in `tests/test_engine.py` covering net worth parity, bankruptcy desertion, and mobilization delay, and verify all 25 unit tests and 8-round tournament balance matrix pass.
+- [x] Task 68: Update `GAME_SPECIFICATION.md` with complete technical specifications of the 3 patched mechanics.
+- [x] Task 69: Update participant guidebook `docs/NODE_WAR_OFFICIAL_GAME_GUIDEBOOK.md` with human-friendly strategic rules explaining mobilization, bankruptcy desertion, and net worth parity, with clean unit summary tables and zero unrendered LaTeX.
+- [x] Task 70: Recompile `.docx`, `.html`, and `.pdf` participant documents via `scripts/build_docs.py`, update `context.md` & `architechture.md`, and commit/push to git.

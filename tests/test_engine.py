@@ -238,5 +238,84 @@ class TestEngine(unittest.TestCase):
         self.assertIsNotNone(enemy_fleet_scouted.units)
         self.assertEqual(enemy_fleet_scouted.units["siege"], 5)
 
+    def test_tiebreaker_net_worth_parity(self):
+        """Verifies that Banked Gold and Army Asset Value have 1:1 parity (no 10x Gold Dump exploit)."""
+        game = NodeWarGame()
+        game.scores[PlayerId.PLAYER_1] = 10
+        game.scores[PlayerId.PLAYER_2] = 10
+        game.relic_turns_held[PlayerId.PLAYER_1] = 0
+        game.relic_turns_held[PlayerId.PLAYER_2] = 0
+
+        # P1 has 101 banked Gold and 0 army units
+        game.player_credits[PlayerId.PLAYER_1] = 101
+        for n in game.nodes.values():
+            if n.owner == PlayerId.PLAYER_1 or n.resident_player == PlayerId.PLAYER_1:
+                n.units = {ut: 0 for ut in UnitType}
+
+        # P2 has 0 banked Gold and 10 Raiders (cost 10 * 10 = 100 Gold army value)
+        game.player_credits[PlayerId.PLAYER_2] = 0
+        for n in game.nodes.values():
+            if n.owner == PlayerId.PLAYER_2 or n.resident_player == PlayerId.PLAYER_2:
+                n.units = {ut: 0 for ut in UnitType}
+        game.nodes[14].units[UnitType.RAIDER] = 10
+
+        # Under the old exploit, P2's army had a 10x multiplier (1000 tiebreak pts vs P1's 101 pts).
+        # Under 1:1 net worth parity:
+        # P1 net worth = 101 gold + 0 army = 101 pts
+        # P2 net worth = 0 gold + 100 army = 100 pts
+        # P1 must win!
+        game.current_turn = 120
+        game._resolve_tiebreak()
+        self.assertEqual(game.winner, PlayerId.PLAYER_1)
+
+    def test_bankruptcy_desertion_attrition(self):
+        """Verifies that unpaid upkeep triggers desertion attrition instead of starvation immunity."""
+        game = NodeWarGame()
+        # Drain P1 treasury to 0
+        game.player_credits[PlayerId.PLAYER_1] = 0
+
+        # Set up a large army on P1 home node: free cap is 14. Place 20 Raiders (6 excess domestic = 6 deficit)
+        game.nodes[0].units = {ut: 0 for ut in UnitType}
+        game.nodes[0].units[UnitType.RAIDER] = 20
+        # Income from home node is +15, so set node production to 0 for this isolated test to test deficit
+        game.nodes[0].production = 0
+
+        # Step 1 turn with 0 income and 0 treasury
+        # Upkeep = (20 - 14) * 1 = 6 Gold deficit
+        # Treasury drops to 0, 6 Raiders must desert!
+        game.step(p1_orders=[], p2_orders=[])
+        self.assertEqual(game.player_credits[PlayerId.PLAYER_1], 0)
+        self.assertEqual(game.nodes[0].units[UnitType.RAIDER], 14)
+
+    def test_mobilization_rule_same_turn_train_and_move(self):
+        """Verifies that newly trained units defend same turn but cannot march until next turn."""
+        game = NodeWarGame()
+        game.player_credits[PlayerId.PLAYER_1] = 100
+        # Node 0 has 2 existing Raiders
+        game.nodes[0].units = {ut: 0 for ut in UnitType}
+        game.nodes[0].units[UnitType.RAIDER] = 2
+
+        # P1 trains 3 Raiders and orders 4 Raiders to march from Node 0 to Node 1
+        # Node has 2 existing + 3 newly trained = 5 total.
+        # But mobilized available = 5 - 3 = 2!
+        # An order to move 4 Raiders must be rejected because newly trained units cannot march same turn!
+        train_order = TrainOrder(node_id=0, unit_type=UnitType.RAIDER, count=3)
+        illegal_move = MoveOrder(origin_node=0, dest_node=1, units={UnitType.RAIDER: 4})
+
+        game.step(p1_orders=[train_order, illegal_move], p2_orders=[])
+        # Move was rejected: no fleet launched for P1
+        p1_fleets = [f for f in game.fleets if f.owner == PlayerId.PLAYER_1]
+        self.assertEqual(len(p1_fleets), 0)
+        # All 5 units remain at garrison
+        self.assertEqual(game.nodes[0].units[UnitType.RAIDER], 5)
+
+        # On the NEXT turn, all 5 units are now mobilized and can march!
+        legal_move = MoveOrder(origin_node=0, dest_node=1, units={UnitType.RAIDER: 5})
+        game.step(p1_orders=[legal_move], p2_orders=[])
+        p1_fleets_next = [f for f in game.fleets if f.owner == PlayerId.PLAYER_1]
+        self.assertEqual(len(p1_fleets_next), 1)
+        self.assertEqual(p1_fleets_next[0].units[UnitType.RAIDER], 5)
+        self.assertEqual(game.nodes[0].units[UnitType.RAIDER], 0)
+
 if __name__ == "__main__":
     unittest.main()

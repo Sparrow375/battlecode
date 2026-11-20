@@ -189,16 +189,21 @@ class NodeWarGame:
         # 2. Economy: Dynamic Supply Upkeep
         for pid in [PlayerId.PLAYER_1, PlayerId.PLAYER_2]:
             upkeep = self._calculate_player_upkeep(pid)
-            self.player_credits[pid] = max(0, self.player_credits[pid] - upkeep)
+            if self.player_credits[pid] >= upkeep:
+                self.player_credits[pid] -= upkeep
+            else:
+                deficit = upkeep - self.player_credits[pid]
+                self.player_credits[pid] = 0
+                self._apply_desertion_attrition(pid, deficit)
 
         # 3. 100% Simultaneous Phase Execution
         # Phase 3A: Train orders for BOTH players executed simultaneously
-        self._process_train_orders(PlayerId.PLAYER_1, p1_orders)
-        self._process_train_orders(PlayerId.PLAYER_2, p2_orders)
+        p1_newly_trained = self._process_train_orders(PlayerId.PLAYER_1, p1_orders)
+        p2_newly_trained = self._process_train_orders(PlayerId.PLAYER_2, p2_orders)
 
-        # Phase 3B: Move orders for BOTH players executed simultaneously
-        self._process_move_orders(PlayerId.PLAYER_1, p1_orders)
-        self._process_move_orders(PlayerId.PLAYER_2, p2_orders)
+        # Phase 3B: Move orders for BOTH players executed simultaneously (mobilization rule: cannot move newly trained units same turn)
+        self._process_move_orders(PlayerId.PLAYER_1, p1_orders, p1_newly_trained)
+        self._process_move_orders(PlayerId.PLAYER_2, p2_orders, p2_newly_trained)
 
         # 4. Fleet Movement
         arriving_fleets: List[Fleet] = []
@@ -513,10 +518,11 @@ class NodeWarGame:
 
         return True
 
-    def _process_train_orders(self, pid: PlayerId, orders: List[Order]) -> None:
-        """Validates and executes player train orders."""
+    def _process_train_orders(self, pid: PlayerId, orders: List[Order]) -> Dict[int, Dict[UnitType, int]]:
+        """Validates and executes player train orders. Returns mapping of node_id -> {unit_type: count} trained."""
+        newly_trained: Dict[int, Dict[UnitType, int]] = {}
         if not orders:
-            return
+            return newly_trained
         for order in orders:
             if isinstance(order, TrainOrder):
                 node = self.nodes.get(order.node_id)
@@ -531,11 +537,18 @@ class NodeWarGame:
                 if self.player_credits[pid] >= cost:
                     self.player_credits[pid] -= cost
                     node.units[order.unit_type] = node.units.get(order.unit_type, 0) + order.count
+                    if order.node_id not in newly_trained:
+                        newly_trained[order.node_id] = {}
+                    newly_trained[order.node_id][order.unit_type] = newly_trained[order.node_id].get(order.unit_type, 0) + order.count
+        return newly_trained
 
-    def _process_move_orders(self, pid: PlayerId, orders: List[Order]) -> None:
-        """Validates and executes player move orders."""
+    def _process_move_orders(self, pid: PlayerId, orders: List[Order], newly_trained: Optional[Dict[int, Dict[UnitType, int]]] = None) -> None:
+        """Validates and executes player move orders. Enforces mobilization rule: newly trained units cannot march same turn."""
         if not orders:
             return
+        if newly_trained is None:
+            newly_trained = {}
+
         for order in orders:
             if isinstance(order, MoveOrder):
                 u, v = order.origin_node, order.dest_node
@@ -548,11 +561,14 @@ class NodeWarGame:
 
                 valid_move = True
                 units_to_move: Dict[UnitType, int] = {}
+                node_trained = newly_trained.get(u, {})
+
                 for ut, count in order.units.items():
                     if count <= 0:
                         continue
-                    available = node.units.get(ut, 0)
-                    if count > available:
+                    # Total units stationed at node minus units trained this turn (mobilization delay)
+                    mobilized_available = node.units.get(ut, 0) - node_trained.get(ut, 0)
+                    if count > mobilized_available:
                         valid_move = False
                         break
                     units_to_move[ut] = count
@@ -571,6 +587,58 @@ class NodeWarGame:
                         units=units_to_move
                     ))
                     self._next_fleet_id += 1
+
+    def _apply_desertion_attrition(self, pid: PlayerId, deficit: int) -> int:
+        """
+        Disbands unpaid units when an empire cannot afford its dynamic supply upkeep.
+        Foreign units (expeditionary tax 2 cr) desert first, then domestic units (1 cr).
+        Priority: Raider, Scout, Guard, Siege.
+        Returns total number of deserting units.
+        """
+        deserted_count = 0
+        rem_deficit = deficit
+        priority = [UnitType.RAIDER, UnitType.SCOUT, UnitType.GUARD, UnitType.SIEGE]
+
+        # 1. Foreign units stationed on unowned / foreign nodes (saves 2 upkeep per unit)
+        for node in self.nodes.values():
+            if rem_deficit <= 0:
+                break
+            if node.owner != pid and node.resident_player == pid:
+                for ut in priority:
+                    while node.units.get(ut, 0) > 0 and rem_deficit > 0:
+                        node.units[ut] -= 1
+                        deserted_count += 1
+                        rem_deficit -= self.config.foreign_upkeep_cost_per_unit
+                if node.total_units == 0:
+                    node.resident_player = PlayerId.NONE
+
+        # 2. Foreign units in transit fleets (saves 2 upkeep per unit)
+        if rem_deficit > 0:
+            for fleet in list(self.fleets):
+                if rem_deficit <= 0:
+                    break
+                if fleet.owner == pid:
+                    for ut in priority:
+                        while fleet.units.get(ut, 0) > 0 and rem_deficit > 0:
+                            fleet.units[ut] -= 1
+                            deserted_count += 1
+                            rem_deficit -= self.config.foreign_upkeep_cost_per_unit
+                    if fleet.total_count == 0:
+                        self.fleets.remove(fleet)
+
+        # 3. Domestic garrison units on friendly owned nodes (saves 1 upkeep per unit)
+        if rem_deficit > 0:
+            for node in self.nodes.values():
+                if rem_deficit <= 0:
+                    break
+                if node.owner == pid and node.resident_player == pid:
+                    for ut in priority:
+                        while node.units.get(ut, 0) > 0 and rem_deficit > 0:
+                            node.units[ut] -= 1
+                            deserted_count += 1
+                            rem_deficit -= self.config.upkeep_cost_per_unit
+
+        return deserted_count
 
     def _count_player_units(self, pid: PlayerId) -> int:
         total = 0
@@ -595,18 +663,19 @@ class NodeWarGame:
         return total
 
     def _resolve_tiebreak(self) -> None:
-        """Computes strict tiebreak score to ensure no draws."""
+        """Computes strict tiebreak score to ensure no draws. 1:1 net worth parity eliminates Gold Dump exploit."""
+        p1_net_worth = self._get_player_army_value(PlayerId.PLAYER_1) + self.player_credits[PlayerId.PLAYER_1]
+        p2_net_worth = self._get_player_army_value(PlayerId.PLAYER_2) + self.player_credits[PlayerId.PLAYER_2]
+
         p1_val = (
             self.scores[PlayerId.PLAYER_1] * 100000 +
             self.relic_turns_held[PlayerId.PLAYER_1] * 1000 +
-            self._get_player_army_value(PlayerId.PLAYER_1) * 10 +
-            self.player_credits[PlayerId.PLAYER_1]
+            p1_net_worth
         )
         p2_val = (
             self.scores[PlayerId.PLAYER_2] * 100000 +
             self.relic_turns_held[PlayerId.PLAYER_2] * 1000 +
-            self._get_player_army_value(PlayerId.PLAYER_2) * 10 +
-            self.player_credits[PlayerId.PLAYER_2]
+            p2_net_worth
         )
 
         if p1_val > p2_val:
