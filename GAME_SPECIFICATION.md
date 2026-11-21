@@ -128,20 +128,23 @@ All combat units operate in a strict rock-paper-scissors damage multiplier matri
 | **Scout** | 6 | 10 | 0 | None | None | None | Non-combatant. Radar vessel granting vision over lanes |
 
 ### Defender Bonus
-Units defending an owned node receive a **+25% defense bonus** (equivalent to a 25% damage reduction factor, $D_{\text{effective}} = D \times 0.75$). Attacking forces and forces clashing at neutral nodes receive no defense bonus.
+Units defending an owned node receive a **+25% defense bonus** (equivalent to a 25% damage reduction factor, $D_{\text{effective}} = D \times 0.75$). Home Core Citadels (Nodes 0 and 14) receive a **+50% defense bonus** ($D_{\text{effective}} = D \times 0.50$). Attacking forces and forces clashing at neutral nodes receive no defense bonus.
 
 ### Combat Resolution Algorithm
 When opposing armies meet at a node:
-1. **Target Prioritization**: Units automatically focus fire on the unit type they counter with a **2.0x multiplier**. If no countered targets exist, attack neutral targets (1.0x); otherwise attack targets they are weak to (0.5x).
+1. **Proportional Target Weighting**: Damage is weighted across the defender's army composition:
+   $$\text{Effective Multiplier} = \frac{2.0 \times N_{\text{countered}} + 1.0 \times N_{\text{neutral}} + 0.5 \times N_{\text{weak}}}{\text{Total Defender Units}}$$
+   There is no arbitrary floor; defending units of a counter-type dilute incoming damage proportionally.
 2. **Simultaneous Damage**: Both sides deal damage simultaneously according to Lanchester's attrition principles.
-3. **Casualty Distribution**: Damage is distributed across target units proportionally to their HP pool, with integer unit rounding.
-4. **Micro-Round Clashes**: Combat resolves up to 10 simultaneous micro-rounds until one army is completely eliminated.
-5. **Scout Targeting & Vision Bonus**: Armies fighting with a friendly Scout present (or stationed at an adjacent connected node) receive a **+15% targeting bonus** ($1.15\times$ damage). Conversely, fighting without a scout against an army with scout reconnaissance incurs a **-15% blind penalty** ($0.85\times$ damage).
-6. **Fortification Bonuses**:
+3. **Casualty Distribution**: Damage is distributed across target units proportionally to their HP pool, with integer unit rounding. Non-combat Scouts absorb damage if damage share exceeds their 10 HP pool.
+4. **Micro-Round Clashes**: Combat resolves up to 10 simultaneous micro-rounds. If the defending garrison has any surviving units after 10 rounds, the attack has failed; surviving defenders hold the node, and any surviving attackers are eliminated.
+5. **Anti-Stalemate Attrition**: If a round deals insufficient damage to eliminate any unit on either side, the force dealing less total damage loses 1 combat unit to prevent stalemates.
+6. **Scout Targeting & Vision Bonus**: Armies fighting with a friendly Scout present (or stationed at an adjacent connected node) receive a **+15% targeting bonus** ($1.15\times$ damage). Conversely, fighting without a scout against an army with scout reconnaissance incurs a **-15% blind penalty** ($0.85\times$ damage). At 6 Gold, Scouts create a 30% relative differential and are decisive in engagements.
+7. **Fortification Bonuses**:
    - **Home Bases (0 and 14)** receive a **+50% defense bonus** (incoming damage reduced by half), preventing early rush eliminations and ensuring matches reach the endgame.
    - **Standard Outposts** receive a **+25% defense bonus**.
    - **Neutral Meeting Engagements**: If Player 1 and Player 2 enter an unclaimed neutral node on the same turn, they clash in a meeting engagement with **0% defense bonus** (neither side receives defender advantage). Surviving forces then engage any neutral defenders holding the node.
-7. **Scout Wipeout**: If all combat units (Raiders, Siege, Guards) of an army are eliminated, any non-combat Scouts on that side are destroyed.
+8. **Scout Wipeout**: If all combat units (Raiders, Siege, Guards) of an army are eliminated, any non-combat Scouts on that side are destroyed.
 
 ---
 
@@ -150,19 +153,28 @@ When opposing armies meet at a node:
 Units travel between nodes via fleets along lanes. A fleet is created when a bot issues a `MoveOrder`.
 
 ### Transit Dynamics
-- A fleet takes $L$ turns to traverse a lane ($L = \text{lane.travel\_turns}$, between 2 and 3 turns).
-- Each turn, `turns_remaining` decreases by 1. When `turns_remaining == 0`, the fleet arrives at the destination node.
-- Friendly arriving fleets merge with stationed units at the destination node before combat begins.
+- A single `MoveOrder` moves units across exactly one lane (origin and destination must be directly connected).
+- Atomic rejection: If any requested unit count exceeds mobilized units available, the entire `MoveOrder` is rejected.
+- Ownership requirement: Fleets can only be launched from nodes currently owned by the player. Units on unowned nodes (e.g. during 2-turn capture occupation) cannot be ordered out.
+- Mobilization delay: Units trained on Turn T join local garrison defense immediately, but cannot move until Turn T+1.
+- Transit time: A fleet takes $L$ turns to traverse a lane ($L = \text{lane.travel\_turns}$, between 2 and 3 turns).
+- Fleets passing in opposite directions on the same lane do NOT fight mid-transit. Clashes occur strictly upon arrival at nodes.
+- Friendly arriving fleets merge with stationed units at the destination node before combat begins and defend with the full defense bonus if the node is attacked.
 
 ### Fog of War & Information Concealment
 By default, sensory detection along space lanes is obscured:
 - **What Opponents Always See**:
   - The fleet's origin node, destination node, turns remaining, total turns, and total unit count.
+  - Stationed garrison compositions at all nodes directly adjacent to owned territory (no scout needed).
 - **What Opponents CANNOT See (Masked)**:
   - The fleet's internal unit composition (`units = None`, `is_revealed = False`). An opponent cannot tell if a 20-unit fleet is pure Raiders, pure Guards, or a Siege battery!
+  - Garrison compositions at nodes not adjacent to owned territory (`units = None`). Forward scouts at unowned nodes do not grant garrison vision into adjacent enemy nodes.
 
 ### Piercing Fog of War (Scout Mechanics)
 An enemy fleet's composition is **unmasked (`is_revealed = True`)** if:
+1. A friendly Scout is stationed at an owned node connected to that lane (either origin or destination), OR
+2. A friendly fleet containing at least one Scout is traveling on that exact same lane.
+Fleets on other or intersecting lanes are not unmasked.
 1. The defender has a **Scout** stationed at the destination node.
 2. The defender has a **Scout** stationed at the origin node.
 3. An allied fleet containing at least one **Scout** travels along the same lane or an intersecting lane.
@@ -190,7 +202,7 @@ stateDiagram-v2
    - On the following turn, if the occupying force remains uncontested at the node, `capture_progress = 2`.
    - Ownership officially flips: `owner = invader`, and `capture_progress` resets to 0.
 3. **Scout Contest Utility (Capture Freeze)**:
-   - If an enemy **Scout** arrives or contests the node during occupation, the capture clock **freezes**! The capture progress does not advance for that turn, buying critical time for heavy relief forces to arrive.
+   - If an enemy **Scout** arrives at the node that turn during occupation, the capture clock **freezes for that turn**! Capture progress does not advance for that turn, buying critical time for relief forces to arrive. In-transit scouts traveling on lanes do not freeze capture until they reach the node.
 4. **Counter-Attack / Relief Intervention**:
    - If the original defender launches a relief fleet that arrives on Turn 1 of the capture, a new battle immediately takes place at the node!
    - If the relief fleet destroys the occupying invaders, the capture attempt is broken: `capturing_player = None`, `capture_progress = 0`, and the node is saved!

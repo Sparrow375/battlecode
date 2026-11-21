@@ -65,8 +65,14 @@ class GameSnapshot:
 class NodeWarGame:
     def __init__(self, config: Optional[GameConfig] = None):
         self.config = config or GameConfig()
+        if self.config.seed is not None:
+            self.rng = random.Random(self.config.seed)
+        else:
+            self.config.seed = random.randint(0, 2**31 - 1)
+            self.rng = random.Random(self.config.seed)
+
         if self.config.relic_spawn_turn is None:
-            self.config.relic_spawn_turn = random.randint(self.config.min_relic_turn, self.config.max_relic_turn)
+            self.config.relic_spawn_turn = self.rng.randint(self.config.min_relic_turn, self.config.max_relic_turn)
 
         self.nodes, self.lanes = create_default_map()
         self.graph = MapGraph(self.nodes, self.lanes)
@@ -428,11 +434,8 @@ class NodeWarGame:
             if occupier != PlayerId.NONE:
                 if occupier != node.owner:
                     enemy_pid = occupier.opponent
-                    # Scout Contest Utility: an enemy scout contesting freezes the capture clock
-                    scout_contested = (
-                        arrivals[nid][enemy_pid].get(UnitType.SCOUT, 0) > 0 or
-                        any(f.owner == enemy_pid and f.dest_node == nid and f.has_scout for f in self.fleets)
-                    )
+                    # Scout Contest Utility: an enemy scout arriving that turn freezes capture progress for that turn
+                    scout_contested = arrivals[nid][enemy_pid].get(UnitType.SCOUT, 0) > 0
 
                     if scout_contested:
                         capture_events.append({

@@ -140,10 +140,15 @@ def run_match(
     p1_name: Optional[str] = None,
     p2_name: Optional[str] = None,
     config: Optional[GameConfig] = None,
+    seed: Optional[int] = None,
     save_replay: bool = True,
     replay_dir: str = "replays"
 ) -> MatchResult:
     """Executes a complete 1v1 match between two bot classes."""
+    if config is None:
+        config = GameConfig(seed=seed)
+    elif seed is not None:
+        config.seed = seed
     game = NodeWarGame(config)
     p1_bot = p1_class(player_id=1)
     p2_bot = p2_class(player_id=2)

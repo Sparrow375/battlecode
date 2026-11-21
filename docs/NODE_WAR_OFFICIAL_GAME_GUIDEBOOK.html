@@ -217,8 +217,8 @@
 </div>
 
 <h1>NODE WAR // Official Competitor Guidebook</h1>
-<p><strong>Autonomous AI Tournament &amp; Hackathon Manual</strong><br />
-<em>Document Version: 3.6 — Official Participant Release</em></p>
+<p><strong>Autonomous AI Strategy Tournament Manual</strong><br />
+<em>Document Version: 4.0 — Official Participant Release</em></p>
 <hr />
 <h2>1. Executive Summary: What is Node War?</h2>
 <p><strong>Node War</strong> is a deterministic, turn-based strategy simulation fought on a symmetric 15-node network map:</p>
@@ -228,7 +228,7 @@
 <li>Each turn, both players submit orders simultaneously: managing Gold income, balancing empire supply lines, recruiting troops, dispatching fleets along travel lanes, observing movements through the fog of war, and conquering territory.</li>
 <li>Matches run for up to <strong>120 turns</strong>. There are strictly <strong>no draws</strong>; an exact mathematical tiebreaker guarantees a deterministic winner if both players survive to the end.</li>
 </ul>
-<p>Competitors write an automated Python agent (<code>class CompetitorBot(BotBase)</code>) that inspects the game state each turn and returns valid orders.</p>
+<p>Competitors write an automated Python agent inheriting from <code>BotBase</code> (e.g. <code>class CompetitorBot(BotBase)</code>) that inspects the turn observation and returns valid recruitment and movement orders. A complete standalone toolkit (<code>nodewar.py</code>) ships with the starter kit, providing the bot base class, type definitions, a dry-run validator, and a full local simulator to test your bots against baseline opponents.</p>
 <hr />
 <h2>2. Game Overview &amp; Turn Execution Lifecycle</h2>
 <h3>Victory Conditions</h3>
@@ -238,16 +238,16 @@
 <li><strong>Turn 120 Limit</strong>: If neither player is eliminated by Turn 120, a deterministic composite tiebreak score evaluates Victory Points, Relic control duration, and Total Net Worth.</li>
 </ol>
 <h3>The 8 Turn Phases (Executed in Exact Sequence)</h3>
-<p>Every turn proceeds through eight deterministic phases:</p>
+<p>Every turn proceeds through eight clockwork phases executed simultaneously:</p>
 <ol>
-<li><strong>Income Collection</strong>: Every node you currently own deposits Gold into your treasury (+15 for Home Core, +10 for Relic, +7 for Chokepoint Outposts, +4 for Outer Bastions).</li>
-<li><strong>Empire Upkeep &amp; Bankruptcy Check</strong>: Free troop capacity is determined by territory: <code>10 + (4 × Owned Nodes)</code>. Units exceeding this cap incur maintenance (1 Gold/turn for domestic garrison defenders, 2 Gold/turn for foreign units abroad or in transit). If treasury Gold is insufficient to cover upkeep, Gold is set to 0, and unpaid units immediately suffer <strong>desertion attrition</strong> until the deficit is cleared (foreign forces first, then domestic; in order: Raiders -&gt; Scouts -&gt; Guards -&gt; Siege).</li>
-<li><strong>Recruitment &amp; Mobilization</strong>: Both players submit training orders simultaneously. Newly trained units immediately join the garrison to defend that castle against attacks arriving this turn. However, newly trained units cannot march out along roads on the same turn they are trained; they become available for movement orders on subsequent turns.</li>
-<li><strong>Troop Movements</strong>: Both players dispatch mobilized garrison forces along travel lanes simultaneously.</li>
-<li><strong>Lane Travel</strong>: Fleets decrement transit timers along travel lanes. Standard lanes take <strong>2 turns</strong>; long bridge lanes take <strong>3 turns</strong>.</li>
-<li><strong>Simultaneous Combat</strong>: Wherever opposing forces meet at a node (or encounter neutral defenders), combat resolves deterministically.</li>
-<li><strong>Two-Turn Capture Clock</strong>: If all defenders at a node are eliminated, the occupying force begins capture progress. If held uncontested for <strong>2 consecutive turns</strong>, ownership transfers.</li>
-<li><strong>Victory Point Scoring</strong>: Each owned node awards 1 Victory Point (+2 points per node and +10 bonus points for Node 7 once the Relic is active).</li>
+<li><strong>Income Collection</strong>: Every node you currently own deposits Gold into your treasury (+15 for Home Core, +10 for Relic, +7 for Chokepoint Outposts, +4 for Outer Bastions). Both players start Turn 1 with <strong>30 Gold</strong>.</li>
+<li><strong>Empire Upkeep &amp; Bankruptcy Check</strong>: Free troop capacity is determined by territory: <code>10 + (4 × Owned Nodes)</code>. Units exceeding this cap incur maintenance (1 Gold/turn for domestic garrison defenders, 2 Gold/turn for foreign units abroad or in transit). If treasury Gold is insufficient to cover upkeep, Gold drops to 0, and unpaid units immediately suffer <strong>desertion attrition</strong> until the deficit is cleared (foreign forces first, then domestic; in order: Raiders -&gt; Scouts -&gt; Guards -&gt; Siege).</li>
+<li><strong>Recruitment &amp; Mobilization</strong>: Both players submit training orders simultaneously. Newly trained units immediately join the garrison to defend that castle against attacks arriving this turn. However, newly trained units cannot march out along roads on the same turn they are trained; they mobilize at the node and become available for movement orders on Turn T+1. Training orders evaluate against treasury Gold after Phase 1 Income and Phase 2 Upkeep have resolved.</li>
+<li><strong>Troop Movements</strong>: Both players dispatch mobilized garrison forces along travel lanes simultaneously. A single <code>MoveOrder</code> moves units across exactly one lane (origin and destination must be directly adjacent). All requested units must be available and mobilized at an owned node; if any requested unit type is missing, the entire <code>MoveOrder</code> is rejected atomically.</li>
+<li><strong>Lane Travel</strong>: Fleets decrement transit timers along travel lanes. Standard lanes take <strong>2 turns</strong>; long bridge lanes take <strong>3 turns</strong>. Fleets passing each other in opposite directions on the same lane do not clash mid-transit. Reinforcements arriving at an owned node on the same turn an attack hits immediately join the garrison and defend with the full stationary defense bonus.</li>
+<li><strong>Simultaneous Combat</strong>: Wherever opposing forces meet at a node (or encounter neutral defenders), combat resolves deterministically via multi-round Lanchester battle simulation (up to 10 rounds). If the defending garrison survives all 10 rounds, the attack is repelled and surviving attackers are eliminated.</li>
+<li><strong>Two-Turn Capture Clock</strong>: If all defenders at a node are eliminated, the occupying force begins capture progress. If held uncontested for <strong>2 consecutive turns</strong>, ownership transfers. A contesting enemy scout arriving at the node that turn freezes capture progress for that turn (scouts in transit along lanes do not freeze capture until they reach the node).</li>
+<li><strong>Victory Point Scoring</strong>: Each owned node awards <strong>1 Victory Point per turn</strong> (doubled to <strong>2 Victory Points per node</strong> once the Relic is active, plus <strong>+10 bonus points per turn</strong> for holding Node 7).</li>
 </ol>
 <hr />
 <h2>3. Units &amp; Combat Model</h2>
@@ -307,35 +307,43 @@
 <td style="text-align:center">0</td>
 <td style="text-align:left">None (Non-combat)</td>
 <td style="text-align:left">None</td>
-<td style="text-align:left">Unmasks enemy fleets; +15% ally combat bonus; freezes enemy capture clock</td>
+<td style="text-align:left">Unmasks enemy fleets; ±15% combat swing; freezes enemy capture on arrival</td>
 </tr>
 </tbody>
 </table>
-<h3>Unit Properties &amp; Capabilities</h3>
-<h4>1. Raider (10 Gold // 20 HP // 12 ATK)</h4>
+<h3>Proportional Damage Formula Against Mixed Armies</h3>
+<p>When attacking an enemy force containing a mix of unit types, damage is distributed proportionally across the target army's composition:</p>
+<p>$$\text{Effective Multiplier} = \frac{2.0 \times N_{\text{countered}} + 1.0 \times N_{\text{neutral}} + 0.5 \times N_{\text{weak}}}{\text{Total Defender Units}}$$</p>
 <ul>
-<li><strong>Combat Multipliers</strong>: 2.0x vs Siege, 1.0x vs Raider, 0.5x vs Guard.</li>
-<li><strong>Base Cost</strong>: 10 Gold.</li>
+<li>There is <strong>no artificial damage floor</strong>. Defending units of a counter-type properly dilute incoming damage.</li>
+<li><em>Example</em>: 10 Raiders (base attack $10 \times 12 = 120$) attacking 10 Guards and 1 Siege (11 defenders total):
+$$\text{Effective Multiplier} = \frac{2.0 \times 1 + 1.0 \times 0 + 0.5 \times 10}{11} = \frac{7.0}{11} \approx 0.636\times$$
+Total outgoing damage is $120 \times 0.636 = 76.36$ damage. The 10 defending Guards successfully shield the solitary Siege engine.</li>
 </ul>
-<h4>2. Guard (12 Gold // 30 HP // 14 ATK)</h4>
-<ul>
-<li><strong>Combat Multipliers</strong>: 2.0x vs Raider, 1.0x vs Guard, 0.5x vs Siege.</li>
-<li><strong>Base Cost</strong>: 12 Gold.</li>
-</ul>
-<h4>3. Siege (18 Gold // 35 HP // 22 ATK)</h4>
-<ul>
-<li><strong>Combat Multipliers</strong>: 2.0x vs Guard, 1.0x vs Siege, 0.5x vs Raider.</li>
-<li><strong>Base Cost</strong>: 18 Gold.</li>
-</ul>
-<h4>4. Scout (6 Gold // 10 HP // 0 ATK)</h4>
-<ul>
-<li>Non-combatant reconnaissance unit with three mechanical functions:
+<h3>How Battles Resolve (Step-by-Step Algorithm)</h3>
+<p>Every battle at a contested node follows a strict multi-round simulation:</p>
 <ol>
-<li><em>Fog-of-War Penetration</em>: Stationed at a node or traveling along connected lanes, unmasks the unit composition of passing enemy fleets.</li>
-<li><em>Combat Spotter (+15% Damage)</em>: Armies fighting with a friendly Scout present or stationed at an adjacent connected node receive a <strong>+15% damage bonus</strong>. Armies fighting without a scout against an opponent who has scout coverage suffer a <strong>-15% damage penalty</strong>.</li>
-<li><em>Capture Freeze</em>: If an enemy is actively occupying your node (Turn 1 of capture), a friendly Scout contesting the node freezes capture progress for that turn.</li>
+<li><strong>10-Round Ceiling</strong>: Combat runs for up to 10 micro-rounds within Phase 6 of a single turn.</li>
+<li><strong>Simultaneous Damage Calculation</strong>: In each round, both sides simultaneously compute outgoing damage using their current surviving unit counts, unit counter multipliers, and scout modifiers.</li>
+<li><strong>Defense Bonus Reduction</strong>: Defenders take reduced damage based on node type (incoming damage multiplied by $(1.0 - \text{defense_bonus})$: 50% reduction at Home Citadels, 25% reduction at Outposts, 0% in neutral meeting engagements). Attackers take 100% incoming damage (0% reduction).</li>
+<li><strong>Proportional Casualty Distribution</strong>: Effective damage is distributed proportionally across all unit types in the army by their total HP share. Units are removed as damage thresholds are crossed. Non-combat Scouts absorb damage if damage share exceeds their 10 HP pool.</li>
+<li><strong>Anti-Stalemate Attrition</strong>: If a round deals insufficient damage to eliminate any unit on either side, the force dealing less total damage loses 1 combat unit to prevent infinite stalemates.</li>
+<li><strong>Non-Combatant Elimination</strong>: If all combat units (Raiders, Guards, Siege) of a side are eliminated, any remaining non-combat Scouts on that side are wiped out.</li>
+<li><strong>Attacker Repulsion</strong>: If the defending garrison has any surviving units after 10 rounds, the attack has failed; the surviving defenders retain the node, and any surviving attacking units are eliminated.</li>
 </ol>
+<h3>Tactical Scout Impact (The ±15% Swing)</h3>
+<p>Scouts cost only <strong>6 Gold</strong> but create a decisive <strong>30% relative combat differential</strong>:</p>
+<ul>
+<li>Armies fighting with a friendly Scout present or stationed at an adjacent owned node receive a <strong>+15% damage bonus</strong>.</li>
+<li>Armies fighting blindly without scout coverage against an opponent who has scout coverage suffer a <strong>-15% damage penalty</strong>.</li>
+<li><em>Empirical Impact</em>: In a clash of 12 Raiders vs 10 Raiders:
+<ul>
+<li>If attacker has a scout and defender does not: <strong>6 attackers survive</strong>.</li>
+<li>If neither side has a scout: <strong>4 attackers survive</strong>.</li>
+<li>If defender has a scout and attacker does not: <strong>1 attacker survives</strong>.</li>
+</ul>
 </li>
+<li>Because of this swing, incorporating Scouts into major expeditionary forces and perimeter garrisons is effectively mandatory for competitive bot play.</li>
 </ul>
 <hr />
 <h2>4. Core Game Mechanics &amp; Resolution Rules</h2>
@@ -360,7 +368,7 @@
 <h3>3. Dynamic Supply Lines &amp; Bankruptcy Desertion</h3>
 <ul>
 <li><strong>Free Supply Capacity</strong>:
-<code>Free Capacity = 10 + (4 × Owned Nodes)</code></li>
+$$\text{Free Capacity} = 10 + (4 \times \text{Owned Nodes})$$</li>
 <li><strong>Maintenance Upkeep Costs</strong> (charged per unit exceeding free capacity):
 <ul>
 <li><strong>1 Gold/turn</strong> per excess unit stationed at friendly owned nodes.</li>
@@ -383,34 +391,36 @@
 <li><strong>Turn 1 (Hostile Occupation)</strong>: If an attacking fleet eliminates all defenders at an enemy or neutral node, the node enters <code>capturing_player = invader</code> and <code>capture_progress = 1</code>. The original owner cannot train units at this node while it is contested, and the capturer does not collect income from it yet.</li>
 <li><strong>Turn 2 (Uncontested Confirmation)</strong>: If the invading force remains uncontested at the node on the subsequent turn, <code>capture_progress = 2</code>. Ownership officially flips, and capture progress resets to 0.</li>
 <li><strong>Relief Interventions</strong>: If the defender sends a relief force that arrives on the next turn, battle begins immediately. If the invading force is destroyed, the capture attempt is broken and progress resets to 0.</li>
-<li><strong>Scout Contest</strong>: A contesting friendly Scout prevents capture progress from advancing for that turn.</li>
+<li><strong>Scout Contest</strong>: A contesting enemy scout arriving at the node that turn (even if eliminated during combat) freezes capture progress for that turn. Scouts traveling in transit along lanes do not freeze capture until the turn they reach the destination node.</li>
 </ul>
 <h3>5. Fog of War &amp; Information Visibility</h3>
 <ul>
 <li><strong>Always Visible</strong>:
 <ul>
 <li>All nodes currently owned by your player.</li>
-<li>Stationed unit counts at friendly nodes.</li>
-<li>Nodes directly connected by a lane to territory you own.</li>
+<li>Garrison unit compositions at all friendly owned nodes.</li>
+<li>Garrison unit compositions at all nodes directly adjacent (connected by a lane) to territory you own (no scout required).</li>
 <li>Opponent fleets in transit: origin node, destination node, turns remaining, and total unit count (radar silhouette).</li>
 </ul>
 </li>
 <li><strong>Hidden by Default</strong>:
 <ul>
 <li>Opponent fleet unit compositions (<code>units = None</code>, <code>is_revealed = False</code>).</li>
+<li>Garrison unit compositions at nodes not connected to your territory (<code>units = None</code>). Forward scouts stationed at unowned nodes do not unmask adjacent enemy garrisons.</li>
 </ul>
 </li>
 <li><strong>Unmasking Fleets (<code>is_revealed = True</code>)</strong>:
-<ul>
-<li>A friendly Scout is stationed at the origin node.</li>
-<li>A friendly Scout is stationed at the destination node.</li>
-<li>A friendly fleet containing at least one Scout travels along the same lane or an intersecting lane.</li>
-</ul>
+An enemy fleet's exact unit composition is unmasked if:
+<ol>
+<li>A friendly Scout is stationed at an owned node connected to that lane (either origin or destination), OR</li>
+<li>A friendly fleet containing at least one Scout is traveling on that exact same lane.
+Fleets on other or intersecting lanes are not unmasked.</li>
+</ol>
 </li>
 </ul>
 <h3>6. The Late-Game Relic Awakening</h3>
 <ul>
-<li>The central <strong>Relic Sanctuary (Node 7)</strong> awakens dynamically between <strong>Turn 80 and Turn 100</strong>.</li>
+<li>The central <strong>Relic Sanctuary (Node 7)</strong> awakens dynamically between <strong>Turn 80 and Turn 100</strong> based on a deterministic match seed.</li>
 <li>Exactly 5 turns before activation, the engine broadcasts an alert: <code>obs.relic_charging = True</code>.</li>
 <li>Upon activation (<code>obs.relic_active = True</code>):
 <ul>
@@ -421,7 +431,7 @@
 </ul>
 <hr />
 <h2>5. Battlefield Geography &amp; Mirrored Topology</h2>
-<p>The arena consists of <strong>15 strategic nodes</strong> connected by travel lanes. The graph is bilaterally symmetrical across the vertical center line, ensuring Player 1 and Player 2 have mathematically identical travel distances to all objectives.</p>
+<p>The arena consists of <strong>15 strategic nodes</strong> connected by <strong>31 travel lanes</strong>. The network topology is bilaterally symmetrical across the vertical center line (Node 7), providing both commanders equal baseline travel distances and economic yields to all objectives.</p>
 <pre><code>       [Node 4: North Rig] --------------------------- [Node 10: Apex Rig]
              |     \                                         /     |
              |      \                                       /      |
@@ -443,7 +453,7 @@
 <th style="text-align:center">Initial Owner</th>
 <th style="text-align:center">Yield (Gold/Turn)</th>
 <th style="text-align:center">Defense Bonus</th>
-<th style="text-align:left">Neutral Garrison</th>
+<th style="text-align:left">Starting / Neutral Garrison</th>
 </tr>
 </thead>
 <tbody>
@@ -584,37 +594,282 @@
 </tr>
 </tbody>
 </table>
-<h3>Lanes &amp; Travel Delays</h3>
-<ul>
-<li><strong>Standard Lanes</strong>: Adjacent bastions and outposts require <strong>2 turns</strong> of lane travel.</li>
-<li><strong>Chokepoint Bridges &amp; High Flanks</strong>: Long lanes (0 &lt;-&gt; 3, 3 &lt;-&gt; 7, 11 &lt;-&gt; 7, 14 &lt;-&gt; 11, and 4 &lt;-&gt; 10) require <strong>3 turns</strong> of lane travel.</li>
-<li>Both players have equal 6-turn travel routes from Home Core to the central Relic (e.g. 0 -&gt; 3 -&gt; 7 vs 14 -&gt; 11 -&gt; 7).</li>
-</ul>
+<h3>Complete 31-Lane Directory Table</h3>
+<p>All lanes are bidirectional. Fleets move along lanes at fixed transit times:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Lane ID</th>
+<th style="text-align:center">Node A</th>
+<th style="text-align:center">Node B</th>
+<th style="text-align:center">Travel Time</th>
+<th style="text-align:left">Sector / Strategic Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><strong>L01</strong></td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">2 Turns</td>
+<td style="text-align:left">P1 Core to Alpha Bastion</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>L02</strong></td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center">2 Turns</td>
+<td style="text-align:left">P1 Core to Gamma Bastion</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>L03</strong></td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">3</td>
+<td style="text-align:center">3 Turns</td>
+<td style="text-align:left">P1 Core to Vanguard Gate (Long Chokepoint Bridge)</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>L04</strong></td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">3</td>
+<td style="text-align:center">2 Turns</td>
+<td style="text-align:left">Alpha Bastion to Vanguard Gate</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>L05</strong></td>
+<td style="text-align:center">2</td>
+<td style="text-align:center">3</td>
+<td style="text-align:center">2 Turns</td>
+<td style="text-align:left">Gamma Bastion to Vanguard Gate</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>L06</strong></td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">4</td>
+<td style="text-align:center">2 Turns</td>
+<td style="text-align:left">Alpha Bastion to North Rig</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>L07</strong></td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">5</td>
+<td style="text-align:center">2 Turns</td>
+<td style="text-align:left">Alpha Bastion to North Outpost</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>L08</strong></td>
+<td style="text-align:center">2</td>
+<td style="text-align:center">6</td>
+<td style="text-align:center">2 Turns</td>
+<td style="text-align:left">Gamma Bastion to South Outpost</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>L09</strong></td>
+<td style="text-align:center">4</td>
+<td style="text-align:center">5</td>
+<td style="text-align:center">2 Turns</td>
+<td style="text-align:left">North Rig to North Outpost</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>L10</strong></td>
+<td style="text-align:center">3</td>
+<td style="text-align:center">5</td>
+<td style="text-align:center">2 Turns</td>
+<td style="text-align:left">Vanguard Gate to North Outpost</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>L11</strong></td>
+<td style="text-align:center">3</td>
+<td style="text-align:center">6</td>
+<td style="text-align:center">2 Turns</td>
+<td style="text-align:left">Vanguard Gate to South Outpost</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>L12</strong></td>
+<td style="text-align:center">5</td>
+<td style="text-align:center">7</td>
+<td style="text-align:center">2 Turns</td>
+<td style="text-align:left">North Outpost to Relic Sanctuary</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>L13</strong></td>
+<td style="text-align:center">6</td>
+<td style="text-align:center">7</td>
+<td style="text-align:center">2 Turns</td>
+<td style="text-align:left">South Outpost to Relic Sanctuary</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>L14</strong></td>
+<td style="text-align:center">3</td>
+<td style="text-align:center">7</td>
+<td style="text-align:center">3 Turns</td>
+<td style="text-align:left">Vanguard Gate to Relic Sanctuary (Central Highway)</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>L15</strong></td>
+<td style="text-align:center">5</td>
+<td style="text-align:center">9</td>
+<td style="text-align:center">2 Turns</td>
+<td style="text-align:left">North Outpost to Zenith Outpost (Mid-lane Crossway)</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>L16</strong></td>
+<td style="text-align:center">6</td>
+<td style="text-align:center">8</td>
+<td style="text-align:center">2 Turns</td>
+<td style="text-align:left">South Outpost to Titan Outpost (Mid-lane Crossway)</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>L17</strong></td>
+<td style="text-align:center">4</td>
+<td style="text-align:center">10</td>
+<td style="text-align:center">3 Turns</td>
+<td style="text-align:left">North Rig to Apex Rig (Northern High Flank Bridge)</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>L18</strong></td>
+<td style="text-align:center">9</td>
+<td style="text-align:center">7</td>
+<td style="text-align:center">2 Turns</td>
+<td style="text-align:left">Zenith Outpost to Relic Sanctuary</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>L19</strong></td>
+<td style="text-align:center">8</td>
+<td style="text-align:center">7</td>
+<td style="text-align:center">2 Turns</td>
+<td style="text-align:left">Titan Outpost to Relic Sanctuary</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>L20</strong></td>
+<td style="text-align:center">11</td>
+<td style="text-align:center">7</td>
+<td style="text-align:center">3 Turns</td>
+<td style="text-align:left">Sentinel Gate to Relic Sanctuary (Central Highway)</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>L21</strong></td>
+<td style="text-align:center">14</td>
+<td style="text-align:center">13</td>
+<td style="text-align:center">2 Turns</td>
+<td style="text-align:left">P2 Core to Epsilon Bastion</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>L22</strong></td>
+<td style="text-align:center">14</td>
+<td style="text-align:center">12</td>
+<td style="text-align:center">2 Turns</td>
+<td style="text-align:left">P2 Core to Omega Bastion</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>L23</strong></td>
+<td style="text-align:center">14</td>
+<td style="text-align:center">11</td>
+<td style="text-align:center">3 Turns</td>
+<td style="text-align:left">P2 Core to Sentinel Gate (Long Chokepoint Bridge)</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>L24</strong></td>
+<td style="text-align:center">13</td>
+<td style="text-align:center">11</td>
+<td style="text-align:center">2 Turns</td>
+<td style="text-align:left">Epsilon Bastion to Sentinel Gate</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>L25</strong></td>
+<td style="text-align:center">12</td>
+<td style="text-align:center">11</td>
+<td style="text-align:center">2 Turns</td>
+<td style="text-align:left">Omega Bastion to Sentinel Gate</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>L26</strong></td>
+<td style="text-align:center">13</td>
+<td style="text-align:center">10</td>
+<td style="text-align:center">2 Turns</td>
+<td style="text-align:left">Epsilon Bastion to Apex Rig</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>L27</strong></td>
+<td style="text-align:center">13</td>
+<td style="text-align:center">9</td>
+<td style="text-align:center">2 Turns</td>
+<td style="text-align:left">Epsilon Bastion to Zenith Outpost</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>L28</strong></td>
+<td style="text-align:center">12</td>
+<td style="text-align:center">8</td>
+<td style="text-align:center">2 Turns</td>
+<td style="text-align:left">Omega Bastion to Titan Outpost</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>L29</strong></td>
+<td style="text-align:center">10</td>
+<td style="text-align:center">9</td>
+<td style="text-align:center">2 Turns</td>
+<td style="text-align:left">Apex Rig to Zenith Outpost</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>L30</strong></td>
+<td style="text-align:center">11</td>
+<td style="text-align:center">9</td>
+<td style="text-align:center">2 Turns</td>
+<td style="text-align:left">Sentinel Gate to Zenith Outpost</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>L31</strong></td>
+<td style="text-align:center">11</td>
+<td style="text-align:center">8</td>
+<td style="text-align:center">2 Turns</td>
+<td style="text-align:left">Sentinel Gate to Titan Outpost</td>
+</tr>
+</tbody>
+</table>
 <hr />
-<h2>6. Match Scoring &amp; Strict Deterministic Tiebreaker</h2>
+<h2>6. Match Scoring, Strict Tiebreaker &amp; Replay Policy</h2>
 <p>Matches terminate when:</p>
 <ol>
 <li><strong>Total Elimination</strong>: A player loses all nodes and has zero active or traveling units.</li>
 <li><strong>Turn 120 Limit</strong>: If both players survive to Turn 120, a deterministic composite tiebreak score determines the winner:</li>
 </ol>
-<p><strong>Tiebreak Score = (Victory Points × 100,000) + (Relic Turns Held × 1,000) + Total Net Worth</strong></p>
+<p>$$\text{Tiebreak Score} = (\text{Victory Points} \times 100{,}000) + (\text{Relic Turns Held} \times 1{,}000) + \text{Total Net Worth}$$</p>
 <p>Where:
-<strong>Total Net Worth = Total Army Asset Value + Banked Gold</strong></p>
+$$\text{Total Net Worth} = \text{Total Army Asset Value} + \text{Banked Gold}$$</p>
 <h3>The 1:1 Net Worth Parity Rule</h3>
 <ul>
 <li>Every <strong>1 Gold</strong> in your treasury reserves provides exactly <strong>1 tiebreak point</strong>.</li>
 <li>Every <strong>1 Gold</strong> invested in surviving active military units provides exactly <strong>1 tiebreak point</strong> (evaluated using base recruitment costs: Raider = 10, Guard = 12, Siege = 18, Scout = 6).</li>
 <li>An empire with 100 Gold banked and 0 units has the identical Net Worth (100 points) as an empire with 0 Gold banked and 10 Raiders (100 points).</li>
+<li>Because this formula incorporates cumulative points, relic control duration, and total net worth in Gold, it resolves matches without draws.</li>
 </ul>
-<p>Because this formula incorporates cumulative points, relic control duration, and total net worth in Gold, it is mathematically unique. <strong>There are strictly no draws.</strong></p>
+<h3>Tournament Replay &amp; Spectator Policy</h3>
+<ul>
+<li>Full god-view replays (revealing all hidden fleets and unit compositions) are exported for live spectator auditorium broadcasts and caster commentary.</li>
+<li>For practice ladders and scrimmages, match runners can be configured with fog-of-war replays or anonymized opponent identifiers to protect proprietary competitor strategies before tournament day.</li>
+</ul>
 <hr />
-<h2>7. Competitor Bot API &amp; Order Protocol</h2>
-<p>Every competitor bot inherits from <code>BotBase</code> and implements the <code>act(obs)</code> method:</p>
+<h2>7. Competitor Bot API &amp; Runtime Contract</h2>
+<h3>Tournament Runtime Contract</h3>
+<ol>
+<li><strong>Python Version</strong>: Python 3.10+ (tested up to Python 3.14).</li>
+<li><strong>Turn Time Limit</strong>: <strong>50 milliseconds wall-clock time</strong> per turn on a dedicated modern x86_64 host (AMD Ryzen / Intel i7). If <code>act()</code> exceeds 50 ms, the engine terminates execution for that turn and treats orders as empty (<code>[]</code>).</li>
+<li><strong>Exception Handling</strong>: Any unhandled exception or syntax error in <code>act()</code> forfeits orders for that turn. If a bot script fails to import or crashes during <code>__init__</code>, all turns return empty orders.</li>
+<li><strong>Allowed Modules</strong>: Python Standard Library only (<code>math</code>, <code>random</code>, <code>heapq</code>, <code>collections</code>, <code>itertools</code>, <code>typing</code>, <code>dataclasses</code>, <code>time</code>). The starter kit module <code>nodewar</code> is provided. Subprocesses, network sockets, filesystem writes, and multithreading are strictly prohibited.</li>
+<li><strong>Fresh Bot Instance</strong>: Each game in a series instantiates a fresh bot object (<code>bot = CompetitorBot(player_id)</code>). Memory stored on <code>self</code> persists across turns within that match, but resets between games.</li>
+<li><strong>Player Seats</strong>: Your bot must support playing as either Player 1 (<code>self.player_id == 1</code>, starting at Node 0) or Player 2 (<code>self.player_id == 2</code>, starting at Node 14). Tournament matches run as Best-of-3 series with alternating seats.</li>
+<li><strong>Loader Discovery</strong>: The tournament runner automatically inspects your submission file and instantiates any class inheriting from <code>BotBase</code> (e.g. <code>class CompetitorBot(BotBase)</code> or <code>class StarterBot(BotBase)</code>).</li>
+</ol>
+<h3>Starting Gold &amp; Observation Timing</h3>
+<ul>
+<li><strong>Initial Treasury</strong>: Each commander starts Turn 1 with <strong>30 Gold</strong>.</li>
+<li><strong>Observation Timing</strong>: <code>obs.my_credits</code> represents your balance at turn start prior to Phase 1 Income collection and Phase 2 Upkeep deduction. In Phase 1 of <code>step()</code>, your node income (+15 from Home Core, etc.) is credited, and in Phase 2 upkeep is deducted before Phase 3 evaluates training orders. Your effective spending budget for training orders is:
+$$\text{Effective Budget} = \text{obs.my_credits} + \text{current_turn_income} - \text{current_turn_upkeep}$$</li>
+</ul>
+<h3>Standard Bot Implementation</h3>
 <pre><code class="language-python">from __future__ import annotations
 from typing import List
-from engine.models import UnitType, Order, TrainOrder, MoveOrder
-from engine.fog import BotObservation
-from bots.base import BotBase
+from nodewar import BotBase, BotObservation, Order, TrainOrder, MoveOrder, UnitType
 
 class CompetitorBot(BotBase):
     def __init__(self, player_id: int):
@@ -632,74 +887,266 @@ class CompetitorBot(BotBase):
         if obs.my_credits &gt;= 10:
             orders.append(self.train(self.home_id, UnitType.RAIDER, 1))
 
-        # 2. Movement: Dispatch 2 mobilized Raiders along the shortest path
+        # 2. Movement: Dispatch 2 mobilized Raiders along a connected lane
         orders.append(self.move(self.home_id, 1, {UnitType.RAIDER: 2}))
 
         return orders
 </code></pre>
 <h3>Observation Schema Reference (<code>BotObservation</code>)</h3>
-<ul>
-<li><code>obs.current_turn</code>: Current integer turn (1 to 120).</li>
-<li><code>obs.max_turns</code>: Maximum match turns (120).</li>
-<li><code>obs.my_player_id</code>: Your faction ID (1 or 2).</li>
-<li><code>obs.my_credits</code>: Your current spendable Gold reserve.</li>
-<li><code>obs.my_score</code>: Your current accumulated victory points.</li>
-<li><code>obs.opponent_score</code>: Opponent's accumulated victory points.</li>
-<li><code>obs.relic_charging</code>: Boolean 5-turn warning alert before Relic awakens.</li>
-<li><code>obs.relic_active</code>: Boolean flag indicating if Relic is active.</li>
-<li><code>obs.relic_node_id</code>: Node ID of the Relic Sanctuary (7).</li>
-<li><code>obs.nodes</code>: Dict mapping Node ID (0 to 14) to <code>VisibleNode</code>.
-<ul>
-<li><code>node.id</code>: Integer ID (0 to 14).</li>
-<li><code>node.owner</code>: Owner ID (1 for P1, 2 for P2, 0 for Neutral).</li>
-<li><code>node.production</code>: Gold generated per turn (4, 7, 10, or 15).</li>
-<li><code>node.defense_bonus</code>: Stationary damage reduction (0.50 at home, 0.25 at outposts).</li>
-<li><code>node.capture_progress</code>: Turns captured (0, 1, or 2).</li>
-<li><code>node.capturing_player</code>: ID of capturing faction (0 if uncontested).</li>
-<li><code>node.units</code>: Dict of units <code>{&quot;raider&quot;: int, &quot;guard&quot;: int, ...}</code> if scouted, or <code>None</code> if obscured.</li>
-</ul>
-</li>
-<li><code>obs.lanes</code>: List of travel lane dicts (<code>node_a</code>, <code>node_b</code>, <code>travel_turns</code>).</li>
-<li><code>obs.my_fleets</code>: List of friendly <code>VisibleFleet</code> objects.</li>
-<li><code>obs.enemy_fleets</code>: List of enemy <code>VisibleFleet</code> objects (radar silhouettes; unit compositions masked unless scouted).</li>
-</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Field</th>
+<th style="text-align:center">Type</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>obs.current_turn</code></td>
+<td style="text-align:center"><code>int</code></td>
+<td style="text-align:left">Current turn number (1 to 120)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>obs.max_turns</code></td>
+<td style="text-align:center"><code>int</code></td>
+<td style="text-align:left">Match duration limit (120)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>obs.my_player_id</code></td>
+<td style="text-align:center"><code>int</code></td>
+<td style="text-align:left">Your faction seat (1 or 2)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>obs.my_credits</code></td>
+<td style="text-align:center"><code>int</code></td>
+<td style="text-align:left">Treasury Gold balance at observation time</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>obs.my_score</code></td>
+<td style="text-align:center"><code>int</code></td>
+<td style="text-align:left">Your current accumulated Victory Points</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>obs.opponent_score</code></td>
+<td style="text-align:center"><code>int</code></td>
+<td style="text-align:left">Opponent's accumulated Victory Points</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>obs.relic_charging</code></td>
+<td style="text-align:center"><code>bool</code></td>
+<td style="text-align:left">True during 5-turn warning window before Relic activates</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>obs.relic_active</code></td>
+<td style="text-align:center"><code>bool</code></td>
+<td style="text-align:left">True once Relic Sanctuary is awakened</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>obs.relic_node_id</code></td>
+<td style="text-align:center"><code>int</code></td>
+<td style="text-align:left">Node ID of Relic Sanctuary (7)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>obs.nodes</code></td>
+<td style="text-align:center"><code>Dict[int, VisibleNode]</code></td>
+<td style="text-align:left">Map of Node ID (0–14) to <code>VisibleNode</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>obs.lanes</code></td>
+<td style="text-align:center"><code>List[Dict[str, Any]]</code></td>
+<td style="text-align:left">List of 31 lane dicts (<code>node_a</code>, <code>node_b</code>, <code>travel_turns</code>)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>obs.my_fleets</code></td>
+<td style="text-align:center"><code>List[VisibleFleet]</code></td>
+<td style="text-align:left">All friendly fleets currently in transit</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>obs.enemy_fleets</code></td>
+<td style="text-align:center"><code>List[VisibleFleet]</code></td>
+<td style="text-align:left">All enemy fleets currently in transit (radar silhouettes)</td>
+</tr>
+</tbody>
+</table>
+<h3>Node Schema Reference (<code>VisibleNode</code>)</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Field</th>
+<th style="text-align:center">Type</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>node.id</code></td>
+<td style="text-align:center"><code>int</code></td>
+<td style="text-align:left">Node integer ID (0 to 14)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>node.name</code></td>
+<td style="text-align:center"><code>str</code></td>
+<td style="text-align:left">Tactical designation (e.g. &quot;Alpha Bastion&quot;)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>node.x</code></td>
+<td style="text-align:center"><code>float</code></td>
+<td style="text-align:left">X coordinate in arena (10.0 to 90.0)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>node.y</code></td>
+<td style="text-align:center"><code>float</code></td>
+<td style="text-align:left">Y coordinate in arena (15.0 to 75.0)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>node.owner</code></td>
+<td style="text-align:center"><code>int</code></td>
+<td style="text-align:left">Controlling faction: 0 (Neutral), 1 (Player 1), 2 (Player 2)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>node.production</code></td>
+<td style="text-align:center"><code>int</code></td>
+<td style="text-align:left">Gold produced per turn (+4, +7, +10, or +15)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>node.defense_bonus</code></td>
+<td style="text-align:center"><code>float</code></td>
+<td style="text-align:left">Damage reduction: 0.50 (Home Citadels), 0.25 (Outposts)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>node.capture_progress</code></td>
+<td style="text-align:center"><code>int</code></td>
+<td style="text-align:left">Consecutive turns occupied (0, 1, or 2)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>node.capturing_player</code></td>
+<td style="text-align:center"><code>int</code></td>
+<td style="text-align:left">Faction attempting capture: 0 (None), 1, or 2</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>node.units</code></td>
+<td style="text-align:center"><code>Optional[Dict[str, int]]</code></td>
+<td style="text-align:left">Stationed unit counts if visible; <code>None</code> if fog masked</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>node.is_scouted</code></td>
+<td style="text-align:center"><code>bool</code></td>
+<td style="text-align:left">True if owned or directly monitored by a friendly scout</td>
+</tr>
+</tbody>
+</table>
+<h3>Fleet Schema Reference (<code>VisibleFleet</code>)</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Field</th>
+<th style="text-align:center">Type</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>fleet.id</code></td>
+<td style="text-align:center"><code>int</code></td>
+<td style="text-align:left">Unique integer identifier</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>fleet.owner</code></td>
+<td style="text-align:center"><code>int</code></td>
+<td style="text-align:left">Faction commanding fleet (1 or 2)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>fleet.origin_node</code></td>
+<td style="text-align:center"><code>int</code></td>
+<td style="text-align:left">Departure node ID</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>fleet.dest_node</code></td>
+<td style="text-align:center"><code>int</code></td>
+<td style="text-align:left">Destination node ID</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>fleet.turns_remaining</code></td>
+<td style="text-align:center"><code>int</code></td>
+<td style="text-align:left">Turns until arrival at destination</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>fleet.total_turns</code></td>
+<td style="text-align:center"><code>int</code></td>
+<td style="text-align:left">Total transit duration along lane (2 or 3)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>fleet.total_count</code></td>
+<td style="text-align:center"><code>int</code></td>
+<td style="text-align:left">Total unit count (always visible radar silhouette)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>fleet.is_revealed</code></td>
+<td style="text-align:center"><code>bool</code></td>
+<td style="text-align:left">True if unit composition is unmasked by scout coverage</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>fleet.units</code></td>
+<td style="text-align:center"><code>Optional[Dict[str, int]]</code></td>
+<td style="text-align:left">Exact unit counts if revealed; <code>None</code> if obscured</td>
+</tr>
+</tbody>
+</table>
 <h3>Built-in Helper Methods on <code>BotBase</code></h3>
 <ul>
 <li><code>self.get_my_nodes(obs) -&gt; List[VisibleNode]</code>: Returns all nodes currently owned by you.</li>
 <li><code>self.get_enemy_nodes(obs) -&gt; List[VisibleNode]</code>: Returns nodes owned by your opponent.</li>
 <li><code>self.get_neutral_nodes(obs) -&gt; List[VisibleNode]</code>: Returns unowned neutral nodes.</li>
-<li><code>self.get_distance(obs, u, v) -&gt; int</code>: Returns shortest travel turns between nodes u and v.</li>
+<li><code>self.get_distance(obs, u, v) -&gt; int</code>: Returns shortest path travel turns between nodes u and v.</li>
 <li><code>self.get_path(obs, u, v) -&gt; List[int]</code>: Returns sequence of node IDs along shortest route (e.g. <code>[0, 1, 5, 7]</code>).</li>
 <li><code>self.get_neighbors(obs, node_id) -&gt; List[int]</code>: Returns adjacent connected node IDs.</li>
 <li><code>self.train(node_id, unit_type, count) -&gt; TrainOrder</code>: Creates a validated train command.</li>
 <li><code>self.move(origin, dest, units) -&gt; MoveOrder</code>: Creates a validated fleet move command.</li>
 </ul>
 <hr />
-<h2>8. Quick-Start &amp; Testing Workflow</h2>
+<h2>8. Quick-Start, Testing &amp; Local Simulation</h2>
+<p>The starter kit ships with <code>nodewar.py</code>, providing a complete local simulation environment.</p>
 <ol>
-<li><strong>Copy the Starter Template</strong>:<pre><code class="language-bash">cp bots/starter_bot.py bots/my_bot.py
+<li><strong>Copy the Starter Template</strong>:<pre><code class="language-bash">cp starter_bot.py my_bot.py
 </code></pre>
 </li>
-<li><strong>Validate Your Bot Locally</strong>:
-Run the official dry-run validator to test your bot across Player 1, Player 2, and late-game charging states:<pre><code class="language-bash">python validate_bot.py bots/my_bot.py
+<li><strong>Dry-Run Validate Your Bot</strong>:
+Test your bot against Player 1, Player 2, and late-game charging observations:<pre><code class="language-bash">python nodewar.py validate my_bot.py
+# Or using the validator wrapper:
+python validate_bot.py my_bot.py
+</code></pre>
+</li>
+<li><strong>Simulate a Full Match Locally</strong>:
+Run a full 120-turn simulated match against built-in baseline bots (<code>rusher</code>, <code>turtle</code>, <code>balanced</code>, or another bot file):<pre><code class="language-bash">python nodewar.py simulate my_bot.py rusher
+python nodewar.py simulate my_bot.py turtle --turns 120 --seed 42
+</code></pre>
+</li>
+<li><strong>Run a Best-of-3 Series with Seat Swapping</strong>:<pre><code class="language-bash">python nodewar.py bo3 my_bot.py balanced
 </code></pre>
 </li>
 <li><strong>Submit Your Bot File</strong>:
-Submit your single standalone <code>.py</code> file according to tournament organizer instructions.</li>
+Submit your standalone <code>.py</code> file according to tournament organizer instructions.</li>
 </ol>
 <hr />
 <h2>9. Rules of Engagement &amp; Technical Constraints</h2>
 <ol>
-<li><strong>50 Millisecond Time Limit</strong>: Your bot must return orders within <strong>50 milliseconds</strong> per turn. Compute timeouts will forfeit orders for that turn.</li>
+<li><strong>50 Millisecond Wall-Clock Limit</strong>: Your bot must return orders within <strong>50 milliseconds wall-clock time</strong> per turn. Compute timeouts will forfeit orders for that turn.</li>
 <li><strong>Pure Standard Library</strong>: Submissions must use standard Python 3. Subprocesses, network sockets, thread pools, or disk modifications are strictly forbidden.</li>
-<li><strong>Persistent Memory</strong>: You may store cross-turn state on <code>self</code> (e.g. enemy sightings, internal counters). Memory persists throughout an individual match.</li>
-<li><strong>Order Validity</strong>: Orders attempting to move units that do not exist at a node or training units without sufficient Gold are ignored by the engine.</li>
-<li><strong>No Draws</strong>: Every match terminates with an unambiguous winner.</li>
+<li><strong>Persistent Memory</strong>: You may store cross-turn state on <code>self</code> (e.g. enemy sightings, internal counters). Memory persists throughout an individual match, but resets across games in a series.</li>
+<li><strong>Order Validity</strong>:
+<ul>
+<li><code>MoveOrder</code> moves units across exactly one lane (<code>origin_node</code> and <code>dest_node</code> must be connected).</li>
+<li>Atomic rejection: If any requested unit count exceeds mobilized units available, the entire <code>MoveOrder</code> is rejected.</li>
+<li>Origin ownership constraint: You can only move units from nodes you currently own. Units stationed on unowned nodes (e.g. during 2-turn capture) cannot be ordered out.</li>
+</ul>
+</li>
+<li><strong>No Draws</strong>: Every match terminates with an unambiguous winner via the deterministic composite tiebreaker.</li>
 </ol>
 <hr />
 <h2>10. Technical Notes &amp; API Edge Cases</h2>
 <ul>
-<li><strong>Mobilization Timing</strong>: Units trained on Turn T join the local garrison immediately for defense, but cannot be moved on Turn T. They become eligible for <code>MoveOrder</code> dispatch on Turn T+1.</li>
+<li><strong>Mobilization Delay</strong>: Units trained on Turn T join the local garrison immediately for defense, but cannot be moved on Turn T. They become eligible for <code>MoveOrder</code> dispatch on Turn T+1.</li>
 <li><strong>Budget Tracking</strong>: Deduct Gold locally when creating multiple <code>TrainOrder</code>s in <code>act(obs)</code> to ensure commands do not exceed available funds.</li>
 <li><strong>Path Index Bounds</strong>: <code>self.get_path(obs, u, v)</code> returns <code>[u, next_node, ..., v]</code>. Verify <code>len(path) &gt;= 2</code> before indexing <code>path[1]</code>.</li>
 <li><strong>Contested Recruitment</strong>: Training orders are not processed at a node while it is actively being contested (<code>node.capturing_player != 0</code>).</li>

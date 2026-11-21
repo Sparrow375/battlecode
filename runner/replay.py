@@ -20,6 +20,7 @@ def export_replay_to_json(
             "winner": int(game.winner) if game.winner else 0,
             "win_reason": game.win_reason,
             "total_turns": game.current_turn - 1,
+            "seed": game.config.seed,
             "relic_spawn_turn": game.config.relic_spawn_turn,
             "final_scores": {
                 "p1": game.scores.get(1, 0),

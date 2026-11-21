@@ -183,3 +183,4 @@ class GameConfig:
     scout_vision_bonus: float = 0.15
     initial_credits: int = 30
     base_production: int = 15
+    seed: Optional[int] = None

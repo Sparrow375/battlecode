@@ -164,3 +164,34 @@ f:\Avaneesh\projects\battlecode\
     2. `starter_bot.py`
     3. `validate_bot.py`
   - Verified end-to-end extraction and dry-run validation in an isolated directory with zero dependencies. Ready for direct distribution to hackathon teams.
+- **Starter Kit, Local Simulator & Tournament Rule Alignment Overhaul (Release 4.0)**:
+  - **Standalone Competitor SDK & Local Simulator (`nodewar.py`)**:
+    - Created single, zero-dependency `nodewar.py` module providing protocol types (`UnitType`, `Order`, `TrainOrder`, `MoveOrder`, `VisibleNode`, `VisibleFleet`, `BotObservation`), `BotBase` with cached pathfinding/distance algorithms, Lanchester combat simulation helpers, and a complete `LocalSimulator` engine.
+    - Ships built-in baseline sparring bots (`StarterBot`, `RusherBot`, `TurtleBot`, `BalancedBot`) allowing competitors to simulate matches locally with zero setup:
+      - `python nodewar.py validate my_bot.py` (dry-run protocol validator)
+      - `python nodewar.py simulate my_bot.py rusher` (1v1 local match simulation against baseline bot)
+      - `python nodewar.py bo3 my_bot.py turtle` (Best-of-3 series with seat swapping)
+  - **Competitor Template Alignment (`starter_bot.py` & `bots/starter_bot.py`)**:
+    - Aligned class name to `CompetitorBot(BotBase)` matching the guidebook, with backward-compatible alias `StarterBot = CompetitorBot`.
+    - Added direct imports from `nodewar` with graceful fallback chains.
+    - Updated `validate_bot.py` as a lightweight validation CLI wrapper delegating to `nodewar`.
+  - **Engine Combat Math & Capture Fixes**:
+    - **Removed 1.6x Damage Floor (`engine/combat.py`)**: Replaced the artificial `max(eff_mult, 1.6)` floor with the exact proportional weighting formula `(2.0*countered + 1.0*neutral + 0.5*weak)/total_defenders`. Defending counter-units (e.g. Guards protecting Siege) properly dilute incoming damage smoothly without punishing mixed armies.
+    - **Patched In-Transit Scout Capture Freeze Exploit (`engine/game.py`)**: Removed `any(f.owner == enemy_pid and f.dest_node == nid and f.has_scout for f in self.fleets)` from capture freeze check. Capture progress is only frozen if an enemy scout actually arrives at the node on that turn (`arrivals[nid][enemy_pid]`). In-transit scouts traveling on distant lanes no longer stall conquests.
+    - **Deterministic Match Seeding (`engine/models.py`, `engine/game.py`, `runner/match.py`, `runner/replay.py`)**: Added `seed` parameter to `GameConfig`, initializing an explicit RNG instance for `relic_spawn_turn` and serializing the seed into replay metadata for 100% reproducible match replays.
+  - **Comprehensive Guidebook & Specification Alignment (`docs/NODE_WAR_OFFICIAL_GAME_GUIDEBOOK.md` & `GAME_SPECIFICATION.md`)**:
+    - **Runtime Contract & Execution Constraints**: Formally stated Python 3.10+ requirement, 50 ms wall-clock time limit per turn on modern x86_64 CPU, fresh bot instance per match (`bot = CompetitorBot(player_id)`), exception/timeout handling (forfeits orders for that turn), allowed standard library modules, and class loader discovery.
+    - **Combat Resolution Algorithm**: Documented the full 10-round micro-battle mechanics, Lanchester damage calculation, casualty distribution by HP share, anti-stalemate attrition, non-combat Scout elimination, and defender repulsion.
+    - **Tactical Scout Impact**: Prominently documented the ±15% swing (30% relative differential, e.g. 12 vs 10 Raiders leaving 6, 4, or 1 survivors depending on scout coverage) and 6-Gold cost.
+    - **Guidebook vs Engine Alignments**: Fixed fleet revealing rules (scout at owned node connected to lane or friendly fleet with scout on same lane), node vision (adjacent nodes to owned nodes visible with no scout; distant nodes masked), capture freeze (only arriving scout freezes for that turn; in-transit does not), relic seeding, Phase 8 scoring wording (1 VP per node, 2 when Relic is active), and softened symmetry claims.
+    - **Missing Facts for Teams**: Documented 30 starting Gold, `obs.my_credits` observation timing vs order execution, complete 31-lane directory table with travel times, order rules (one MoveOrder per lane, atomic rejection, origin node ownership, no mid-transit lane fighting, arriving reinforcements defend with bonus), full field schemas for `VisibleNode` and `VisibleFleet`, and seat swapping in Best-of-3 series.
+    - **Cosmetic & Replay Policy**: Replaced "Hackathon" references with "Tournament", removed internal `bots/` paths from commands, and clarified spectator god-view vs practice ladder fog-of-war replay policies.
+  - **Document Generation & Starter Kit Distribution**:
+    - Recompiled Word (`.docx`), HTML (`.html`), and high-resolution PDF (`.pdf`) for `docs/NODE_WAR_OFFICIAL_GAME_GUIDEBOOK` via `scripts/build_docs.py`.
+    - Packaged updated `node_war_starter_kit.zip` containing:
+      1. `NODE_WAR_OFFICIAL_GAME_GUIDEBOOK.pdf`
+      2. `nodewar.py`
+      3. `starter_bot.py`
+      4. `validate_bot.py`
+    - Verified end-to-end extraction and dry-run validation + simulation in an isolated directory with zero external dependencies.
+    - Expanded test suite to 28 unit tests; all 28 tests and 8-round balance matrix cycle tests pass with 100% determinism.

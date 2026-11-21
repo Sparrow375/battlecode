@@ -34,17 +34,9 @@ def calculate_damage(
         weak_targets = defender_units.get(weak_to, 0) if weak_to else 0
         neutral_targets = total_defender_count - counter_targets - weak_targets
 
-        if counter_targets > 0:
-            # High priority: Strike the countered unit
-            weight = counter_targets / total_defender_count
-            eff_mult = 2.0 * weight + 1.0 * (neutral_targets / total_defender_count) + 0.5 * (weak_targets / total_defender_count)
-            eff_mult = max(eff_mult, 1.6)
-        elif neutral_targets > 0:
-            weight_neutral = neutral_targets / total_defender_count
-            weight_weak = weak_targets / total_defender_count
-            eff_mult = 1.0 * weight_neutral + 0.5 * weight_weak
-        else:
-            eff_mult = 0.5
+        # Proportional combat effectiveness based on defender's composition:
+        # 2.0x against countered units, 1.0x against neutral/same units, 0.5x against counter-units
+        eff_mult = (2.0 * counter_targets + 1.0 * neutral_targets + 0.5 * weak_targets) / total_defender_count
 
         total_damage += base_power * eff_mult
 

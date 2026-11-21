@@ -175,6 +175,55 @@ class TestEngine(unittest.TestCase):
         self.assertEqual(node1.owner, PlayerId.NONE)
         self.assertEqual(node1.capture_progress, 1)
 
+    def test_in_transit_scout_does_not_freeze_capture(self):
+        """Verifies that an in-transit scout (turns_remaining > 0) does NOT freeze capture."""
+        game = NodeWarGame()
+        node1 = game.nodes[1]
+        node1.units = {ut: 0 for ut in UnitType}
+        node1.owner = PlayerId.NONE
+        node1.capturing_player = PlayerId.PLAYER_1
+        node1.capture_progress = 1
+        node1.resident_player = PlayerId.PLAYER_1
+        node1.units[UnitType.RAIDER] = 5
+
+        # P2 sends a fleet with a scout that is 2 turns away (still in transit)
+        from engine.models import Fleet
+        game.fleets.append(Fleet(
+            id=100,
+            owner=PlayerId.PLAYER_2,
+            origin_node=3,
+            dest_node=1,
+            turns_remaining=2,
+            total_turns=2,
+            units={UnitType.SCOUT: 1}
+        ))
+
+        # Advance step: fleet travels to turns_remaining=1, but does NOT arrive.
+        # Capture should NOT be frozen; node flips ownership to P1!
+        game.step(p1_orders=[], p2_orders=[])
+        self.assertEqual(node1.owner, PlayerId.PLAYER_1)
+        self.assertEqual(node1.capture_progress, 0)
+        self.assertEqual(node1.capturing_player, PlayerId.NONE)
+
+    def test_proportional_damage_no_floor(self):
+        """Verifies that calculate_damage has no 1.6x floor on mixed armies."""
+        from engine.combat import calculate_damage
+        raiders = {UnitType.RAIDER: 10}
+        # 10 Guards + 1 Siege: total 11 defenders. 1 Siege countered (2x), 10 Guards weak (0.5x)
+        # Expected mult = (2*1 + 0.5*10) / 11 = 7 / 11 ≈ 0.636x
+        defenders = {UnitType.GUARD: 10, UnitType.SIEGE: 1}
+        dmg = calculate_damage(raiders, defenders)
+        base_power = 10 * 12 # 120
+        expected_dmg = base_power * (7.0 / 11.0)
+        self.assertAlmostEqual(dmg, expected_dmg, places=3)
+        self.assertLess(dmg / base_power, 1.0) # Should be ~0.636, definitely not >= 1.6!
+
+    def test_seeded_reproducibility(self):
+        """Verifies that two games with the same seed generate identical relic spawn turns."""
+        g1 = NodeWarGame(GameConfig(seed=42))
+        g2 = NodeWarGame(GameConfig(seed=42))
+        self.assertEqual(g1.config.relic_spawn_turn, g2.config.relic_spawn_turn)
+
     def test_variable_relic_charging(self):
         cfg = GameConfig(min_relic_turn=80, max_relic_turn=100, relic_spawn_turn=90)
         game = NodeWarGame(cfg)
