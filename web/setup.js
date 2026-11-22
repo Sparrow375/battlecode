@@ -100,7 +100,7 @@ class NodeWarSetupDeck {
 
     if (scriptSel) {
       scriptSel.innerHTML = '<option value="">Load from bots/ ...</option>';
-      let customFiles = (data && data.custom_files && data.custom_files.length > 0) ? data.custom_files : [{ filename: 'bot1.py', class_name: 'NemesisNodeBot' }];
+      let customFiles = (data && data.custom_files && data.custom_files.length > 0) ? data.custom_files : [{ filename: 'ctrl_alt_elite.py', class_name: 'CtrlAltEliteBot' }];
       customFiles.forEach(b => {
         scriptSel.innerHTML += `<option value="${b.filename}">${b.filename} (${b.class_name || 'Bot'})</option>`;
       });

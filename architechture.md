@@ -87,7 +87,7 @@ flowchart TD
    - `rusher.py`: Aggressive Raider swarm targeting adjacent economy nodes early.
    - `turtle.py`: Heavy Guard defense, chokepoint consolidation, tech/economy buildup.
    - `balanced.py`: Recon-first strategy deploying scouts, reading enemy fleets, and recruiting counter-units (Siege against Guards, Guards against Raiders, Raiders against Siege).
-   - Custom scripts (e.g. `bot1.py`, student submissions): Dynamically discovered and loaded by filename.
+   - Custom scripts (e.g. `ctrl_alt_elite.py` [Champions League 2026 Winner], `starter_bot.py`): Dynamically discovered and loaded by filename.
    - `validate_bot.py`: Standalone dry-run validator tool with typed dataclass stubs for student competitors.
 
 3. **`runner/`**:

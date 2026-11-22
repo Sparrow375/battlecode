@@ -457,7 +457,7 @@ class NodeWarVisualizer {
         html += '</optgroup>';
       } else {
         html += '<optgroup label="Custom Scripts (bots/)">';
-        html += '<option value="bot1.py">bot1.py (NemesisNodeBot)</option>';
+        html += '<option value="ctrl_alt_elite.py">ctrl_alt_elite.py (CtrlAltEliteBot - Champions League Winner)</option>';
         html += '</optgroup>';
       }
 
@@ -508,15 +508,15 @@ class NodeWarVisualizer {
 
     if ([...p2Sel.options].some(o => o.value === prevP2)) {
       p2Sel.value = prevP2;
-    } else if ([...p2Sel.options].some(o => o.value === 'bot1.py')) {
-      p2Sel.value = 'bot1.py';
+    } else if ([...p2Sel.options].some(o => o.value === 'ctrl_alt_elite.py')) {
+      p2Sel.value = 'ctrl_alt_elite.py';
     } else {
       p2Sel.value = 'turtle';
     }
 
     if (scriptSel) {
       scriptSel.innerHTML = '<option value="">Load from bots/ ...</option>';
-      let customFiles = (data && data.custom_files && data.custom_files.length > 0) ? data.custom_files : [{ filename: 'bot1.py', class_name: 'NemesisNodeBot' }];
+      let customFiles = (data && data.custom_files && data.custom_files.length > 0) ? data.custom_files : [{ filename: 'ctrl_alt_elite.py', class_name: 'CtrlAltEliteBot' }];
       customFiles.forEach(b => {
         scriptSel.innerHTML += `<option value="${b.filename}">${b.filename} (${b.class_name || 'Bot'})</option>`;
       });
