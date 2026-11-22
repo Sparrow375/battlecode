@@ -1,5 +1,21 @@
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 .pytest_cache/
+
+# Local context and task tracking
+context.md
+task_list.md
+
+# Simulation & Temporary Match Replays (Curated replays are tracked)
+replays/replay_*.json
+
+# System & Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo

@@ -1,6 +1,15 @@
-# Node War - Competitive AI Game Engine & Spectator Arena
+# Node War - Competitive AI Strategy Game & Spectator Arena
 
-A tournament-ready competitive strategy game engine and esports spectator visualizer designed for collegiate hackathons and coding competitions. Two student-programmed AI agents compete head-to-head on a balanced, mirrored network graph of 15 nodes.
+A tournament-ready competitive strategy game engine and esports spectator visualizer. Two autonomous AI agents compete head-to-head on a balanced, mirrored network graph of 15 nodes.
+
+---
+
+## 🏆 Champions League 2026
+
+**Tournament Champion**: **CTRL ALT ELITE**  
+- **Source Code**: [`bots/ctrl_alt_elite.py`](bots/ctrl_alt_elite.py)
+- **Champion Replay**: [`replays/championship_match_ctrl_alt_elite.json`](replays/championship_match_ctrl_alt_elite.json)
+- **Winning Philosophy**: Predictive defense combining exact forward Lanchester combat simulation, binary-search force allocation, Bayesian opponent profiling, and dynamic supply line management.
 
 ---
 
@@ -8,127 +17,119 @@ A tournament-ready competitive strategy game engine and esports spectator visual
 
 ### 1. Mirrored Network Map
 - **15 Mirrored Nodes**:
-  - `Node 0`: Player 1 Home Core.
-  - `Node 14`: Player 2 Home Core.
-  - `Node 7`: Central Relic Sanctuary.
-  - Flank bastions, gates, and outposts arranged with bilateral symmetry.
-- **Lanes**: Connect adjacent nodes with transit delays ($2 \dots 3$ turns).
+  - `Node 0`: Player 1 Home Citadel (+15 Gold/turn, +50% defense bonus).
+  - `Node 14`: Player 2 Home Citadel (+15 Gold/turn, +50% defense bonus).
+  - `Node 7`: Central Relic Sanctuary (+10 Gold/turn, +25% defense bonus).
+  - Bastions and outposts arranged with bilateral horizontal symmetry.
+- **Lanes**: Connect adjacent nodes with transit delays (2 or 3 turns).
 
 ### 2. Units & Rock-Paper-Scissors Triangle
-| Unit | Cost | HP | Base ATK | Combat Affinity | Role |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Raider** | 10 | 20 | 12 | **2.0x vs Siege**, 0.5x vs Guards | Fast blitz, cheap swarm, flanker |
-| **Siege** | 18 | 35 | 22 | **2.0x vs Guards**, 0.5x vs Raiders | Heavy artillery, fortified base breaker |
-| **Guard** | 12 | 30 | 14 | **2.0x vs Raiders**, 0.5x vs Siege | Armored infantry, choke anchor |
-| **Scout** | 6 | 10 | 0 | Non-combatant | Pierces fog of war on adjacent lanes, grants +15% combat targeting bonus (-15% blind penalty), and freezes enemy node capture |
+| Unit | Cost | HP | Base ATK | Counter Bonus (2.0x) | Vulnerable (0.5x) | Role |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Raider** | 10 🪙 | 20 | 12 | **Siege** | **Guard** | High-speed shock cavalry, swarm attacker, artillery hunter |
+| **Guard** | 12 🪙 | 30 | 14 | **Raider** | **Siege** | Armored frontline infantry, chokepoint & fortress anchor |
+| **Siege** | 18 🪙 | 35 | 22 | **Guard** | **Raider** | Heavy artillery, fortified wall & defense breaker |
+| **Scout** | 6 🪙 | 10 | 0 | None (Non-combat) | None | Unmasks enemy fleets, +15% friendly combat damage bonus, freezes enemy node capture |
 
-### 3. Tactical Defense & Capture Progress (2-Turn Flip)
-- **Defender Bonus**: Units stationed at an owned node receive a defense bonus (+50% at Home Core citadels, +25% at outposts & bastions).
-- **Two-Turn Flip**: When enemy defenders are wiped out, the node enters a **Contested (1/2)** state. It requires 2 consecutive turns of uncontested occupation to flip ownership. A defender's relief fleet can counter-attack on turn 1 to break the capture!
-- **Recruitment Suspension**: Units cannot be trained at a contested node while enemy forces occupy it.
+### 3. Fortress Defense & 2-Turn Capture
+- **Fortress Advantage**: Stationed defenders receive defense bonuses (+50% at Home Citadels, +25% at outposts).
+- **Two-Turn Flip**: When all defenders at an enemy or neutral node are eliminated, the node enters a **Contested (1/2)** state. It requires 2 consecutive turns of uncontested occupation to flip ownership. A relief force arriving on the next turn immediately engages the occupying army.
+- **Recruitment Suspension**: Units cannot be trained at a node while it is actively contested.
+- **The Mobilization Rule**: Recruits immediately join the garrison to defend that castle on the turn of recruitment, but require 1 turn of mobilization before they can march out along roads.
 
 ### 4. Economy & Empire Upkeep
-- **Resource Income**: Owned nodes generate Gold every turn (+4 outer bastions, +7 chokepoints, +10 Relic, +15 Home Core).
-- **Dynamic Supply Lines (Upkeep)**: Armies are supported by dynamic supply capacity scaled to territorial control:
+- **Resource Income**: Owned nodes generate Gold every turn (+15 Core, +10 Relic, +7 Chokepoints, +4 Outer Bastions).
+- **Dynamic Supply Lines**: Free troop capacity is scaled to territory:
   $$\text{Free Supply Cap} = 10 + (4 \times \text{Owned Nodes})$$
-  Active units exceeding this cap incur per-turn maintenance: **1 Gold/turn** domestically, or **2 Gold/turn** for expeditionary units (stationed on foreign/unowned nodes or in transit).
+  Active units exceeding this cap incur per-turn maintenance: **1 Gold/turn** for domestic garrisons, or **2 Gold/turn** for expeditionary units (stationed on foreign nodes or in transit).
+- **Bankruptcy Desertion Attrition**: If total upkeep exceeds treasury reserves, Gold drops to 0 and unpaid units desert from starvation (foreign units desert first, then domestic garrisons; in priority: Raiders -> Scouts -> Guards -> Siege).
 
 ### 5. Central Relic & Endgame Points
-- **Standard Turns**: Owned nodes award **1 point/turn**.
+- **Standard Turns**: Owned nodes award **1 Victory Point/turn**.
 - **Dynamic Relic Awakening (Turns 80–100)**:
-  - 5-turn advance warning broadcast (`obs.relic_charging = True`).
+  - 5-turn advance warning alert (`obs.relic_charging = True`).
   - Central **Relic Sanctuary (Node 7)** activates!
   - Controlling Node 7 awards **+10 bonus points per turn**!
-  - All standard node point values **double (2 points/turn)**.
-- **Strict Tiebreak Formula**:
-  $$\text{Score} = \text{Points} \times 10^5 + \text{Relic Turns} \times 10^3 + \text{Army Value} \times 10 + \text{Credits}$$
-  Guarantees an unambiguous winner with zero draws.
+  - All standard owned node values **double (2 points/turn)**.
+- **Deterministic 1:1 Net Worth Tiebreaker**:
+  $$\text{Tiebreak Score} = (\text{Victory Points} \times 100{,}000) + (\text{Relic Turns Held} \times 1{,}000) + \text{Total Net Worth}$$
+  $$\text{Total Net Worth} = \text{Total Army Asset Value} + \text{Banked Gold}$$
+  Every 1 Gold in treasury equals 1 tiebreak point; every 1 Gold in active soldiers equals 1 tiebreak point.
 
 ---
 
-## 🤖 Baseline Bots & Strategic Cycle
+## 🤖 Included Bots
 
-The engine ships with three baseline bots that form a rock-paper-scissors strategic dynamic:
-- **RusherBot** (`bots/rusher.py`): Floods cheap Raiders immediately down the shortest corridor, overwhelming tech openings before defenses assemble.
-- **TurtleBot** (`bots/turtle.py`): Rapidly anchors perimeter bastions with Guards, leveraging the +25% defense bonus and 2.0x counter multiplier to shatter early swarms.
-- **BalancedBot** (`bots/balanced.py`): Deploys Scouts to survey the map and assembles heavy Siege artillery to break Turtle fortifications from distance.
-
-```mermaid
-flowchart LR
-    Rusher[Rusher Bot] -->|Raider Swarm| Balanced[Balanced Bot]
-    Balanced -->|Siege Artillery| Turtle[Turtle Bot]
-    Turtle -->|Fortified Guards| Rusher
-```
+- **`bots/ctrl_alt_elite.py`**: **Champions League 2026 Champion**. Predictive combat simulation, binary search invasion sizing, and Bayesian counter-drafting.
+- **`bots/rusher.py`**: Aggressive baseline bot swarming cheap Raiders down corridors.
+- **`bots/turtle.py`**: Defensive baseline bot anchoring chokepoints with heavy Guards.
+- **`bots/balanced.py`**: Reconnaissance baseline deploying Scouts and teching into Siege artillery.
+- **`bots/starter_bot.py`**: Clean, documented reference template for building new bots.
 
 ---
 
 ## 🚀 Quick Start Guide
 
-### 1. Run Baseline Tournament Matrix
-Validate the strategic balance cycle across 50 matches (alternating sides):
-```bash
-python -m runner.tournament --rounds 25
-```
-
-### 2. Run a 1v1 Match
-Simulate a match between any two bots and export the replay JSON (supports baseline bots or custom `.py` scripts in `bots/`):
-```bash
-python -m runner.match --p1 rusher --p2 turtle --turns 120
-# Or using a custom bot script from bots/:
-python -m runner.match --p1 bot1.py --p2 rusher --turns 120
-```
-
-### 3. Launch Web Spectator Arena
+### 1. Launch Interactive Web Spectator Arena
 Start the local spectator server:
 ```bash
-python web/serve.py
-# OR
 python serve.py
 ```
 Open **`http://localhost:8000`** in any web browser to:
-- Select custom scripts from `bots/` (e.g. `bot1.py`) directly from the Player 1 & 2 dropdowns.
-- Click **"🔄 Refresh Bots"** to immediately detect new python files in `bots/`.
-- Inspect and tweak bot code in the **Bot Lab** tab.
-- Watch live replays with timeline scrubbing and speed controls ($0.5\times \dots 5\times$).
-- Toggle between **Omniscient Spectator Mode** and **Player 1/2 Fog-of-War Views**.
+- Watch live simulation runs between any bots.
+- Switch between **Cartoon Tower Defense**, **3D Isometric Arena**, and **2D Tactical Schematic** engines.
+- Load and replay match files from `replays/` with full scrubber and playback speed controls.
 
----
+### 2. Run a 1v1 CLI Match
+Simulate a head-to-head match between any two bots:
+```bash
+python -m runner.match --p1 bots/ctrl_alt_elite.py --p2 turtle --turns 120
+```
 
-## 👨‍💻 Writing a Custom Bot
+### 3. Run a Best-of-3 Series with Alternating Sides
+```bash
+python -m runner.match --p1 bots/ctrl_alt_elite.py --p2 balanced --bo3
+```
 
-Create a new bot in `bots/` inheriting from `BotBase` (see `bots/starter_bot.py`):
-```python
-from engine.models import UnitType, Order
-from engine.fog import BotObservation
-from bots.base import BotBase
-
-class MyBot(BotBase):
-    def act(self, obs: BotObservation) -> list[Order]:
-        orders = []
-        my_nodes = self.get_my_nodes(obs)
-        if not my_nodes:
-            return orders
-
-        # Train units
-        if obs.my_credits >= 10:
-            orders.append(self.train(my_nodes[0].id, UnitType.RAIDER, 1))
-
-        # Launch fleets
-        neutrals = self.get_neutral_nodes(obs)
-        if neutrals and my_nodes[0].units.get("raider", 0) >= 3:
-            path = self.get_path(obs, my_nodes[0].id, neutrals[0].id)
-            if len(path) >= 2:
-                orders.append(self.move(my_nodes[0].id, path[1], {UnitType.RAIDER: 2}))
-
-        return orders
+### 4. Run the Tournament Balance Matrix
+Benchmark the balance cycle across canonical archetypes:
+```bash
+python -m runner.tournament --rounds 10
 ```
 
 ---
 
-## 🏆 Collegiate Event: 32-Team Bracket Scaling
+## 👨‍💻 Building Your Own Bot
 
-For a 32-team single elimination event:
-1. **Match Structure**: Best-of-3 series with alternating starting sides (P1/P2) and a randomized neutral third map.
-2. **Execution Sandboxing**: `runner/match.py` enforces per-turn timeouts (e.g. 50ms) and isolates exceptions.
-3. **Audience Engagement**: Spectator mode provides omniscient commentary feeds, displaying fleet ambushes before bots detect them.
+1. Copy the starter template:
+   ```bash
+   cp bots/starter_bot.py bots/my_bot.py
+   ```
+2. Implement your decision logic inside `act(obs)`:
+   ```python
+   from nodewar import BotBase, BotObservation, Order, TrainOrder, MoveOrder, UnitType
 
+   class MyBot(BotBase):
+       def act(self, obs: BotObservation) -> list[Order]:
+           orders = []
+           my_nodes = self.get_my_nodes(obs)
+           if not my_nodes:
+               return orders
+
+           # Train units when affordable
+           if obs.my_credits >= 10:
+               orders.append(self.train(my_nodes[0].id, UnitType.RAIDER, 1))
+
+           # Dispatch mobilized squads
+           return orders
+   ```
+3. Validate your bot with the dry-run validator:
+   ```bash
+   python validate_bot.py bots/my_bot.py
+   ```
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License.

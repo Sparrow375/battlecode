@@ -1,8 +1,19 @@
-"""NGIT CTRL ALT ELITE | NODE WAR V7 predictive-defense prototype.
-
-Hybrid of the tested V4 and V5 policies. Uses only nodewar SDK + Python stdlib.
 """
-from nodewar import BotBase, UnitType, resolve_combat
+CTRL ALT ELITE | Champions League 2026 Winner
+============================================
+Author: Saketh Gottimukkula
+Status: Tournament Champion (Champions League 2026)
+
+Predictive-defense AI combining exact forward Lanchester combat simulation,
+binary-search force allocation, Bayesian opponent profiling, and dynamic supply management.
+"""
+from __future__ import annotations
+try:
+    from nodewar import BotBase, UnitType, resolve_combat
+except ImportError:
+    from engine.models import UnitType
+    from engine.combat import resolve_combat
+    from bots.base import BotBase
 
 R, G, S, C = UnitType.RAIDER, UnitType.GUARD, UnitType.SIEGE, UnitType.SCOUT
 TYPES = (R, G, S, C)

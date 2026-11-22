@@ -63,15 +63,15 @@ class TestWebServer(unittest.TestCase):
             self.assertIn("builtins", data)
             self.assertIn("custom_files", data)
             custom_filenames = [b["filename"] for b in data["custom_files"]]
-            self.assertIn("bot1.py", custom_filenames)
+            self.assertIn("ctrl_alt_elite.py", custom_filenames)
 
     def test_get_bot_source(self):
-        url = f"http://127.0.0.1:{self.test_port}/api/bot-source/bot1.py"
+        url = f"http://127.0.0.1:{self.test_port}/api/bot-source/ctrl_alt_elite.py"
         with urllib.request.urlopen(url) as response:
             self.assertEqual(response.status, 200)
             data = json.loads(response.read().decode("utf-8"))
-            self.assertEqual(data["filename"], "bot1.py")
-            self.assertIn("ApexNodeBot", data["source"])
+            self.assertEqual(data["filename"], "ctrl_alt_elite.py")
+            self.assertIn("CTRL ALT ELITE", data["source"])
 
     def test_get_setup_html(self):
         url = f"http://127.0.0.1:{self.test_port}/setup.html"
@@ -99,13 +99,13 @@ class TestWebServer(unittest.TestCase):
 
     def test_post_run_match_with_custom_file(self):
         url = f"http://127.0.0.1:{self.test_port}/api/run-match"
-        payload = json.dumps({"p1": "bot1.py", "p2": "turtle", "turns": 20}).encode("utf-8")
+        payload = json.dumps({"p1": "ctrl_alt_elite.py", "p2": "turtle", "turns": 20}).encode("utf-8")
         req = urllib.request.Request(url, data=payload, headers={"Content-Type": "application/json"})
         with urllib.request.urlopen(req) as response:
             self.assertEqual(response.status, 200)
             data = json.loads(response.read().decode("utf-8"))
             self.assertIn("metadata", data)
-            self.assertIn("bot1.py", data["metadata"]["p1_name"])
+            self.assertIn("ctrl_alt_elite.py", data["metadata"]["p1_name"])
             filename = data.get("filename")
 
         # Test encoded GET /api/replay/<filename>
