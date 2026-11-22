@@ -164,6 +164,10 @@ f:\Avaneesh\projects\battlecode\
     2. `starter_bot.py`
     3. `validate_bot.py`
   - Verified end-to-end extraction and dry-run validation in an isolated directory with zero dependencies. Ready for direct distribution to hackathon teams.
+- **Tournament Completion & Champion Evaluation**:
+  - Tournament concluded successfully. Champion: `NGIT_CTRL_ALT_ELITE` written by Saketh Gottimukkula.
+  - Pairwise tournament matrix evaluation showed `NGIT_CTRL_ALT_ELITE` scoring 90.0% win rate (9-1 across 10 matches), dominating all canonical baseline bots (`Rusher`, `Turtle`, `Balanced`) in ~20 turns, defeating `404_Team_Not_Found` in high-score tiebreaks on both sides, and trading close games with `team_cortexclash`.
+  - Architectural breakdown of the winning strategy: forward Lanchester combat simulation with LRU caching, binary search force sizing for minimal viable garrisons, Bayesian exponential moving average enemy mix tracking (`enemy_mix`), dynamic counter-recruitment weighting, Scout capture-freeze edge case handling, and mathematical tiebreaker projection.
 - **Starter Kit, Local Simulator & Tournament Rule Alignment Overhaul (Release 4.0)**:
   - **Standalone Competitor SDK & Local Simulator (`nodewar.py`)**:
     - Created single, zero-dependency `nodewar.py` module providing protocol types (`UnitType`, `Order`, `TrainOrder`, `MoveOrder`, `VisibleNode`, `VisibleFleet`, `BotObservation`), `BotBase` with cached pathfinding/distance algorithms, Lanchester combat simulation helpers, and a complete `LocalSimulator` engine.
